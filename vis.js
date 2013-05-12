@@ -110,7 +110,7 @@ Chart = function(){
 	//data settings
 	currentYearDataColumn   : 'budget_1',
 	previousYearDataColumn  : 'budget_0',
-	data                    : budget_array_data,
+	data                    : budget_array_data["2012.net_allocated/2012.net_used"],
 	categoryPositionLookup  : {},
 	categoriesList          : [],
 	
@@ -165,8 +165,8 @@ Chart = function(){
 	    	    y:Math.random() * 1000
 	    	}
 	    	// if (n.positions.total) {
-	    	//     //out.x = n.positions.total.x + (n.positions.total.x - (that.width / 2)) * 0.5;
-	    	//     //out.y = n.positions.total.y + (n.positions.total.y - (150)) * 0.5;
+	    	//     out.x = n.positions.total.x + (n.positions.total.x - (that.width / 2)) * 0.5;
+	    	//     out.y = n.positions.total.y + (n.positions.total.y - (150)) * 0.5;
 	    	// };
 	    	if ((n[this.currentYearDataColumn] > 0)!==(n[this.previousYearDataColumn] > 0)) {
 	    	    out.change = "N.A.";
@@ -210,7 +210,7 @@ Chart = function(){
 
 		    //d3.select("#tooltip .discretion").text(that.discretionFormat(d.discretion))
 		    d3.select("#tooltip .department").text(d.group)
-		    d3.select("#tooltip .value").html("$"+that.bigFormat(d.value))
+		    d3.select("#tooltip .value").html(that.bigFormat(d.value)+" \u20aa")
 		    
 		    var pctchngout = that.pctFormat(d.change)
 		    if (d.change == "N.A.") {

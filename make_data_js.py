@@ -29,26 +29,36 @@ INFLATION = {1992: 2.338071159424868,
  2014: 1.0,
 }
 
+generated_diffs = [ "2011.net_allocated/2011.net_used",
+                    "2012.net_allocated/2012.net_used",
+                    "2012.net_allocated/2012.net_used/income",
+                    "2011.net_allocated/2012.net_allocated",
+                    "2011.net_used/2012.net_used",
+                    "2012.net_allocated/2013.net_allocated",
+                    "2012.net_allocated/2014.net_allocated",
+                    "2013.net_allocated/2014.net_allocated" ]
+                    
+
 allowed_changes = ["0016","0014","0011","0036","0019","0027","0067",
                    "0025","0053","0052","0068","0001","0040","0041",
                    "0030","0079","0076","0078","0038","0045"]
 
 dive_in = ["0084", "0045", "0020", "0012", "0007", "0079", "9001", "9014", "9083" ]
 
-maincodes = {}
-subsums = {}
-totals = [0,0]
+allout = {}
+for diff in generated_diffs:
 
-incomes = False
-relative = True
-
-if __name__=="__main__":
+    maincodes = {}
+    subsums = {}
+    totals = [0,0]
+    relative = False
     
-    years = [0,0]
-    fields = [0,0]
-    years[0], fields[0], years[1], fields[1] = sys.argv[1:]
+    parts = diff.split('/')
+    years = [ int(p.split('.')[0]) for p in parts[:2] ]
+    fields = [ p.split('.')[1] for p in parts[:2] ]
+    incomes = parts[2:3] == ['income']
+
     print "%s.%s vs. %s.%s" % (years[0],fields[0],years[1],fields[1])
-    years = [ int(x) for x in years ]
 
     for j in file("master.json"):
         j = json.loads(j)
@@ -60,6 +70,8 @@ if __name__=="__main__":
         maincode = code[:4]
         for i in range(2):
             if j['year'] == years[i]:
+                if j.get(fields[i],-1) < 0: continue
+                if j.get('title','') == '': continue
                 if len(code) == 2:
                     totals[i] = j[fields[i]]*INFLATION[years[i]]
                     continue
@@ -73,8 +85,6 @@ if __name__=="__main__":
                     if sc == None:
                         sc = {'id':int(code)}
                     sc.setdefault('titles',[u'X',u'X'])
-                    if j.get(fields[i],-1) < 0: continue
-                    if j.get('title','') == '': continue
                     sc['budget_%s' % i] = j[fields[i]]*INFLATION[years[i]]+0.0001
                     sc['titles'][i] = j['title']
                     if code == maincode:
@@ -82,42 +92,38 @@ if __name__=="__main__":
                     if code not in dive_in:
                         subsums[maincode][code] = sc
 
-out = []
-for maincode,maincode_budgets in subsums.iteritems():
-    maincode_budgets = dict([(k,v) for k,v in maincode_budgets.iteritems() if 'X' not in v['titles']])
-    if maincode_budgets:
-        toiter = maincode_budgets.iteritems()  
-    elif maincode in maincodes:
-        toiter = [(maincode,maincodes[maincode])]
-    else:
-        toiter = []
-    for code,budgets in toiter:
-        if budgets['titles'][0] != budgets['titles'][1]:
-            print "???",code,budgets['titles'][0]
-            print "???",code,budgets['titles'][1]
-            lratio = Levenshtein.ratio(budgets['titles'][0], budgets['titles'][1])
-            print lratio
-            if code not in allowed_changes and lratio < 0.5:
-                for title in budgets['titles']:
-                    print "!!! ",code,title
-                continue
-            else:
-                print "OK"
-        if not (('budget_0' in budgets) and ('budget_1' in budgets)):
-            for title in budgets['titles']:
-                print "### ",code,title
-            print "###", budgets
-            continue
-        budgets['name']=budgets['titles'][1] + (" (%s)" % code)
-        budgets['department']=maincodes[maincode]['titles'][1] + (" %s" % maincode if maincode!=code else "")
-        del budgets['titles']
-        if relative:
-            budgets['change'] = budgets['budget_1']/totals[1] - budgets['budget_0']/totals[0]
+    out = []
+    for maincode,maincode_budgets in subsums.iteritems():
+        maincode_budgets = dict([(k,v) for k,v in maincode_budgets.iteritems() if 'X' not in v['titles']])
+        if maincode_budgets:
+            toiter = maincode_budgets.iteritems()  
+        elif maincode in maincodes:
+            toiter = [(maincode,maincodes[maincode])]
         else:
-            budgets['change'] = budgets['budget_1']/budgets['budget_0'] - 1
-        out.append(budgets)
-
-file('data.js','w').write('budget_array_data = %s;\n' % json.dumps(out))
+            toiter = []
+        for code,budgets in toiter:
+            if budgets['titles'][0] != budgets['titles'][1]:
+                lratio = Levenshtein.ratio(budgets['titles'][0], budgets['titles'][1])
+                print lratio
+                if code not in allowed_changes and lratio < 0.5:
+                    for title in budgets['titles']:
+                        print "!!! ",code,title
+                    continue
+            if not (('budget_0' in budgets) and ('budget_1' in budgets)):
+                for title in budgets['titles']:
+                    print "###",code,title,
+                print "###", budgets
+                continue
+            budgets['name']=budgets['titles'][1] + (" (%s)" % code)
+            budgets['department']=maincodes[maincode]['titles'][1] + (" %s" % maincode if maincode!=code else "")
+            del budgets['titles']
+            if relative:
+                budgets['change'] = budgets['budget_1']/totals[1] - budgets['budget_0']/totals[0]
+            else:
+                budgets['change'] = budgets['budget_1']/budgets['budget_0'] - 1
+            out.append(budgets)
+    allout[diff] = out
+file('data.js','w').write('budget_array_data = %s;\n' % json.dumps(allout))
 
             
 
