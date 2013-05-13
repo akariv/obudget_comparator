@@ -45,7 +45,7 @@ formatNumber = function(n,decimals) {
     }
 };
 
-Chart = function(){
+Chart = function(fieldname){
     return {
 	$ : jQuery,
 	//defaults
@@ -110,7 +110,7 @@ Chart = function(){
 	//data settings
 	currentYearDataColumn   : 'budget_1',
 	previousYearDataColumn  : 'budget_0',
-	data                    : budget_array_data["2012.net_allocated/2012.net_used"],
+	data                    : budget_array_data[fieldname],
 	categoryPositionLookup  : {},
 	categoriesList          : [],
 	
@@ -185,6 +185,7 @@ Chart = function(){
 	    	}
 	    };
 	    
+	    d3.select("#chartCanvas").html("");
 	    this.svg = d3.select("#chartCanvas").append("svg:svg")
 	    	.attr("width", this.width);
 	    
@@ -325,9 +326,8 @@ Chart = function(){
     }
 };
 
-ready = function() {
-    var that = this;
-    c = new Chart();
+updateChart = function(fieldname) {
+    c = new Chart(fieldname);
     c.init();
     c.start();
     
@@ -337,12 +337,19 @@ ready = function() {
     this.currentOverlay = $("#totalOverlay");
     this.currentOverlay.delay(300).fadeIn(500);
     $("#chartFrame").css({'height':550});   
-    
+}
+
+ready = function() {
+    $(".button-selector").click( function() { 
+	console.log($(this).attr("data-field"));
+	$("#what").html($(this).html());
+	updateChart($(this).attr("data-field")); 
+    } );
+    $(".button-selector:first").click();
 }
 
 if (!!document.createElementNS && !!document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect){
     $(document).ready($.proxy(ready, this));
-
 } else {
     $("#chartFrame").hide();
 }

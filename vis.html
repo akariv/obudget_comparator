@@ -132,8 +132,23 @@
   </head>
   <body>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.3.3/less.min.js" type="text/javascript"></script>
-    <div id="chartFrame">
-      <div id="chartCanvas">
+    <div class="row">
+      <div class="span9">
+	<p id="what"></p>
+	<div id="chartFrame">
+	  <div id="chartCanvas">
+	  </div>
+	</div>
+      </div>     
+      <div class="span3" style="float:right">
+	<a class="btn button-selector" data-field="2011.net_allocated/2011.net_used">2011 תכנון מול ביצוע</a>
+	<a class="btn button-selector" data-field="2012.net_allocated/2012.net_used">2012 תכנון מול ביצוע</a>
+	<a class="btn button-selector" data-field="2012.net_allocated/2012.net_used/income">הכנסות 2012 - תכנון מול ביצוע</a>
+	<a class="btn button-selector" data-field="2011.net_allocated/2012.net_allocated">תכנון 2011 מול 2012</a>
+	<a class="btn button-selector" data-field="2011.net_used/2012.net_used">ביצוע 2011 מול 2012</a>
+	<a class="btn button-selector" data-field="2012.net_allocated/2013.net_allocated">תכנון 2012 מול 2013</a>
+	<a class="btn button-selector" data-field="2012.net_allocated/2014.net_allocated">תכנון 2012 מול 2014</a>
+	<a class="btn button-selector" data-field="2013.net_allocated/2014.net_allocated">תכנון 2013 מול 2014</a> 
       </div>
     </div>
     <div id="tooltip">

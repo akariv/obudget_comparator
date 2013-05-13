@@ -63,7 +63,8 @@ for diff in generated_diffs:
     for j in file("master.json"):
         j = json.loads(j)
         code = j['code']
-        if not incomes and  code.startswith("0000"): continue
+        if not incomes and code.startswith("0000"): continue
+        if incomes and not code.startswith("0000"): continue
         if incomes:
             code = code[2:]
             code = "9" + code[1:]
