@@ -316,7 +316,7 @@ Chart = function(fieldname){
 		
 		
 		var targetY = that.centerY - (d.changeCategory / 3) * that.boundingRadius
-		d.y = d.y + (targetY - d.y) * (that.defaultGravity) * alpha * alpha * alpha * 100
+		d.y = d.y + (targetY - d.y) * (that.defaultGravity) * alpha * alpha * alpha * 500
 		
 		
 		
