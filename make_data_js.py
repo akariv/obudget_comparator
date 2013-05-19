@@ -45,6 +45,8 @@ allowed_changes = ["0016","0014","0011","0036","0019","0027","0067",
 
 dive_in = ["0084", "0045", "0020", "0012", "0007", "0079", "9001", "9014", "9083" ]
 
+skip = ["0094", "0089", "0095", "0098"]
+
 allout = {}
 for diff in generated_diffs:
 
@@ -63,6 +65,7 @@ for diff in generated_diffs:
     for j in file("master.json"):
         j = json.loads(j)
         code = j['code']
+        if code[:4] in skip: continue
         if not incomes and code.startswith("0000"): continue
         if incomes and not code.startswith("0000"): continue
         if incomes:
