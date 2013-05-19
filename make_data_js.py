@@ -89,7 +89,7 @@ for diff in generated_diffs:
                     if sc == None:
                         sc = {'id':int(code)}
                     sc.setdefault('titles',[u'X',u'X'])
-                    sc['budget_%s' % i] = j[fields[i]]*INFLATION[years[i]]+0.0001
+                    sc['budget_%s' % i] = j[fields[i]]*INFLATION[years[i]]
                     sc['titles'][i] = j['title']
                     if code == maincode:
                         maincodes[code] = sc
@@ -124,7 +124,10 @@ for diff in generated_diffs:
             if relative:
                 budgets['change'] = budgets['budget_1']/totals[1] - budgets['budget_0']/totals[0]
             else:
-                budgets['change'] = budgets['budget_1']/budgets['budget_0'] - 1
+		if budgets['budget_0'] > 0:
+	                budgets['change'] = budgets['budget_1']/budgets['budget_0'] - 1
+		else:
+	                budgets['change'] = 1
             out.append(budgets)
     allout[diff] = out
 file('data.js','w').write('budget_array_data = %s;\n' % json.dumps(allout))
