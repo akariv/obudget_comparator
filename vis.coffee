@@ -143,8 +143,8 @@ class BubbleChart extends Backbone.View
                         if out == null
                                 out =
                                         sid             : "xxx"+n.id,
-                                        x               : Math.random() * 1000
-                                        y               : Math.random() * 1000
+                                        x               : @centerX-80+Math.random() * 160
+                                        y               : @centerY-80+Math.random() * 160
 
                         out.radius = @radiusScale(n[@currentYearDataColumn])
                         out.group = n.department
@@ -209,11 +209,13 @@ class BubbleChart extends Backbone.View
                                 d3.select("#tooltip").style('display','none')
                                 )
 
-                @circle.exit().remove()
                 @circle.transition().duration(1000)
                         .attr("r", (d) -> d.radius )
                         .style("fill", (d) => @getFillColor(d) )
                         .style("stroke", (d) => @getStrokeColor(d) )
+                @circle.exit().transition().duration(1000)
+                        .attr("r", (d) -> 0)
+                        .remove()
 
                 console.log "here4"
                 if @force != null
