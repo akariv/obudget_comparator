@@ -124,10 +124,12 @@ for diff in generated_diffs:
             if relative:
                 budgets['change'] = budgets['budget_1']/totals[1] - budgets['budget_0']/totals[0]
             else:
+		print code, budgets['budget_1'],'/',budgets['budget_0'], budgets['budget_0'] > 0,
 		if budgets['budget_0'] > 0:
 	                budgets['change'] = budgets['budget_1']/budgets['budget_0'] - 1
 		else:
-	                budgets['change'] = 1
+	                budgets['change'] = 1.0
+		print budgets['change']
             out.append(budgets)
     allout[diff] = out
 file('data.js','w').write('budget_array_data = %s;\n' % json.dumps(allout))
