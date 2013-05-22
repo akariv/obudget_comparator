@@ -37,10 +37,38 @@ formatNumber = (n,decimals) ->
 
 class CompareData extends Backbone.Model
         defaults:
-                data: "moshe"
+                data: []
+                field: ""
         initialize: ->
-                console.log('blabla', @get 'data')
-                @on 'change:data', () -> console.log('blabla', @get 'data')
+                @on 'change:field', () ->
+                        field = @get 'field'
+                        console.log('setting field ' + field)
+                        @set 'data', budget_array_data[field]
+
+class FieldSelector extends Backbone.View
+        initialize: (@options) ->
+                _.bindAll @
+                @selections = @options.selections
+                @render()
+
+        render: () ->
+                console.log "FieldSelector"
+                console.log @el
+                $(@el).html """
+                        <div class="btn-toolbar">
+                          <div class="btn-group" data-toggle="buttons-radio">
+                          </div>
+                        </div>
+                        """
+                for select in @selections
+                        @$(".btn-group").append """<a class="btn" href="#" data-field="#{select.value}">#{select.name}</a>"""
+
+        select: () ->
+                @$(".btn:first").click()
+                        
+        events:
+                "click .btn": (e) -> @model.set 'field',  $(e.currentTarget).attr('data-field')                
+                
 
 class BubbleChart extends Backbone.View
         initialize: (@options) ->
@@ -133,7 +161,7 @@ class BubbleChart extends Backbone.View
                 oldNodes = @nodes
                 @nodes = []
 
-                                # Builds the nodes data array from the original data
+                # Builds the nodes data array from the original data
                 for n in @model.get 'data'
                         out = null
                         sid = "xxx"+n.id
@@ -251,23 +279,46 @@ class BubbleChart extends Backbone.View
 	#     });
 	#     return JSON.stringify(circlePositions)
 	# },
-		
+
+createFrame = (id, selections) ->
+        compareData = new CompareData
+        bubbleChart = new BubbleChart
+                el: $("#"+id+" .chart")
+                model: compareData
+        selector = new FieldSelector
+                el: $("#"+id+" .selector")
+                model: compareData
+                selections: selections
+        selector.select()
 
 if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
         $( ->
-                compareData = new CompareData
-                bubbleChart = new BubbleChart
-                        el: $("#chartFrame")
-                        model: compareData
-
-                console.log "here"
-                $(".button-selector").click( ->
-                        console.log "clicked! "+$(@).attr("data-field")
-                        $("#what").html $(@).html()
-                        compareData.set 'data', budget_array_data[$(@).attr("data-field")]
+                $("#charts").carousel( interval: false)
+                createFrame( "TBFrame"
+                            ,
+                             [  { name: "2011", value: "2011.net_allocated/2011.net_used" },
+                                { name: "2012", value: "2012.net_allocated/2012.net_used" }  ]
                 )
-                console.log "here2"
-                $(".button-selector:first").click()
+                createFrame( "TBHFrame"
+                            ,
+                             [  { name: "2011", value: "2011.net_allocated/2011.net_used/income" },
+                                { name: "2012", value: "2012.net_allocated/2012.net_used/income" }  ]
+                )
+                createFrame( "TTFrame"
+                            ,
+                             [  { name: "2011/2012", value: "2011.net_allocated/2012.net_allocated" },
+                                { name: "2012/2013", value: "2012.net_allocated/2013.net_allocated" },
+                                { name: "2012/2014", value: "2012.net_allocated/2014.net_allocated" },
+                                { name: "2013/2014", value: "2013.net_allocated/2014.net_allocated" }   ]
+                )
+                createFrame( "BBFrame"
+                            ,
+                             [  { name: "2011", value: "2011.net_used/2012.net_used" } ]
+                )
+                createFrame( "BBHFrame"
+                            ,
+                             [  { name: "2011", value: "2011.net_used/2012.net_used/income" } ]
+                )
         )
 else
-        $("#chartFrame").hide()
+        $("#charts").hide()

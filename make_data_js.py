@@ -31,9 +31,11 @@ INFLATION = {1992: 2.338071159424868,
 
 generated_diffs = [ "2011.net_allocated/2011.net_used",
                     "2012.net_allocated/2012.net_used",
+                    "2011.net_allocated/2011.net_used/income",
                     "2012.net_allocated/2012.net_used/income",
-                    "2011.net_allocated/2012.net_allocated",
                     "2011.net_used/2012.net_used",
+                    "2011.net_used/2012.net_used/income",
+                    "2011.net_allocated/2012.net_allocated",
                     "2012.net_allocated/2013.net_allocated",
                     "2012.net_allocated/2014.net_allocated",
                     "2013.net_allocated/2014.net_allocated" ]

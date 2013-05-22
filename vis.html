@@ -1,16 +1,14 @@
 <!DOCTYPE html>
-<html lang="he">
+<html>
   <head>
     <meta charset="utf-8">
     <title>השווה את התקציב</title>
     <meta property="fb:admins" content="100000025217694" />
     <link href="http://netdna.bootstrapcdn.com/bootswatch/2.3.0/spacelab/bootstrap.min.css" rel="stylesheet">
     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
-    <link href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" rel="stylesheet">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <style type='text/less'>
       body { 
-	  direction: rtl; 
 	  font-family: Alef, Arial, sans-serif; 
       }
       
@@ -25,29 +23,23 @@
 	  font-style: normal;
       }
 
-      #chartFrame {
+      .chartContainer {
 	  width: 970px;
 	  height: 550px;
 	  -webkit-transition: height ease-in-out 1s;  
 	  -moz-transition: height ease-in-out 1s;    
 	  -o-transition: height ease-in-out 1s;    
 	  -ms-transition: height ease-in-out 1s;        
-	  position: absolute;
-	  top: 0;
-	  left: 0;
       }
 
-      #chartCanvas {
-	  position: absolute;
-	  top: 0;
-	  left: 0;
+      .chart {
 	  z-index: 10;
 	  width: 100%;
 	  height: 100%;
 	  overflow: hidden;
 	  
       }
-      #chartCanvas svg {
+      .chart svg {
 	  height: 100%;
 	  overflow: hidden;
       }
@@ -145,24 +137,54 @@
   <body>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.3.3/less.min.js" type="text/javascript"></script>
     <div class="row">
-      <div class="span9">
-	<p id="what"></p>
-	<div id="chartFrame">
-	  <div id="chartCanvas">
+      <div class="span12">
+	<div id="charts" class="carousel slide" style="height:600px">
+	  <ol class="carousel-indicators">
+	    <li data-target="#charts" data-slide-to="0" class="active"></li>
+	    <li data-target="#charts" data-slide-to="1"></li>
+	    <li data-target="#charts" data-slide-to="2"></li>
+	    <li data-target="#charts" data-slide-to="3"></li>
+	    <li data-target="#charts" data-slide-to="4"></li>
+	  </ol>
+	  <!-- Carousel items -->
+	  <div class="carousel-inner">
+	    <div id="TBFrame" class="active item span12">
+	      <h1>תכנון מול ביצוע: הוצאות</h1>
+	      <div class="selector"></div>
+	      <div class="chartContainer"><div class="chart"></div></div>
+	    </div>
+	    <div id="TBHFrame" class="item span12">
+	      <h1>תכנון מול ביצוע: הכנסות</h1>
+	      <div class="selector"></div>
+	      <div class="chartContainer"><div class="chart"></div></div>
+	    </div>
+	    <div id="TTFrame" class="item span12">
+	      <h1>תכנון מול תכנון</h1>
+	      <div class="selector"></div>
+	      <div class="chartContainer"><div class="chart"></div></div>
+	    </div>
+	    <div id="BBFrame" class="item span12">
+	      <h1>ביצוע מול ביצוע: הוצאות</h1>
+	      <div class="selector"></div>
+	      <div class="chartContainer"><div class="chart"></div></div>
+	    </div>
+	    <div id="BBHFrame" class="item span12">
+	      <h1>ביצוע מול ביצוע: הכנסות</h1>
+	      <div class="selector"></div>
+	      <div class="chartContainer"><div class="chart"></div></div>
+	    </div>
 	  </div>
+	  <!-- Carousel nav -->
+	  <a class="carousel-control right" href="#charts" data-slide="next">&rsaquo;</a>
+	  <a class="carousel-control left" href="#charts" data-slide="prev">&lsaquo;</a>
 	</div>
       </div>     
-      <div class="span3" style="float:right">
-	<a class="btn button-selector" data-field="2011.net_allocated/2011.net_used">2011 תכנון מול ביצוע</a>
-	<a class="btn button-selector" data-field="2012.net_allocated/2012.net_used">2012 תכנון מול ביצוע</a>
+      <!--div class="span3" style="float:right">
+        <div id="selector"></div>
 	<a class="btn button-selector" data-field="2012.net_allocated/2012.net_used/income">הכנסות 2012 - תכנון מול ביצוע</a>
-	<a class="btn button-selector" data-field="2011.net_allocated/2012.net_allocated">תכנון 2011 מול 2012</a>
 	<a class="btn button-selector" data-field="2011.net_used/2012.net_used">ביצוע 2011 מול 2012</a>
-	<a class="btn button-selector" data-field="2012.net_allocated/2013.net_allocated">תכנון 2012 מול 2013</a>
-	<a class="btn button-selector" data-field="2012.net_allocated/2014.net_allocated">תכנון 2012 מול 2014</a>
-	<a class="btn button-selector" data-field="2013.net_allocated/2014.net_allocated">תכנון 2013 מול 2014</a> 
       </div>
-    </div>
+    </div-->
     <div id="tooltip">
       <div id="tooltipContainer">
 	<div class="department"></div>
