@@ -294,23 +294,7 @@ if document.createElementNS? and document.createElementNS('http://www.w3.org/200
                 $("#charts").carousel( interval: false)
                 createFrame( "TBFrame" )
                 createFrame( "TTFrame" )
-                #                createFrame( "TTFrame"
-                #                            ,
-                #                             { "options":  [ "YEAR", [ ["2011","2011"], ["2012","2012"] ] ],
-                #                               "template"  :  "YEAR.net_allocated/YEAR.net_used/income" }
-                #                             [  { name: "2011/2012", value: "2011.net_allocated/2012.net_allocated" },
-                #                                { name: "2012/2013", value: "2012.net_allocated/2013.net_allocated" },
-                #                                { name: "2012/2014", value: "2012.net_allocated/2014.net_allocated" },
-                #                                { name: "2013/2014", value: "2013.net_allocated/2014.net_allocated" }   ]
-                #                )
-                #                createFrame( "BBFrame"
-                #                            ,
-                #                             [  { name: "2011", value: "2011.net_used/2012.net_used" } ]
-                #                )
-                #                createFrame( "BBHFrame"
-                #                            ,
-                #                             [  { name: "2011", value: "2011.net_used/2012.net_used/income" } ]
-                #                )
+                createFrame( "BBFrame" )
                 )
 else
         $("#charts").hide()
