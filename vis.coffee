@@ -42,32 +42,39 @@ class CompareData extends Backbone.Model
         initialize: ->
                 @on 'change:field', () ->
                         field = @get 'field'
-                        console.log('setting field ' + field)
-                        @set 'data', budget_array_data[field]
+                        data = budget_array_data[field]
+                        if data
+                                console.log('setting field ' + field)
+                                @set 'data', budget_array_data[field]
+                        else
+                                console.log('field '+field+' is '+data)
 
 class FieldSelector extends Backbone.View
         initialize: (@options) ->
                 _.bindAll @
-                @selections = @options.selections
-                @render()
+                @template = $(@el).attr('data-template')
 
         render: () ->
-                console.log "FieldSelector"
-                console.log @el
-                $(@el).html """
-                        <div class="btn-toolbar">
-                          <div class="btn-group" data-toggle="buttons-radio">
-                          </div>
-                        </div>
-                        """
-                for select in @selections
-                        @$(".btn-group").append """<a class="btn" href="#" data-field="#{select.value}">#{select.name}</a>"""
 
         select: () ->
-                @$(".btn:first").click()
+                @$(".btn").click()
                         
         events:
-                "click .btn": (e) -> @model.set 'field',  $(e.currentTarget).attr('data-field')                
+                "click .btn": (e) ->
+                        template = @template
+                        await setTimeout((defer _), 10)
+                        @$(".btn-toolbar").each((idx) ->
+                                el = $(@)
+                                for i in ["1","2"]
+                                        field = el.attr("data-field"+i)
+                                        value = el.find(".btn.active:first").attr("data-value"+i)
+                                        if not value
+                                                value = ""
+                                        if field 
+                                                console.log field,"-->",value
+                                                template = template.replace(new RegExp(field, 'g'),value)
+                        )
+                        @model.set 'field',  template
                 
 
 class BubbleChart extends Backbone.View
@@ -156,8 +163,6 @@ class BubbleChart extends Backbone.View
                 console.log "init done"
         
         updateData: () ->
-                console.log "updateData ",@model.get 'data'
-
                 oldNodes = @nodes
                 @nodes = []
 
@@ -199,8 +204,6 @@ class BubbleChart extends Backbone.View
                 @render()
 
         render: () ->
-                console.log "rendering ",@model.get 'data'
-                	    
                 @circle = @svg.selectAll("circle")
                               .data(@nodes, (d) -> d.sid );
 
@@ -226,11 +229,9 @@ class BubbleChart extends Backbone.View
                                 d3.select("#tooltip .value").html(that.bigFormat(d.value)+" \u20aa")
                                 
                                 pctchngout = if (d.change == "N.A.") then "N.A" else that.pctFormat(d.change)
-                                console.log "pctchngout",pctchngout
                                 d3.select("#tooltip .change").html(pctchngout)
                                 )
                         .on("mouseout", (d,i) ->
-                                console.log "mouseout",d.sid
                                 d3.select(@)
                                         .style("stroke-width",1)
                                         .style("stroke", (d) -> that.getStrokeColor(d) )
@@ -245,7 +246,6 @@ class BubbleChart extends Backbone.View
                         .attr("r", (d) -> 0)
                         .remove()
 
-                console.log "here4"
                 if @force != null
                         @force.stop()
                 @force = d3.layout
@@ -263,7 +263,6 @@ class BubbleChart extends Backbone.View
                                         )
                 		.start()
                 #@circle.call(@force.drag)
-                console.log "here5"
 
 	# getCirclePositions: function(){
 	#     var that = this
@@ -280,7 +279,7 @@ class BubbleChart extends Backbone.View
 	#     return JSON.stringify(circlePositions)
 	# },
 
-createFrame = (id, selections) ->
+createFrame = (id) ->
         compareData = new CompareData
         bubbleChart = new BubbleChart
                 el: $("#"+id+" .chart")
@@ -288,37 +287,30 @@ createFrame = (id, selections) ->
         selector = new FieldSelector
                 el: $("#"+id+" .selector")
                 model: compareData
-                selections: selections
         selector.select()
 
 if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
         $( ->
                 $("#charts").carousel( interval: false)
-                createFrame( "TBFrame"
-                            ,
-                             [  { name: "2011", value: "2011.net_allocated/2011.net_used" },
-                                { name: "2012", value: "2012.net_allocated/2012.net_used" }  ]
+                createFrame( "TBFrame" )
+                createFrame( "TTFrame" )
+                #                createFrame( "TTFrame"
+                #                            ,
+                #                             { "options":  [ "YEAR", [ ["2011","2011"], ["2012","2012"] ] ],
+                #                               "template"  :  "YEAR.net_allocated/YEAR.net_used/income" }
+                #                             [  { name: "2011/2012", value: "2011.net_allocated/2012.net_allocated" },
+                #                                { name: "2012/2013", value: "2012.net_allocated/2013.net_allocated" },
+                #                                { name: "2012/2014", value: "2012.net_allocated/2014.net_allocated" },
+                #                                { name: "2013/2014", value: "2013.net_allocated/2014.net_allocated" }   ]
+                #                )
+                #                createFrame( "BBFrame"
+                #                            ,
+                #                             [  { name: "2011", value: "2011.net_used/2012.net_used" } ]
+                #                )
+                #                createFrame( "BBHFrame"
+                #                            ,
+                #                             [  { name: "2011", value: "2011.net_used/2012.net_used/income" } ]
+                #                )
                 )
-                createFrame( "TBHFrame"
-                            ,
-                             [  { name: "2011", value: "2011.net_allocated/2011.net_used/income" },
-                                { name: "2012", value: "2012.net_allocated/2012.net_used/income" }  ]
-                )
-                createFrame( "TTFrame"
-                            ,
-                             [  { name: "2011/2012", value: "2011.net_allocated/2012.net_allocated" },
-                                { name: "2012/2013", value: "2012.net_allocated/2013.net_allocated" },
-                                { name: "2012/2014", value: "2012.net_allocated/2014.net_allocated" },
-                                { name: "2013/2014", value: "2013.net_allocated/2014.net_allocated" }   ]
-                )
-                createFrame( "BBFrame"
-                            ,
-                             [  { name: "2011", value: "2011.net_used/2012.net_used" } ]
-                )
-                createFrame( "BBHFrame"
-                            ,
-                             [  { name: "2011", value: "2011.net_used/2012.net_used/income" } ]
-                )
-        )
 else
         $("#charts").hide()

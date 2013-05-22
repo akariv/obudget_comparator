@@ -29,16 +29,20 @@ INFLATION = {1992: 2.338071159424868,
  2014: 1.0,
 }
 
-generated_diffs = [ "2011.net_allocated/2011.net_used",
-                    "2012.net_allocated/2012.net_used",
+generated_diffs = [ "2011.net_allocated/2011.net_used/spending",
+                    "2012.net_allocated/2012.net_used/spending",
                     "2011.net_allocated/2011.net_used/income",
                     "2012.net_allocated/2012.net_used/income",
-                    "2011.net_used/2012.net_used",
+                    "2011.net_used/2012.net_used/spending",
                     "2011.net_used/2012.net_used/income",
-                    "2011.net_allocated/2012.net_allocated",
-                    "2012.net_allocated/2013.net_allocated",
-                    "2012.net_allocated/2014.net_allocated",
-                    "2013.net_allocated/2014.net_allocated" ]
+                    "2011.net_allocated/2012.net_allocated/spending",
+                    "2012.net_allocated/2013.net_allocated/spending",
+                    "2012.net_allocated/2014.net_allocated/spending",
+                    "2013.net_allocated/2014.net_allocated/spending",
+                    "2011.net_allocated/2012.net_allocated/income",
+                    "2012.net_allocated/2013.net_allocated/income",
+                    "2012.net_allocated/2014.net_allocated/income",
+                    "2013.net_allocated/2014.net_allocated/income", ]
                     
 
 allowed_changes = ["0016","0014","0011","0036","0019","0027","0067",
@@ -60,7 +64,7 @@ for diff in generated_diffs:
     parts = diff.split('/')
     years = [ int(p.split('.')[0]) for p in parts[:2] ]
     fields = [ p.split('.')[1] for p in parts[:2] ]
-    incomes = parts[2:3] == ['income']
+    incomes = parts[2] == 'income'
 
     print "%s.%s vs. %s.%s" % (years[0],fields[0],years[1],fields[1])
 
@@ -130,7 +134,9 @@ for diff in generated_diffs:
 		if budgets['budget_0'] > 0:
 	                budgets['change'] = budgets['budget_1']/budgets['budget_0'] - 1
 		else:
-	                budgets['change'] = 1.0
+                    if not budgets['budget_1'] > 0:
+                        continue
+                    budgets['change'] = 1.0
 		print budgets['change']
             out.append(budgets)
     allout[diff] = out
