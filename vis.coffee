@@ -84,7 +84,7 @@ class BubbleChart extends Backbone.View
                 console.log "BubbleChart:initialize", @model
                 
                 @width = 970
-                @height = 850
+                @height = 550
                 @groupPadding = 10
                 @totalValue = 400000000
         	        
@@ -129,8 +129,8 @@ class BubbleChart extends Backbone.View
                         return 3
                 @totalSort = (alpha) ->
                                 return (d) =>
-                                        targetY = @centerY
-                                        targetX = @width / 2
+                                        targetY = 0
+                                        targetX = 0
                                         if d.isNegative
                                                 if d.changeCategory > 0
                                                         d.x = -200
@@ -138,9 +138,9 @@ class BubbleChart extends Backbone.View
                                                         d.x = 1100
                                         d.y = d.y + (targetY - d.y) * (@defaultGravity + 0.02) * alpha
                                         d.x = d.x + (targetX - d.x) * (@defaultGravity + 0.02) * alpha
-                        @buoyancy = (alpha) ->
+                @buoyancy = (alpha) ->
                                 return (d) =>
-                                        targetY = @centerY - (d.changeCategory / 3) * @boundingRadius
+                                        targetY = - (d.changeCategory / 3) * @boundingRadius
                                         d.y = d.y + (targetY - d.y) * (@defaultGravity) * alpha * alpha * alpha * 500
                 # data settings
                 @currentYearDataColumn = 'budget_1'
@@ -150,7 +150,7 @@ class BubbleChart extends Backbone.View
                 @boundingRadius = @radiusScale(@totalValue)
                 @maxRadius = null
                 @centerX = @width / 2
-                @centerY = 300
+                @centerY = @height / 2
 
                 @model.bind 'change:data', @updateData
 
@@ -176,8 +176,8 @@ class BubbleChart extends Backbone.View
                         if out == null
                                 out =
                                         sid             : "xxx"+n.id,
-                                        x               : @centerX-80+Math.random() * 160
-                                        y               : @centerY-80+Math.random() * 160
+                                        x               : 80+Math.random() * 160
+                                        y               : 80+Math.random() * 160
 
                         out.radius = @radiusScale(n[@currentYearDataColumn])
                         out.group = n.department
@@ -203,6 +203,39 @@ class BubbleChart extends Backbone.View
 	    
                 @render()
 
+        showOverlay: (d,el) ->
+                x = Number(el.attr('cx'))
+                y = Number(el.attr('cy'))
+                target = "rotate(180,#{@centerX},#{@centerY})translate(#{@centerX-x*5},#{@centerY-y*5})scale(5)"
+                console.log "target:",target
+                @svg.selectAll("circle")
+                        .transition()
+                                .duration(1000)
+                                .attr("transform", target)
+                $("#overlay")
+                        .css("display","block")
+                        .css("opacity",0)
+                        .animate({opacity:0.9},1000)
+
+                $("#overlay #close").click @removeOverlay
+                $("#overlay .name").html "#{d.name}"
+                $("#overlay .department").html "#{d.group}"
+
+        removeOverlay: ->
+                target = "rotate(0,#{@centerX},#{@centerY})translate(#{@centerX},#{@centerY})scale(1)"
+                console.log "target:",target
+                @svg.selectAll("circle")
+                        .transition()
+                                .duration(1000)
+                                .attr("transform", target)
+                $("#overlay")
+                        .animate({opacity:0},1000, ->
+                                                   $("#overlay")
+                                                        .css("display","none")
+                                )
+
+                $("#overlay #close").off 'click'
+
         render: () ->
                 @circle = @svg.selectAll("circle")
                               .data(@nodes, (d) -> d.sid );
@@ -210,13 +243,21 @@ class BubbleChart extends Backbone.View
                 that = @
                 @circle.enter()
                         .append("svg:circle")
+                         .attr("transform","rotate(0,#{@centerX},#{@centerY})translate(#{@centerX},#{@centerY})scale(1)")
                         .style("stroke-width", 1)
                         .style("fill", (d) => @getFillColor(d) )
                         .style("stroke", (d) => @getStrokeColor(d) )
-                        .on("mouseover", (d,i) ->
+                        .on("click", (d,i) ->
                                 el = d3.select(@)
-                                xpos = Number(el.attr('cx'))
-                                ypos = (el.attr('cy') - d.radius - 10)
+                                that.showOverlay(d,el)
+                                )
+                        .on("mouseover", (d,i) ->
+                                console.log "mouseover"
+                                el = d3.select(@)
+                                svgPos = $(that.el).find("svg").position()
+                                xpos = Number(el.attr('cx'))+svgPos.left+that.centerX
+                                ypos = (el.attr('cy') - d.radius - 10)+svgPos.top+that.centerY
+                                console.log "tooltip ",xpos,ypos
                                 el.style("stroke","#000").style("stroke-width",3)
                                 d3.select("#tooltip")
                                         .style('top',ypos+"px")
@@ -227,9 +268,9 @@ class BubbleChart extends Backbone.View
                                 d3.select("#tooltip .name").html(that.nameFormat(d.name))
                                 d3.select("#tooltip .department").text(d.group)
                                 d3.select("#tooltip .value").html(that.bigFormat(d.value)+" \u20aa")
-                                
                                 pctchngout = if (d.change == "N.A.") then "N.A" else that.pctFormat(d.change)
                                 d3.select("#tooltip .change").html(pctchngout)
+                                console.log "mouseover out"
                                 )
                         .on("mouseout", (d,i) ->
                                 d3.select(@)

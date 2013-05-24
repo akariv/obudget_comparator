@@ -23,6 +23,10 @@
 	  font-style: normal;
       }
 
+      .name {
+          direction: rtl;
+      }
+
       .chartContainer {
 	  width: 970px;
 	  height: 550px;
@@ -33,22 +37,65 @@
       }
 
       .chart {
-	  z-index: 10;
+	  z-index: 2;
 	  width: 100%;
 	  height: 100%;
 	  overflow: hidden;
 	  
       }
+
       .chart svg {
 	  height: 100%;
 	  overflow: hidden;
       }
 
+      #overlay {
+          position: absolute;
+	  left: 0;
+	  top: 0;
+	  width: 100%;
+	  height: 100%;
+	  z-index: 4;
+	  background: #fff;
+          display:none;
+          opacity:1.0;
+
+	  #close {
+	      position:absolute;
+	      left:20px;
+	      top:20px;
+	      font-size: 30px;
+              width:40px;
+              height:40px;
+              text-align:center;
+              border-radius:20px;
+              background: #ccc;
+              pointer: cursor;
+              
+              p {
+                position:relative;
+                top:10px;
+              }
+	  }
+
+	  .header, .header h1,h2 {
+	      background: rgb(255,255,255);
+              opacity:1.0;
+	      margin-left: 50px;
+              text-align:left;
+              color: black;
+              display:block;
+              width:100%;
+              height:50px;
+              z-index:5
+	  }
+      }
+      
       #tooltipContainer {
 	  position: absolute;
 	  bottom: 0;
 	  width: 230px;
-	  right: -125px;
+	  right: -145px;
 	  font-size: 12px;
 	  line-height: 16px;
 	  padding: 10px;
@@ -63,7 +110,7 @@
 
       #tooltip {
 	  text-align:center;  
-	  z-index: 1000;
+	  z-index: 10;
 	  position: absolute;
 	  display: none;
       }
@@ -74,7 +121,7 @@
 	  right: 105px;
 	  width: 40px;
 	  height: 8px;
-	  background: url(http://graphics8.nytimes.com/packages/images/newsgraphics/2012/0202-federal-budget/tail_white.png) 50% 0%;
+	  background: url(images/tail_white.png) 50% 0%;
       }
       #tooltip .department {
 	  text-transform: uppercase;
@@ -149,7 +196,7 @@
 	  <!-- Carousel items -->
 	  <div class="carousel-inner">
 	    <div id="TBFrame" class="active item span12">
-	      <h1>תכנון מול ביצוע</h1>
+	      <h1 class="header">תכנון מול ביצוע</h1>
 	      <div class="selector" data-template="YEAR.net_allocated/YEAR.net_used/TYPE">
                 <div class="btn-toolbar span3" data-field1="YEAR">
                   <div class="btn-group" data-toggle="buttons-radio">
@@ -167,7 +214,7 @@
 	      <div class="chartContainer"><div class="chart"></div></div>
 	    </div>
 	    <div id="TTFrame" class="item span12">
-	      <h1>תכנון מול תכנון</h1>
+	      <h1 class="header">תכנון מול תכנון</h1>
 	      <div class="selector" data-template="YEAR1.net_allocated/YEAR2.net_allocated/TYPE">
                 <div class="btn-toolbar span5" data-field1="YEAR1" data-field2="YEAR2">
                   <div class="btn-group" data-toggle="buttons-radio">
@@ -187,7 +234,7 @@
 	      <div class="chartContainer"><div class="chart"></div></div>
 	    </div>
 	    <div id="BBFrame" class="item span12">
-	      <h1>ביצוע מול ביצוע</h1>
+	      <h1 class="header">ביצוע מול ביצוע</h1>
 	      <div class="selector" data-template="YEAR1.net_used/YEAR2.net_used/TYPE">
                 <div class="btn-toolbar span5" data-field1="YEAR1" data-field2="YEAR2">
                   <div class="btn-group" data-toggle="buttons-radio">
@@ -208,13 +255,15 @@
 	  <a class="carousel-control right" href="#charts" data-slide="next">&rsaquo;</a>
 	  <a class="carousel-control left" href="#charts" data-slide="prev">&lsaquo;</a>
 	</div>
-      </div>     
-      <!--div class="span3" style="float:right">
-        <div id="selector"></div>
-	<a class="btn button-selector" data-field="2012.net_allocated/2012.net_used/income">הכנסות 2012 - תכנון מול ביצוע</a>
-	<a class="btn button-selector" data-field="2011.net_used/2012.net_used">ביצוע 2011 מול 2012</a>
+      </div>    
+    </div> 
+    <div id="overlay">
+      <div id="close"><p>X</p></div>
+      <div class="header">
+        <h1 class="name"></h1>
+        <h2 class="department"></h2>
       </div>
-    </div-->
+    </div>
     <div id="tooltip">
       <div id="tooltipContainer">
 	<div class="department"></div>
