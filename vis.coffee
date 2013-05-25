@@ -86,7 +86,8 @@ class BubbleChart extends Backbone.View
                 @width = 970
                 @height = 550
                 @groupPadding = 10
-                @totalValue = 400000000
+                @totalValue = @options.totalValue ? 400000000
+                console.log "totalValue !!! ",@totalValue
         	        
         	# d3 settings
                 @defaultGravity = 0.1
@@ -113,7 +114,7 @@ class BubbleChart extends Backbone.View
                 @bigFormat = (n) -> formatNumber(n*1000)
                 @nameFormat = (n) -> n
                 
-                @rScale = d3.scale.pow().exponent(0.5).domain([0,100000000]).range([1,90])
+                @rScale = d3.scale.pow().exponent(0.5).domain([0,@totalValue]).range([1,200])
                 @radiusScale = (n) -> @rScale( Math.abs(n) )
                 @changeScale = d3.scale.linear().domain([-0.28,0.28]).range([620,180]).clamp(true)
                 @sizeScale = d3.scale.linear().domain([0,110]).range([0,1])
@@ -169,22 +170,24 @@ class BubbleChart extends Backbone.View
                 # Builds the nodes data array from the original data
                 for n in @model.get 'data'
                         out = null
-                        sid = "xxx"+n.id
+                        sid = n.id
                         for node in oldNodes
                                 if node.sid == sid
                                         out = node
                         if out == null
                                 out =
-                                        sid             : "xxx"+n.id,
-                                        x               : 80+Math.random() * 160
-                                        y               : 80+Math.random() * 160
+                                        x               : -150+Math.random() * 300
+                                        y               : -150+Math.random() * 300
 
+                        out.sid = n.id
+                        out.code = n.id
                         out.radius = @radiusScale(n[@currentYearDataColumn])
-                        out.group = n.department
-                        out.change = n.change
-                        out.changeCategory = @categorizeChange(n.change)
+                        out.group = strings[n.p]
+                        out.groupvalue = n.pv
+                        out.change = n.change/100.0
+                        out.changeCategory = @categorizeChange(n.change/100.0)
                         out.value = n[@currentYearDataColumn]
-                        out.name = n.name
+                        out.name = strings[n.name]
                         out.isNegative = (n[@currentYearDataColumn] < 0)
                         out.positions = n.positions
                         ###
@@ -196,6 +199,10 @@ class BubbleChart extends Backbone.View
                         if ((n[@currentYearDataColumn] > 0) != (n[@previousYearDataColumn] > 0))
                                 out.change = "N.A."
                                 out.changeCategory = 0
+                        if (n.change==99999)
+                                out.change = "N.A."
+                                out.changeCategory = 3
+                                
 
                         @nodes.push(out)
 	    
@@ -206,34 +213,64 @@ class BubbleChart extends Backbone.View
         showOverlay: (d,el) ->
                 x = Number(el.attr('cx'))
                 y = Number(el.attr('cy'))
-                target = "rotate(180,#{@centerX},#{@centerY})translate(#{@centerX-x*5},#{@centerY-y*5})scale(5)"
+                scale = @height / d.radius / 3
+                console.log d.radius, @height, scale
+                origin = "translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)"
+                target = "translate(#{@centerX},#{@centerY})rotate(120)translate(#{-x*scale},#{-y*scale})scale(#{scale})"
+                console.log "origin:",origin
                 console.log "target:",target
-                @svg.selectAll("circle")
-                        .transition()
-                                .duration(1000)
-                                .attr("transform", target)
-                $("#overlay")
+
+                $("#overlayContainer")
                         .css("display","block")
-                        .css("opacity",0)
-                        .animate({opacity:0.9},1000)
 
-                $("#overlay #close").click @removeOverlay
-                $("#overlay .name").html "#{d.name}"
-                $("#overlay .department").html "#{d.group}"
-
-        removeOverlay: ->
-                target = "rotate(0,#{@centerX},#{@centerY})translate(#{@centerX},#{@centerY})scale(1)"
-                console.log "target:",target
                 @svg.selectAll("circle")
                         .transition()
                                 .duration(1000)
-                                .attr("transform", target)
-                $("#overlay")
-                        .animate({opacity:0},1000, ->
-                                                   $("#overlay")
-                                                        .css("display","none")
+                                .attrTween("transform",
+                                           -> d3.interpolateString( origin, target )
+                                        )
+
+                $("#overlayContainer div")
+                        .css("opacity",0)
+                        .stop(true)
+                        .animate({opacity:0.9},1000, ->
+                                                     $("#overlayContainer").css("display","block")
                                 )
 
+                $("#overlayContainer #close").click @removeOverlay
+                $("#overlayContainer .name").html "#{d.group}"
+                #$("#overlayContainer .department").html "#{d.group}"
+                $("#tooltip").hide()
+                chart = $("#overlayContainer .chart")
+                drilldownData = new CompareData
+                console.log "DDD",d.groupvalue
+                @drilldown = new BubbleChart
+                        el: chart
+                        model: drilldownData
+                        totalValue: d.groupvalue
+                drilldownData.set 'field', (@model.get 'field')+"/"+d.code.slice(0,4)
+
+        removeOverlay: ->
+                origin = @svg.select("circle").attr("transform")
+                target = "translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)"
+                console.log "origin:",origin
+                console.log "target:",target
+                @svg.selectAll("circle")
+                        .transition()
+                                .duration(1000)
+                                .attrTween("transform",
+                                           -> d3.interpolateString( origin, target )
+                                        )
+                $("#overlayContainer div")
+                        .stop(true)
+                        .animate({opacity:0},1000, ->
+                                                   $("#overlayContainer").css("display","none")
+                                )
+                @drilldown.svg.selectAll("circle")
+                        .transition()
+                                .duration(1000)
+                                .attr("r",0)
+                                .each("end", -> $("#overlayContainer svg").remove() )
                 $("#overlay #close").off 'click'
 
         render: () ->
@@ -243,7 +280,7 @@ class BubbleChart extends Backbone.View
                 that = @
                 @circle.enter()
                         .append("svg:circle")
-                         .attr("transform","rotate(0,#{@centerX},#{@centerY})translate(#{@centerX},#{@centerY})scale(1)")
+                         .attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)")
                         .style("stroke-width", 1)
                         .style("fill", (d) => @getFillColor(d) )
                         .style("stroke", (d) => @getStrokeColor(d) )
