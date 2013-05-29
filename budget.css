@@ -1,0 +1,174 @@
+@import url(http://fonts.googleapis.com/earlyaccess/alefhebrew.css);
+body {
+  font-family: Alef, Arial, sans-serif;
+}
+.frame {
+  background: #fff;
+  border: 5px solid #3B3B3B;
+  max-width: 900px;
+  direction: rtl;
+}
+.frame h1 {
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 5px solid #3B3B3B;
+  min-height: 54px;
+  font-size: 28px;
+}
+.frame p {
+  font-size: 16px;
+  color: #000000;
+  line-height: 23px;
+  border-bottom: 5px solid #3B3B3B;
+  padding: 0 10px 10px;
+}
+.name {
+  direction: rtl;
+}
+.chartContainer {
+  height: 550px;
+  -webkit-transition: height ease-in-out 1s;
+  -moz-transition: height ease-in-out 1s;
+  -o-transition: height ease-in-out 1s;
+  -ms-transition: height ease-in-out 1s;
+}
+.chart {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.chart svg {
+  height: 100%;
+  overflow: hidden;
+}
+#overlayContainer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  background: none;
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+#overlayContainer #overlay {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  opacity: 0.0;
+  background: #fff;
+}
+#overlayContainer #close {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  font-size: 30px;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  border-radius: 20px;
+  background: #ccc;
+  cursor: pointer;
+}
+#overlayContainer #close p {
+  position: relative;
+  top: 10px;
+}
+#overlayContainer .header {
+  background: #ffffff;
+  opacity: 1.0;
+  padding-left: 100px;
+  width: 100%;
+}
+#overlayContainer .header h1,
+#overlayContainer h2 {
+  text-align: left;
+  color: black;
+  display: block;
+  direction: rtl;
+}
+#tooltipContainer {
+  position: absolute;
+  bottom: 0;
+  width: 230px;
+  right: -145px;
+  font-size: 12px;
+  line-height: 16px;
+  padding: 10px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(200, 200, 200, 0.85);
+  text-align: center;
+}
+#tooltip {
+  text-align: center;
+  z-index: 10;
+  position: absolute;
+  display: none;
+  direction: rtl;
+}
+#tooltip .tail {
+  position: absolute;
+  bottom: -8px;
+  right: 105px;
+  width: 40px;
+  height: 8px;
+  background: url(images/tail_white.png) 50% 0%;
+}
+#tooltip .department {
+  text-transform: uppercase;
+  text-align: right;
+  font-size: 10px;
+  margin-bottom: 2px;
+  color: #666;
+  text-align: center;
+}
+#tooltip .rule {
+  height: 1px;
+  margin: 1px auto 3px;
+  background: #ddd;
+  width: 130px;
+}
+#tooltip .discretion {
+  color: #666;
+  font-size: 11px;
+  text-align: center;
+  font-style: italic;
+}
+#tooltip .name {
+  text-align: right;
+  font-size: 13px;
+  text-align: center;
+}
+#tooltip .value {
+  left: 10px;
+  top: 28px;
+  font-size: 16px;
+  text-align: center;
+  overflow: hidden;
+  font-weight: bold;
+}
+#tooltip .change {
+  padding-right: 10px;
+  direction: ltr;
+  font-size: 16px;
+  overflow: hidden;
+  font-weight: bold;
+  color: #666;
+  text-align: center;
+  display: inline;
+}
+#tooltip .valuesContainer {
+  padding-top: 7px;
+}
+#tooltip.minus .change {
+  color: #900;
+}
+#tooltip.plus .change {
+  color: #090;
+}
