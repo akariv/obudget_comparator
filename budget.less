@@ -1,3 +1,16 @@
+//
+// Budget Comparison visualization
+//
+// by the Public Knowledge Workshop 2013
+//
+
+
+// variables:
+
+@frame: 4px solid #3B3B3B;
+@growColor:		#3e48b5;
+@shrinkColor:	#c09100;
+
 @import url(http://fonts.googleapis.com/earlyaccess/alefhebrew.css);
 
 body { 
@@ -8,13 +21,13 @@ body {
 
 .frame{
 	background: #fff;
-	border: 5px solid #3B3B3B;
+	border: @frame;
 	max-width: 900px;
 	direction: rtl;
 	h1{
 		font-weight: bold;
 		text-align: center;
-		border-bottom: 5px solid #3B3B3B;
+		border-bottom: @frame;
 		min-height: 54px;
 		font-size: 28px;
 	}
@@ -22,8 +35,10 @@ body {
 		font-size: 16px;
 		color: #000000;
 		line-height: 23px;
-		border-bottom: 5px solid #3B3B3B;
+		border-bottom: @frame;
 		padding: 0 10px 10px;
+		.grow20{color: @growColor; font-weight: bold}
+		.shrink20{color: @shrinkColor; font-weight: bold}
 	}
 }
 
@@ -185,9 +200,11 @@ body {
 		padding-top:7px;
 	}
 	&.minus .change{
-		color:#900;
+		color:@shrinkColor;
+		//&:after{content:"-"};
 	}
 	&.plus .change{
-		color:#090;
+		color:@growColor;
+		//&:after{content:"+"};
 	}
 }

@@ -100,15 +100,15 @@ class BubbleChart extends Backbone.View
                 @gravity = null
                 @charge = null
                 @changeTickValues = [-0.25, -0.15, -0.05, 0.05, 0.15, 0.25]
-                @fillColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range(["#d84b2a", "#ee9586","#e4b7b2","#AAA","#beccae", "#9caf84", "#7aa25c"])
-                @strokeColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range(["#c72d0a", "#e67761","#d9a097","#999","#a7bb8f", "#7e965d", "#5a8731"])
+                @fillColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range (["#ddad13", "#eeca7c","#e4d0ae","#AAA","#a3aad3", "#747fba", "#3e48b5"])
+                @strokeColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range(["#c09100", "#e7bd53","#d9c292","#999","#7d88c6", "#4659a5", "#00199f"])
                 @getFillColor = (d) -> if (d.isNegative) then "#fff" else @fillColor(d.changeCategory)
 
                 @getStrokeColor = (d) -> @strokeColor(d.changeCategory);
 
-                @pFormat = d3.format("+.1%")
+                @pFormat = d3.format(".1%")
                 @pctFormat = (p) -> if (p == Infinity || p == -Infinity)  then "N.A" else @pFormat(p)
-                @tickChangeFormat = d3.format("+%")
+                @tickChangeFormat = d3.format("%")
                 @simpleFormat = d3.format(",")
                 @simpleDecimal = d3.format(",.2f")
                 @bigFormat = (n) -> formatNumber(n*1000)

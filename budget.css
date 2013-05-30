@@ -4,14 +4,14 @@ body {
 }
 .frame {
   background: #fff;
-  border: 5px solid #3B3B3B;
+  border: 4px solid #3b3b3b;
   max-width: 900px;
   direction: rtl;
 }
 .frame h1 {
   font-weight: bold;
   text-align: center;
-  border-bottom: 5px solid #3B3B3B;
+  border-bottom: 4px solid #3b3b3b;
   min-height: 54px;
   font-size: 28px;
 }
@@ -19,8 +19,16 @@ body {
   font-size: 16px;
   color: #000000;
   line-height: 23px;
-  border-bottom: 5px solid #3B3B3B;
+  border-bottom: 4px solid #3b3b3b;
   padding: 0 10px 10px;
+}
+.frame p .grow20 {
+  color: #3e48b5;
+  font-weight: bold;
+}
+.frame p .shrink20 {
+  color: #c09100;
+  font-weight: bold;
 }
 .name {
   direction: rtl;
@@ -167,8 +175,8 @@ body {
   padding-top: 7px;
 }
 #tooltip.minus .change {
-  color: #900;
+  color: #c09100;
 }
 #tooltip.plus .change {
-  color: #090;
+  color: #3e48b5;
 }

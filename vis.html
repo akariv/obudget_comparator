@@ -28,30 +28,11 @@
 		  <!-- Carousel items -->
 		  <div class="carousel-inner">
 
-		    <div id="TBFrame" class="active item frame">
-		      <h1 class="header">תכנון מול ביצוע</h1>
+		    <div id="TTFrame" class="active item frame">
+		      <h1 class="header">שינויי תכנון תקציב 2012 מול 2011</h1>
 		      <div class="description">
-		      	<p>תקציב המדינה הדו-שנתי 2011/2012 הועבר בכנסת בסוף דצמבר 2010. העיגולים הירוקים מציגים סעיפים שגדלו ב2012 ביחס לתיקצובם ב2011 והאדומים את אלה שקטנו. שימו לב לדוגמה לסעיף הבטחון שתוכנן לעלות ב0.8% בלבד אך בפועל נרשמה הוצאה הגדולה ב18.8% מהתכנון.</p>
+		      	<p>תקציב המדינה הדו-שנתי 2011/2012 הועבר בכנסת בסוף דצמבר 2010. <span class="grow20">העיגולים הסגולים</span> מציגים סעיפים שגדלו ב2012 ביחס לתיקצובם ב2011 ו<span class="shrink20">הצהובים</span> את אלה שקטנו. שימו לב לדוגמה ל<a href="#">סעיף הבטחון</a> שתוכנן לעלות ב0.8% בלבד אך <a href="#"> בפועל</a> נרשמה הוצאה הגדולה ב18.8% מהתכנון.</p>
 		      </div>
-		      <div class="selector row" data-template="YEAR.net_allocated/YEAR.net_used/TYPE">
-	            <div class="btn-toolbar span3" data-field1="YEAR">
-	              <div class="btn-group" data-toggle="buttons-radio">
-				    <a class="btn" href="#" data-value1="2011">2011</a>
-				    <a class="btn" href="#" data-value1="2012">2012</a>
-	              </div>
-	            </div>
-	            <div class="btn-toolbar span3" data-field1="TYPE">
-	              <div class="btn-group" data-toggle="buttons-radio">
-				    <a class="btn" href="#" data-value1="income">הכנסות</a>
-				    <a class="btn" href="#" data-value1="spending">הוצאות</a>
-	              </div>
-	            </div>
-		      </div>
-		      <div class="chartContainer"><div class="chart"></div></div>
-		    </div><!-- End TBFrame -->
-
-		    <div id="TTFrame" class="item frame">
-		      <h1 class="header">תכנון מול תכנון</h1>
 		      <div class="selector row" data-template="YEAR1.net_allocated/YEAR2.net_allocated/TYPE">
 	            <div class="btn-toolbar span5" data-field1="YEAR1" data-field2="YEAR2">
 	              <div class="btn-group" data-toggle="buttons-radio">
@@ -70,6 +51,25 @@
 		      </div>
 		      <div class="chartContainer"><div class="chart"></div></div>
 		    </div><!-- End TTFrame -->
+
+		    <div id="TBFrame" class="item frame">
+		      <h1 class="header">תכנון מול ביצוע</h1>
+		      <div class="selector row" data-template="YEAR.net_allocated/YEAR.net_used/TYPE">
+	            <div class="btn-toolbar span3" data-field1="YEAR">
+	              <div class="btn-group" data-toggle="buttons-radio">
+				    <a class="btn" href="#" data-value1="2011">2011</a>
+				    <a class="btn" href="#" data-value1="2012">2012</a>
+	              </div>
+	            </div>
+	            <div class="btn-toolbar span3" data-field1="TYPE">
+	              <div class="btn-group" data-toggle="buttons-radio">
+				    <a class="btn" href="#" data-value1="income">הכנסות</a>
+				    <a class="btn" href="#" data-value1="spending">הוצאות</a>
+	              </div>
+	            </div>
+		      </div>
+		      <div class="chartContainer"><div class="chart"></div></div>
+		    </div><!-- End TBFrame -->
 
 		    <div id="BBFrame" class="item frame">
 		      <h1 class="header">ביצוע מול ביצוע</h1>
