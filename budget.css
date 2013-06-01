@@ -3,7 +3,10 @@ body {
   font-family: Alef, Arial, sans-serif;
 }
 .frame {
-  background: #fff;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  background: none;
   border: 4px solid #3b3b3b;
   max-width: 900px;
   direction: rtl;
@@ -34,7 +37,7 @@ body {
   direction: rtl;
 }
 .chartContainer {
-  height: 550px;
+  height: 100%;
   -webkit-transition: height ease-in-out 1s;
   -moz-transition: height ease-in-out 1s;
   -o-transition: height ease-in-out 1s;
@@ -49,17 +52,15 @@ body {
   height: 100%;
   overflow: hidden;
 }
-#overlayContainer {
+.overlayContainer {
   position: absolute;
   left: 0;
   top: 0;
-  z-index: 4;
   background: none;
-  display: none;
   width: 100%;
   height: 100%;
 }
-#overlayContainer #overlay {
+.overlayContainer .overlay {
   position: absolute;
   left: 0px;
   top: 0px;
@@ -67,35 +68,6 @@ body {
   height: 100%;
   opacity: 0.0;
   background: #fff;
-}
-#overlayContainer #close {
-  position: absolute;
-  left: 20px;
-  top: 20px;
-  font-size: 30px;
-  width: 40px;
-  height: 40px;
-  text-align: center;
-  border-radius: 20px;
-  background: #ccc;
-  cursor: pointer;
-}
-#overlayContainer #close p {
-  position: relative;
-  top: 10px;
-}
-#overlayContainer .header {
-  background: #ffffff;
-  opacity: 1.0;
-  padding-left: 100px;
-  width: 100%;
-}
-#overlayContainer .header h1,
-#overlayContainer h2 {
-  text-align: left;
-  color: black;
-  display: block;
-  direction: rtl;
 }
 #tooltipContainer {
   position: absolute;
