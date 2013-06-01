@@ -49,126 +49,124 @@ class CompareData extends Backbone.Model
                         else
                                 console.log('field '+field+' is '+data)
 
-class FieldSelector extends Backbone.View
-        initialize: (@options) ->
-                _.bindAll @
-                @template = $(@el).attr('data-template')
-
-        render: () ->
-
-        select: () ->
-                @$(".btn").click()
-                        
-        events:
-                "click .btn": (e) ->
-                        template = @template
-                        await setTimeout((defer _), 10)
-                        @$(".btn-toolbar").each((idx) ->
-                                el = $(@)
-                                for i in ["1","2"]
-                                        field = el.attr("data-field"+i)
-                                        value = el.find(".btn.active:first").attr("data-value"+i)
-                                        if not value
-                                                value = ""
-                                        if field 
-                                                console.log field,"-->",value
-                                                template = template.replace(new RegExp(field, 'g'),value)
-                        )
-                        @model.set 'field',  template
-                
-
 class BubbleChart extends Backbone.View
+
+
+        # Colors
+        getFillColor: (d) -> 
+                fillColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range (["#ddad13", "#eeca7c","#e4d0ae","#AAA","#bfc3dc", "#9ea5c8", "#7b82c2"])
+                if (d.isNegative) then "#fff" else fillColor(d.changeCategory)
+
+        getStrokeColor: (d) ->
+                strokeColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range(["#c09100", "#e7bd53","#d9c292","#999","#a7aed3", "#7f8ab8", "#4f5fb0"])
+                strokeColor(d.changeCategory);
+
+        # Formatting
+        pctFormat: (p) ->
+                pFormat = d3.format("+.1%")
+                if (p == Infinity || p == -Infinity)  then "N.A" else pFormat(p)
+
+        # Force Layout
+        defaultCharge:
+                (d) -> if (d.value < 0) then 0 else -Math.pow(d.radius,2.0)/8  
+
+        totalSort: (alpha) ->
+                return (d) =>
+                        targetY = 0
+                        targetX = 0
+                        if d.isNegative
+                                if d.changeCategory > 0
+                                        d.x = -200
+                                else 
+                                        d.x = 1100
+                        d.y = d.y + (targetY - d.y) * (@defaultGravity + 0.02) * alpha
+                        d.x = d.x + (targetX - d.x) * (@defaultGravity + 0.02) * alpha
+                        
+        buoyancy: (alpha) ->
+                return (d) =>
+                        targetY = - (d.changeCategory / 3) * @boundingRadius
+                        d.y = d.y + (targetY - d.y) * (@defaultGravity) * alpha * alpha * alpha * 500
+
+        # Data handling
+        categorizeChange: (c) ->
+                if isNaN(c)     then return 0
+                if c < -0.25    then return -3
+                if c < -0.05    then return -2
+                if c < -0.001   then return -1
+                if c <= 0.001   then return 0
+                if c <= 0.05    then return 1
+                if c <= 0.25    then return 2
+                return 3
+         
+        # Chart stuff
+        setOverlayed: (overlayed) ->
+                overlayed = if overlayed then true else false
+                if overlayed
+                        @transitiontime = 0
+                else
+                        @transitiontime = 1000               
+
         initialize: (@options) ->
                 _.bindAll @
 
-                console.log "BubbleChart:initialize", @model
                 
                 @width = 970
                 @height = 550
-                @groupPadding = 10
-                @totalValue = @options.totalValue ? 400000000
-                console.log "totalValue !!! ",@totalValue
-        	        
+                @id = @options.id
+                @overlayShown = false
+
+                console.log "BubbleChart:initialize", @id
+
         	# d3 settings
                 @defaultGravity = 0.1
-                @defaultCharge = (d) -> if (d.value < 0) then 0 else -Math.pow(d.radius,2.0)/8
-
-                @links = []
-                @force = {}
-                @svg = {}
-                @circle = {}
-                @gravity = null
-                @charge = null
+                               
+                @force = @svg = @circle = null
                 @changeTickValues = [-0.25, -0.15, -0.05, 0.05, 0.15, 0.25]
-                @fillColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range (["#ddad13", "#eeca7c","#e4d0ae","#AAA","#bfc3dc", "#9ea5c8", "#7b82c2"])
-                @strokeColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range(["#c09100", "#e7bd53","#d9c292","#999","#a7aed3", "#7f8ab8", "#4f5fb0"])
-                @getFillColor = (d) -> if (d.isNegative) then "#fff" else @fillColor(d.changeCategory)
-
-                @getStrokeColor = (d) -> @strokeColor(d.changeCategory);
-
-                @pFormat = d3.format("+.1%")
-                @pctFormat = (p) -> if (p == Infinity || p == -Infinity)  then "N.A" else @pFormat(p)
-                @tickChangeFormat = d3.format("+%")
-                @simpleFormat = d3.format(",")
-                @simpleDecimal = d3.format(",.2f")
-                @bigFormat = (n) -> formatNumber(n*1000)
-                @nameFormat = (n) -> n
-                
-                @rScale = d3.scale.pow().exponent(0.5).domain([0,@totalValue]).range([1,200])
-                @radiusScale = (n) -> @rScale( Math.abs(n) )
-                @changeScale = d3.scale.linear().domain([-0.28,0.28]).range([620,180]).clamp(true)
-                @sizeScale = d3.scale.linear().domain([0,110]).range([0,1])
-                
-                @categorizeChange = (c) ->
-                        if isNaN(c)     then return 0
-                        if c < -0.25    then return -3
-                        if c < -0.05    then return -2
-                        if c < -0.001   then return -1
-                        if c <= 0.001   then return 0
-                        if c <= 0.05    then return 1
-                        if c <= 0.25    then return 2
-                        return 3
-                @totalSort = (alpha) ->
-                                return (d) =>
-                                        targetY = 0
-                                        targetX = 0
-                                        if d.isNegative
-                                                if d.changeCategory > 0
-                                                        d.x = -200
-                                                else 
-                                                        d.x = 1100
-                                        d.y = d.y + (targetY - d.y) * (@defaultGravity + 0.02) * alpha
-                                        d.x = d.x + (targetX - d.x) * (@defaultGravity + 0.02) * alpha
-                @buoyancy = (alpha) ->
-                                return (d) =>
-                                        targetY = - (d.changeCategory / 3) * @boundingRadius
-                                        d.y = d.y + (targetY - d.y) * (@defaultGravity) * alpha * alpha * alpha * 500
-                # data settings
-                @currentYearDataColumn = 'budget_1'
-                @previousYearDataColumn = 'budget_0'
                 
                 # chart settings
-                @boundingRadius = @radiusScale(@totalValue)
-                @maxRadius = null
                 @centerX = @width / 2
                 @centerY = @height / 2
 
-                @model.bind 'change:data', @updateData
+                @model.bind 'change:data', =>
+                        @updateData( @model.get 'data' )
 
                 d3.select(@el).html("")
                 @svg = d3.select(@el)
                          .append("svg:svg")
                          .attr("width", @width)
-                @force = null
-                @nodes = []
-                console.log "init done"
+                @svg.append("svg:rect")
+                    .attr("x",-1000)
+                    .attr("y",-1000)
+                    .attr("width",2000)
+                    .attr("height",2000)
+                    .attr("opacity",0)
+                    .on("click", -> removeState() )
+
+                console.log "init done", @id
         
-        updateData: () ->
-                oldNodes = @nodes
+        updateData: (data) ->
+                oldNodes = []
+
+                sum = 0
+                for x in data
+                        sum += x.b1
+                @totalValue = sum ? 400000000
+                console.log "Totalvalue: "+@totalValue
+                if @?.nodes
+                        for node in @nodes
+                                oldNodes.push(node)
                 @nodes = []
 
+                rScale = d3.scale.pow().exponent(0.5).domain([0,@totalValue]).range([1,200])
+                radiusScale = (n) -> rScale( Math.abs(n) )
+                @boundingRadius = radiusScale(@totalValue)
+
+                currentYearDataColumn = 'b1'
+                previousYearDataColumn = 'b0'
+
+
                 # Builds the nodes data array from the original data
-                for n in @model.get 'data'
+                for n in data
                         out = null
                         sid = n.id
                         for node in oldNodes
@@ -180,23 +178,24 @@ class BubbleChart extends Backbone.View
                                         y               : -150+Math.random() * 300
 
                         out.sid = n.id
-                        out.code = n.id
-                        out.radius = @radiusScale(n[@currentYearDataColumn])
+                        out.code = strings[n.c]
+                        out.radius = radiusScale(n[currentYearDataColumn])
                         out.group = strings[n.p]
                         out.groupvalue = n.pv
-                        out.change = n.change/100.0
-                        out.changeCategory = @categorizeChange(n.change/100.0)
-                        out.value = n[@currentYearDataColumn]
-                        out.name = strings[n.name]
-                        out.isNegative = (n[@currentYearDataColumn] < 0)
+                        out.change = n.c/100.0
+                        out.changeCategory = @categorizeChange(n.c/100.0)
+                        out.value = n[currentYearDataColumn]
+                        out.name = strings[n.n]
+                        out.isNegative = (n[currentYearDataColumn] < 0)
                         out.positions = n.positions
+                        out.drilldown = n.d
                         ###
                         #  if (n.positions.total) 
         	    	#     out.x = n.positions.total.x + (n.positions.total.x - (@width / 2)) * 0.5
         	    	#     out.y = n.positions.total.y + (n.positions.total.y - (150)) * 0.5
         	    	###
 
-                        if ((n[@currentYearDataColumn] > 0) != (n[@previousYearDataColumn] > 0))
+                        if ((n[currentYearDataColumn] > 0) != (n[previousYearDataColumn] > 0))
                                 out.change = "N.A."
                                 out.changeCategory = 0
                         if (n.change==99999)
@@ -207,73 +206,79 @@ class BubbleChart extends Backbone.View
                         @nodes.push(out)
 	    
                 #@nodes.sort( (a, b) -> Math.abs(b.value) - Math.abs(a.value) )
-	    
-                @render()
 
-        showOverlay: (d,el) ->
-                x = Number(el.attr('cx'))
-                y = Number(el.attr('cy'))
-                scale = @height / d.radius / 3
-                console.log d.radius, @height, scale
+                if data.length > 0
+                        @render()
+                else
+                        container = $("div[data-id='#{@id}']")
+                        if @transitiontime > 0
+                                @circle.transition().duration(@transitiontime)
+                                        .attr("r", (d) -> 0)
+                                container.find(".overlay")
+                                        .css("opacity",0.9)
+                                        .animate({opacity:0},@transitiontime, -> container.remove())
+                        else
+                                container.remove()
+                                
+
+        showOverlay: (id) ->
+                if @overlayShown then return
+                @overlayShown = true
+                node = null
+                for _node in @nodes
+                        if _node.drilldown == id
+                                node = _node
+                if node == null
+                        return
+                scale = @height / node.radius / 3
+                console.log "showOverlay: ", node.radius, @height, scale
                 origin = "translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)"
-                target = "translate(#{@centerX},#{@centerY})rotate(120)translate(#{-x*scale},#{-y*scale})scale(#{scale})"
-                console.log "origin:",origin
-                console.log "target:",target
+                target = "translate(#{@centerX},#{@centerY})rotate(120)translate(#{-node.x*scale},#{-node.y*scale})scale(#{scale})"
 
-                $("#overlayContainer")
-                        .css("display","block")
-
-                @svg.selectAll("circle")
-                        .transition()
-                                .duration(1000)
-                                .attrTween("transform",
-                                           -> d3.interpolateString( origin, target )
-                                        )
-
-                $("#overlayContainer div")
-                        .css("opacity",0)
-                        .stop(true)
-                        .animate({opacity:0.9},1000, ->
-                                                     $("#overlayContainer").css("display","block")
-                                )
-
-                $("#overlayContainer #close").click @removeOverlay
-                $("#overlayContainer .name").html "#{d.group}"
-                #$("#overlayContainer .department").html "#{d.group}"
+                if @transitiontime == 0
+                        @svg.selectAll("circle").attr("transform",target)
+                else
+                        @svg.selectAll("circle")
+                                .transition()
+                                        .duration(@transitiontime)
+                                        .attrTween("transform",
+                                                   -> d3.interpolateString( origin, target )
+                                                )
+                
+                                console.log("TRANSITION "+origin+" -> "+target)
                 $("#tooltip").hide()
-                chart = $("#overlayContainer .chart")
-                drilldownData = new CompareData
-                console.log "DDD",d.groupvalue
-                @drilldown = new BubbleChart
-                        el: chart
-                        model: drilldownData
-                        totalValue: d.groupvalue
-                drilldownData.set 'field', (@model.get 'field')+"/"+d.code.slice(0,4)
 
-        removeOverlay: ->
+        overlayRemoved: ->
+                @setOverlayed(false)
+                @overlayShown = false
+                
                 origin = @svg.select("circle").attr("transform")
                 target = "translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)"
-                console.log "origin:",origin
-                console.log "target:",target
+
                 @svg.selectAll("circle")
                         .transition()
-                                .duration(1000)
+                                .duration(@transitiontime)
                                 .attrTween("transform",
                                            -> d3.interpolateString( origin, target )
                                         )
-                $("#overlayContainer div")
-                        .stop(true)
-                        .animate({opacity:0},1000, ->
-                                                   $("#overlayContainer").css("display","none")
-                                )
-                @drilldown.svg.selectAll("circle")
-                        .transition()
-                                .duration(1000)
-                                .attr("r",0)
-                                .each("end", -> $("#overlayContainer svg").remove() )
-                $("#overlay #close").off 'click'
+                @circle.attr("r", (d) -> d.radius )
 
         render: () ->
+
+
+                container = $("div[data-id='#{@id}'] .overlayContainer")
+                overlay = $("div[data-id='#{@id}'] .overlay")
+                frame = $("div[data-id='#{@id}'] .frame")
+                console.log "height", frame.height()
+                container.css('height',$(@el).height()+"px")
+                if @transitiontime > 0
+                        overlay
+                                .css("opacity",0)
+                                .animate({opacity:0.9},@transitiontime)
+                else
+                        overlay
+                                .css("opacity",0.9)
+
                 @circle = @svg.selectAll("circle")
                               .data(@nodes, (d) -> d.sid );
 
@@ -284,17 +289,17 @@ class BubbleChart extends Backbone.View
                         .style("stroke-width", 1)
                         .style("fill", (d) => @getFillColor(d) )
                         .style("stroke", (d) => @getStrokeColor(d) )
+                        .style("cursor",(d) => if budget_array_data[d.drilldown] then "pointer" else "inherit")
                         .on("click", (d,i) ->
-                                el = d3.select(@)
-                                that.showOverlay(d,el)
+                                if budget_array_data[d.drilldown]
+                                        addState(d.drilldown)
+                                false
                                 )
                         .on("mouseover", (d,i) ->
-                                console.log "mouseover"
                                 el = d3.select(@)
                                 svgPos = $(that.el).find("svg").position()
                                 xpos = Number(el.attr('cx'))+svgPos.left+that.centerX
                                 ypos = (el.attr('cy') - d.radius - 10)+svgPos.top+that.centerY
-                                console.log "tooltip ",xpos,ypos
                                 el.style("stroke","#000").style("stroke-width",3)
                                 d3.select("#tooltip")
                                         .style('top',ypos+"px")
@@ -302,12 +307,11 @@ class BubbleChart extends Backbone.View
                                         .style('display','block')
                                         .classed('plus', (d.changeCategory > 0))
                                         .classed('minus', (d.changeCategory < 0))
-                                d3.select("#tooltip .name").html(that.nameFormat(d.name))
+                                d3.select("#tooltip .name").html(d.name)
                                 d3.select("#tooltip .department").text(d.group)
-                                d3.select("#tooltip .value").html(that.bigFormat(d.value)+" \u20aa")
+                                d3.select("#tooltip .value").html(formatNumber(d.value*1000)+" \u20aa")
                                 pctchngout = if (d.change == "N.A.") then "N.A" else that.pctFormat(d.change)
                                 d3.select("#tooltip .change").html(pctchngout)
-                                console.log "mouseover out"
                                 )
                         .on("mouseout", (d,i) ->
                                 d3.select(@)
@@ -316,13 +320,20 @@ class BubbleChart extends Backbone.View
                                 d3.select("#tooltip").style('display','none')
                                 )
 
-                @circle.transition().duration(1000)
-                        .attr("r", (d) -> d.radius )
-                        .style("fill", (d) => @getFillColor(d) )
-                        .style("stroke", (d) => @getStrokeColor(d) )
-                @circle.exit().transition().duration(1000)
-                        .attr("r", (d) -> 0)
-                        .remove()
+                if @transitiontime > 0
+                        console.log "chart "+@id+" transitioning radius"
+                        @circle.transition().duration(@transitiontime)
+                                .attr("r", (d) -> d.radius )
+                                .style("fill", (d) => @getFillColor(d) )
+                                .style("stroke", (d) => @getStrokeColor(d) )
+                        @circle.exit().transition().duration(@transitiontime)
+                                .attr("r", (d) -> 0)
+                                .remove()
+                else
+                        @circle.attr("r", (d) -> d.radius )
+                                .style("fill", (d) => @getFillColor(d) )
+                                .style("stroke", (d) => @getStrokeColor(d) )
+                        @circle.exit().remove()
 
                 if @force != null
                         @force.stop()
@@ -340,39 +351,78 @@ class BubbleChart extends Backbone.View
                                                 .attr("cy", (d) -> d.y )
                                         )
                 		.start()
-                #@circle.call(@force.drag)
 
-	# getCirclePositions: function(){
-	#     var that = this
-	#     var circlePositions = {};
-	#     this.circle.each(function(d){
-		
-	# 	circlePositions[d.sid] = {
-	# 	    x:Math.round(d.x),
-	# 	    y:Math.round(d.y)
-	# 	}
-		
-		
-	#     });
-	#     return JSON.stringify(circlePositions)
-	# },
+querys = []
+charts = []
+first_time = true
 
-createFrame = (id) ->
-        compareData = new CompareData
-        bubbleChart = new BubbleChart
-                el: $("#"+id+" .chart")
-                model: compareData
-        selector = new FieldSelector
-                el: $("#"+id+" .selector")
-                model: compareData
-        selector.select()
+addState = (toAdd) ->
+        querys.push(toAdd)
+        History.pushState(querys,null,"?" + querys.join("/") )
 
+removeState = ->
+        if querys.length > 1
+                querys.pop()
+                History.pushState(querys,null,"?" + querys.join("/") )
+
+handleNewState = () ->
+        state = History.getState()
+        querys = state.data
+        console.log "state changed: ",state
+        for i in [0...querys.length]
+                query = querys[i]
+                nextquery = querys[i+1]
+                id = "id"+i
+                el = $("div[data-id='#{id}'] .chart")
+                if el.size() == 0
+                        console.log "creating chart "+id
+                        template = _.template( $("#chart-template").html(),{ id: id } )
+                        $("#charts").append template
+                        el =$("div[data-id='#{id}'] .chart")                       
+                        charts[i] = new BubbleChart
+                                el: el
+                                model: new CompareData
+                                id: id
+
+        max = if querys.length > charts.length then querys.length else charts.length
+        console.log "max: "+max
+        for i in [max-1..0]
+                console.log "setting field for "+i
+                if i >= querys.length
+                        console.log "removing chart #"+i
+                        charts[i].updateData([])
+                        charts.pop()
+                        continue
+
+                query = querys[i]
+                overlaid = false
+                if (i < querys.length - 2) or (first_time and (i < querys.length - 1))
+                        overlaid = true
+                charts[i].setOverlayed( overlaid )
+                charts[i].model.set "field", query
+                if i < querys.length - 1
+                        charts[i].showOverlay(querys[i+1])                       
+        if max > querys.length
+                if charts.length > 0
+                        console.log "chart "+(charts.length-1)+": overlay removed"
+                        charts[charts.length-1].overlayRemoved()
+        first_time = false
+        
 if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
         $( ->
-                $("#charts").carousel( interval: false)
-                createFrame( "TBFrame" )
-                createFrame( "TTFrame" )
-                createFrame( "BBFrame" )
+                History.Adapter.bind window, 'statechange', handleNewState
+                query = window.location.search.slice(1)
+                querys = query.split("/")
+                state = History.getState()
+                if state.data?.length and state.data.length> 0
+                        handleNewState()
+                else
+                        console.log "xxx",state.data.length
+                        History.replaceState(querys,null,"?"+query)
+                        console.log "pushed "+querys
+                $(document).keyup (e) ->
+                        if e.keyCode == 27
+                                removeState()
                 )
 else
         $("#charts").hide()

@@ -6,130 +6,58 @@
     <meta property="fb:admins" content="100000025217694" />
     <link href="http://netdna.bootstrapcdn.com/bootswatch/2.3.0/spacelab/bootstrap.min.css" rel="stylesheet">
     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
-    <link href="budget.css" rel="stylesheet">
+    <!--link href="budget.css" rel="stylesheet"-->
+    <link rel="stylesheet/less" type="text/css" href="budget.less" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   </head>
   <body>
-  	<!--
     <script src="http://cdnjs.cloudflare.com/ajax/libs/less.js/1.3.3/less.min.js" type="text/javascript"></script>
-    -->
-
+    
     <div class="container-fluid">
-
-		<div id="charts" class="carousel slide" style="height:600px">
-		  <ol class="carousel-indicators">
-		    <li data-target="#charts" data-slide-to="0" class="active"></li>
-		    <li data-target="#charts" data-slide-to="1"></li>
-		    <li data-target="#charts" data-slide-to="2"></li>
-		    <li data-target="#charts" data-slide-to="3"></li>
-		    <li data-target="#charts" data-slide-to="4"></li>
-		  </ol>
-
-		  <!-- Carousel items -->
-		  <div class="carousel-inner">
-
-		    <div id="TTFrame" class="active item frame">
-		      <h1 class="header">שינויי תכנון תקציב 2012 מול 2011</h1>
-		      <div class="description">
-		      	<p>תקציב המדינה הדו-שנתי 2011/2012 הועבר בכנסת בסוף דצמבר 2010. <span class="grow20">העיגולים הסגולים</span> מציגים סעיפים שגדלו ב2012 ביחס לתיקצובם ב2011 ו<span class="shrink20">הצהובים</span> את אלה שקטנו. שימו לב לדוגמה ל<a href="#">סעיף הבטחון</a> שתוכנן לעלות ב0.8% בלבד אך <a href="#"> בפועל</a> נרשמה הוצאה הגדולה ב18.8% מהתכנון.</p>
-		      </div>
-		      <div class="selector row" data-template="YEAR1.net_allocated/YEAR2.net_allocated/TYPE">
-	            <div class="btn-toolbar span5" data-field1="YEAR1" data-field2="YEAR2">
-	              <div class="btn-group" data-toggle="buttons-radio">
-				    <a class="btn" href="#" data-value1="2011" data-value2="2012">2011/2012</a>
-				    <a class="btn" href="#" data-value1="2012" data-value2="2013">2012/2013</a>
-				    <a class="btn" href="#" data-value1="2012" data-value2="2014">2012/2014</a>
-				    <a class="btn" href="#" data-value1="2013" data-value2="2014">2013/2014</a>
-	              </div>
-	            </div>
-	            <div class="btn-toolbar span3" data-field1="TYPE">
-	              <div class="btn-group" data-toggle="buttons-radio">
-				    <a class="btn" href="#" data-value1="income">הכנסות</a>
-				    <a class="btn" href="#" data-value1="spending">הוצאות</a>
-	              </div>
-	            </div>
-		      </div>
-		      <div class="chartContainer"><div class="chart"></div></div>
-		    </div><!-- End TTFrame -->
-
-		    <div id="TBFrame" class="item frame">
-		      <h1 class="header">תכנון מול ביצוע</h1>
-		      <div class="selector row" data-template="YEAR.net_allocated/YEAR.net_used/TYPE">
-	            <div class="btn-toolbar span3" data-field1="YEAR">
-	              <div class="btn-group" data-toggle="buttons-radio">
-				    <a class="btn" href="#" data-value1="2011">2011</a>
-				    <a class="btn" href="#" data-value1="2012">2012</a>
-	              </div>
-	            </div>
-	            <div class="btn-toolbar span3" data-field1="TYPE">
-	              <div class="btn-group" data-toggle="buttons-radio">
-				    <a class="btn" href="#" data-value1="income">הכנסות</a>
-				    <a class="btn" href="#" data-value1="spending">הוצאות</a>
-	              </div>
-	            </div>
-		      </div>
-		      <div class="chartContainer"><div class="chart"></div></div>
-		    </div><!-- End TBFrame -->
-
-		    <div id="BBFrame" class="item frame">
-		      <h1 class="header">ביצוע מול ביצוע</h1>
-		      <div class="selector row" data-template="YEAR1.net_used/YEAR2.net_used/TYPE">
-	            <div class="btn-toolbar span5" data-field1="YEAR1" data-field2="YEAR2">
-	              <div class="btn-group" data-toggle="buttons-radio">
-			    	<a class="btn" href="#" data-value1="2011" data-value2="2012">2011/2012</a>
-	              </div>
-	            </div>
-	            <div class="btn-toolbar span3" data-field1="TYPE">
-	              <div class="btn-group" data-toggle="buttons-radio">
-				    <a class="btn" href="#" data-value1="income">הכנסות</a>
-				    <a class="btn" href="#" data-value1="spending">הוצאות</a>
-	              </div>
-	            </div>
-		      </div>
-		      <div class="chartContainer"><div class="chart"></div></div>
-		    </div><!-- End BBFrame -->
-		  </div>
-		  <!-- Carousel nav -->
-
-		  <a class="carousel-control right" href="#charts" data-slide="next">&rsaquo;</a>
-		  <a class="carousel-control left" href="#charts" data-slide="prev">&lsaquo;</a>
-		</div> 
-
-	    <div id="overlayContainer">
-	      <div id="overlay"></div>
-	      <div class="header">
-			<h1 class="name"></h1>
-			<h2 class="department"></h2>
-	      </div>
-	      <div id="close"><p>X</p></div>
-	      <div class="chartContainer"><div class="chart"></div></div>      
-	    </div>
-	    <div id="tooltip">
-	      <div id="tooltipContainer">
-			<div class="department"></div>
-			<div class="rule"></div>
-			<div class="name"></div>
-			<div class="discretion"></div>
-			<div class="valuesContainer">
-			  <span class="value"></span>
-			  <span class="change"></span>
-			</div>
-			<div class="chart"></div>
-			<div class="tail"></div>
-	      </div>
-	    </div>
-
-	</div> <!-- End Container -->
-
+      <div id="charts" class="">
+      </div> 
+      
+      <div id="tooltip">
+	<div id="tooltipContainer">
+	  <div class="department"></div>
+	  <div class="rule"></div>
+	  <div class="name"></div>
+	  <div class="discretion"></div>
+	  <div class="valuesContainer">
+	    <span class="value"></span>
+	    <span class="change"></span>
+	  </div>
+	  <!--div class="chart"></div-->
+	  <div class="tail"></div>
+	</div>
+      </div>
+      
+    </div> <!-- End Container -->
+    
     <!-- Budget data -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.0.1/d3.v3.min.js" type="text/javascript"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.3/underscore-min.js" type="text/javascript"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.10/backbone-min.js" type="text/javascript"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/history.js/1.8/native.history.min.js" type="text/javascript"></script>
     <script src="http://maxtaco.github.io/coffee-script/extras/coffee-script.js" type="text/javascript"></script>
 <!--http://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.3.3/coffee-script.min.js-->
     <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="data.js"></script>
     <script type="text/coffeescript" src="vis.coffee"></script>
 
+    <script type="text/html" id="chart-template">
+      <div data-id="<%= id %>">
+	<div class="overlayContainer">
+	  <div class="overlay"></div>
+	</div>
+	<div class="active item frame">
+	  <h1 class="header">שינויי תכנון תקציב 2012 מול 2011 <%= id %></h1>
+	  <div class="description">
+	    <p><%= id %> תקציב המדינה הדו-שנתי 2011/2012 הועבר בכנסת בסוף דצמבר 2010. <span class="grow20">העיגולים הסגולים</span> מציגים סעיפים שגדלו ב2012 ביחס לתיקצובם ב2011 ו<span class="shrink20">הצהובים</span> את אלה שקטנו. שימו לב לדוגמה ל<a href="#">סעיף הבטחון</a> שתוכנן לעלות ב0.8% בלבד אך <a href="#"> בפועל</a> נרשמה הוצאה הגדולה ב18.8% מהתכנון.</p>
+	  </div>
+	  <div class="chartContainer"><div class="chart"></div></div>
+	</div>
+      </div>
+     </script>
   </body>

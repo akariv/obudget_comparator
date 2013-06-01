@@ -4,6 +4,7 @@ import json
 import itertools
 import Levenshtein
 import re
+import pprint
 
 INFLATION = {1992: 2.338071159424868,
  1993: 2.1016785142253185,
@@ -56,7 +57,7 @@ def copy_node_no_children(node):
              'title': node['title'],
              'value': node['value'],
              'group': node.get('group',""),
-             'parent_value': node.get('parent_value',1),
+             'parent_value': node.get('parent_value'),
              'children': {} }
 
 def filter_tree(node,func):
@@ -74,14 +75,14 @@ def merge_trees(root1, root2):
     new_node = copy_node_no_children(root1)
     new_node['value'] = [ new_node['value'] ]
     new_node['value'].append(root2['value'])
-    new_node['parent_value'] = root2['parent_value']
+    new_node['parent_value'] = root2.get('parent_value')
 
     roots = [ root1, root2 ]
     codesets = [ set(root['children'].keys()) for root in roots ]
     shared_codes = codesets[0].intersection(codesets[1])
     other_codes = [ codeset - shared_codes for codeset in codesets ]
     group = ""
-    parent_value = 1
+    parent_value = None
     for code in shared_codes:
         child_nodes = [ root['children'][code] for root in roots ]
         titles = [ node['title'] for node in child_nodes ]
@@ -91,7 +92,7 @@ def merge_trees(root1, root2):
             continue
         new_node['children'][code] = merge_trees(*child_nodes)
         group = child_nodes[1]['group']
-        parent_value = child_nodes[1]['parent_value']
+        parent_value = child_nodes[1].get('parent_value')
 
     if sum([len(x) for x in other_codes]) > 0:
         others_node = { 'code' : root1['code']+'**',
@@ -112,19 +113,20 @@ def build_tree( data, year, field, income=False ):
                 income == item.get('code','').startswith('0000') and
                 item.get('title','') != '')
     filtered_items = ( item for item in data if item_filter(item) )
-    filtered_items = [ { 'code':item['code'][2 if income else 0:], 
+    filtered_items = ( { 'code':item['code'][4 if income else 2:], 
                          'title':item['title'], 
-                         'value':item[field]*INFLATION[year] } 
-                       for item in filtered_items ]
+                         'value':int(item[field]*INFLATION[year]) } 
+                       for item in filtered_items )
+    filtered_items = [ item for item in filtered_items if len(item['code'])<=6 ]
     filtered_items.sort( key=lambda item: item['code'] )
 
     if len(filtered_items) == 0: return {}
     root = filtered_items[0]
-    assert(root['code']== "00")
+    assert(root['code']== "")
 
     for item in filtered_items[1:]:
         node = root
-        code = item['code'][2:]
+        code = item['code']
         group = None
         parent_value = node['value']
         try:
@@ -145,11 +147,14 @@ def build_tree( data, year, field, income=False ):
     return root
 
 def extract_by_depth(node,target_depth,depth=0):
+    if depth > 0:
+        ret = copy_node_no_children(node)
+        ret['depth'] = depth
+        yield ret
     if depth==target_depth: 
-        yield copy_node_no_children(node)
         return
     if len(node.get('children',{})) == 0: 
-        yield copy_node_no_children(node)
+        #yield copy_node_no_children(node)
         return
     keys = node.get('children').keys()
     keys.sort()
@@ -157,22 +162,40 @@ def extract_by_depth(node,target_depth,depth=0):
         child = node.get('children')[key]
         for x in extract_by_depth(child,target_depth,depth+1): yield x
 
-def key_for_diff(year1,field1,year2,field2,income,divein=None):
-    key = "%s.%s/%s.%s/%s%s" % ( year1, field1, year2, field2, "income" if income else "spending", "" if not divein else "/%s" % divein )
+def traverse_by_depth(node,max_depth,depth=0):
+    yield node
+    if depth == max_depth: return
+    keys = node.get('children').keys()
+    keys.sort()
+    for key in keys:
+        child = node.get('children')[key]
+        for x in traverse_by_depth(child,max_depth,depth+1): yield x
+    
+
+def key_for_diff(year1,field1,year2,field2,income,divein):
+    def year(y):  return ' pkxw'[y%10]
+    def field(f): return f.split('_')[1][1]
+    key = "%s%s%s%s%s%s" % ( year(year1), field(field1), year(year2), field(field2), "v" if income else "q", get_string_id(divein) )
     print key
     return key
 
-def adapt_for_js(items):
+def adapt_for_js(drilldown, items):
     for item in items:
         if item['value'] != [0,0]:
-            yield { 'budget_0'  : item['value'][0],
-                    'budget_1'  : item['value'][1],
-                    'name'      : get_string_id(item['title']),
-                    'p'         : get_string_id(item['group']),
-                    'pv'        : item['parent_value'],
-                    'id'        : item['code'],
-                    'change'    : 100*item['value'][1] / item['value'][0] - 100 if item['value'][0] > 0 else 99999
+            yield { 'b0'  : item['value'][0],
+                    'b1'  : item['value'][1],
+                    'n'   : get_string_id(item['title']),
+                    'p'   : get_string_id(item['group']),
+                    'pv'  : item.get('parent_value'),
+                    'id'  : get_string_id(item['code']),
+                    'c'   : int(100*item['value'][1] / item['value'][0] - 100) if item['value'][0] > 0 else 99999,
+                    'd'   : drilldown(item['code'])
                 }
+
+def describe(year,field):
+    title = u"תכנון" if field.endswith("allocated") else u"ביצוע"
+    title += " %d" % year
+    return title
 
 def get_items_for(year1,field1,year2,field2,income):
     tree1 = build_tree(budget_file(), year1, field1, income)
@@ -185,15 +208,23 @@ def get_items_for(year1,field1,year2,field2,income):
                                                     for i in range(2)]
                                               ) == 2)
     merged = filter_tree(merged, lambda node: len(node.get('children',{}))>1 )
-     
-    yield key_for_diff(year1,field1,year2,field2,income), list(adapt_for_js(extract_by_depth(merged,2)))
 
-    for part in merged['children'].keys():
-        yield key_for_diff(year1,field1,year2,field2,income,merged['code']+part), list(adapt_for_js(extract_by_depth(merged['children'][part],2)))
+    title = u"%s: %s לעומת %s" % ( u"הכנסות" if income else u"הוצאות", describe(year1,field1), describe(year2,field2) )
+
+    for node in traverse_by_depth(merged,2):
+        diff = list(adapt_for_js(lambda (c): key_for_diff(year1,field1,year2,field2,income,c),extract_by_depth(node,1)))
+        if len(diff) > 1:
+            yield key_for_diff(year1,field1,year2,field2,income,node['code']), diff, u"%s - %s (%s)" % (title, node['title'], node['code'] )
+
+#    for part in merged['children'].keys():
+#        key = key_for_diff(year1,field1,year2,field2,income,merged['code']+part)
+#        diff = list(adapt_for_js(extract_by_depth(merged['children'][part],2)))
+#        if len(diff) > 1:
+#            yield key, diff
 
 if __name__=="__main__":
     generated_diffs = [ (2011, "net_allocated", 2011, "net_used", False),
-                        (2012, "net_allocated", 2012, "net_used", False),
+                         (2012, "net_allocated", 2012, "net_used", False),
                         (2011, "net_allocated", 2011, "net_used", True),
                         (2012, "net_allocated", 2012, "net_used", True),
                         (2011, "net_used",      2012, "net_used", False),
@@ -201,16 +232,25 @@ if __name__=="__main__":
                         (2011, "net_allocated", 2012, "net_allocated", False),
                         (2012, "net_allocated", 2013, "net_allocated", False),
                         (2012, "net_allocated", 2014, "net_allocated", False),
-                        (2013, "net_allocated", 2014, "net_allocated", False), ]
+                        (2013, "net_allocated", 2014, "net_allocated", False), 
                         # (2011, "net_allocated", 2012, "net_allocated", True),
                         # (2012, "net_allocated", 2013, "net_allocated", True),
                         # (2012, "net_allocated", 2014, "net_allocated", True),
-                        #(2013, "net_allocated", 2014, "net_allocated", True), ]
+                        #(2013, "net_allocated", 2014, "net_allocated", True), 
+                        ]
     diffs = itertools.chain( *( get_items_for(*diff) for diff in generated_diffs ) )
-    diffs = dict(list(diffs))
+    diffsDict = {}
+    urls = []
+    for key,diff,title in diffs:
+        diffsDict[key] = diff
+        urls.append((key,title))
     out = file('data.js','w')
-    out.write('budget_array_data = %s;\n' % json.dumps(diffs))
+    out.write('budget_array_data = %s;\n' % json.dumps(diffsDict))
     out.write('strings = %s;\n' % json.dumps(strings))
     #print json.dumps(dict(diffs))
+    urlsFile = file('all.html','w')
+    urlsFile.write("<ul style='direction:rtl;'>")
+    for x in urls: urlsFile.write(("<li><a href='/vis.html?%s'>%s</a></li>" % x).encode('utf8'))
+    urlsFile.write("</ul>")
     
     
