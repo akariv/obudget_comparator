@@ -58,12 +58,17 @@ class BubbleChart extends Backbone.View
                 if (d.isNegative) then "#fff" else fillColor(d.changeCategory)
 
         getStrokeColor: (d) ->
+                if d.name == @selectedItem then return "#FF0"
                 strokeColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range(["#c09100", "#e7bd53","#d9c292","#999","#a7aed3", "#7f8ab8", "#4f5fb0"])
                 strokeColor(d.changeCategory);
 
+        strokeWidth: (d) ->
+                console.log d.name+" <> "+@selectedItem
+                if d.name == @selectedItem then 5 else 1
+
         # Formatting
         pctFormat: (p) ->
-                pFormat = d3.format("+.1%")
+                pFormat = d3.format(".1%")
                 if (p == Infinity || p == -Infinity)  then "N.A" else pFormat(p)
 
         # Force Layout
@@ -147,6 +152,8 @@ class BubbleChart extends Backbone.View
         updateData: (data) ->
                 oldNodes = []
 
+                @selectedItem = null
+
                 sum = 0
                 for x in data
                         sum += x.b1
@@ -156,6 +163,7 @@ class BubbleChart extends Backbone.View
                         for node in @nodes
                                 oldNodes.push(node)
                 @nodes = []
+                @titles = []
 
                 rScale = d3.scale.pow().exponent(0.5).domain([0,@totalValue]).range([1,200])
                 radiusScale = (n) -> rScale( Math.abs(n) )
@@ -189,24 +197,29 @@ class BubbleChart extends Backbone.View
                         out.isNegative = (n[currentYearDataColumn] < 0)
                         out.positions = n.positions
                         out.drilldown = n.d
+
+                        @titles.push( out.name )
                         ###
                         #  if (n.positions.total) 
         	    	#     out.x = n.positions.total.x + (n.positions.total.x - (@width / 2)) * 0.5
         	    	#     out.y = n.positions.total.y + (n.positions.total.y - (150)) * 0.5
         	    	###
 
-                        if ((n[currentYearDataColumn] > 0) != (n[previousYearDataColumn] > 0))
-                                out.change = "N.A."
-                                out.changeCategory = 0
-                        if (n.change==99999)
-                                out.change = "N.A."
+                        if ((n[currentYearDataColumn] > 0) && (n[previousYearDataColumn] < 0))
+                                out.changestr = "הפך מהכנסה להוצאה"
+                                out.changeCategory = 3
+                        if ((n[currentYearDataColumn] < 0) && (n[previousYearDataColumn] > 0))
+                                out.changestr = "הפך מהוצאה להכנסה"
+                                out.changeCategory = 3
+                        if (n.c==99999)
+                                out.changestr = "תוקצב מחדש"
                                 out.changeCategory = 3
                                 
 
                         @nodes.push(out)
-	    
-                #@nodes.sort( (a, b) -> Math.abs(b.value) - Math.abs(a.value) )
 
+                @titles.sort()
+                        
                 if data.length > 0
                         @render()
                 else
@@ -263,9 +276,37 @@ class BubbleChart extends Backbone.View
                                         )
                 @circle.attr("r", (d) -> d.radius )
 
+        selectItem: (item) ->
+                @selectedItem = item
+                @circle.style("stroke-width",@strokeWidth)
+                @circle.style("stroke", @getStrokeColor)
+
         render: () ->
 
-
+                that = this
+                typeahead = $("div[data-id='#{@id}'] .search")
+                typeahead.typeahead(
+                        source: =>
+                                @selectItem(null)
+                                @selectedItem = null
+                                @circle.style("stroke-width",@strokeWidth)
+                                @circle.style("stroke", @getStrokeColor)
+                                @titles
+                        updater: (item) =>
+                                @selectItem(item)
+                                return item
+                )
+                tags = $("div[data-id='#{@id}'] .tag")
+                tagClicked = false
+                tags.mouseenter( () ->
+                                        that.selectItem( $(@).text() )
+                                        tagClicked = false
+                                )
+                        .mouseleave( () -> if not tagClicked then that.selectItem( null ) )
+                        .click     ( () ->
+                                        that.selectItem( $(@).text() )
+                                        tagClicked = true
+                                )
                 container = $("div[data-id='#{@id}'] .overlayContainer")
                 overlay = $("div[data-id='#{@id}'] .overlay")
                 frame = $("div[data-id='#{@id}'] .frame")
@@ -281,14 +322,15 @@ class BubbleChart extends Backbone.View
 
                 @circle = @svg.selectAll("circle")
                               .data(@nodes, (d) -> d.sid );
-
+                        
                 that = @
                 @circle.enter()
                         .append("svg:circle")
-                         .attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)")
-                        .style("stroke-width", 1)
-                        .style("fill", (d) => @getFillColor(d) )
-                        .style("stroke", (d) => @getStrokeColor(d) )
+                        .attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)")
+                        .attr("data-title", (d) -> d.name )
+                        .style("stroke-width", @strokeWidth )
+                        .style("fill", @getFillColor )
+                        .style("stroke", @getStrokeColor )
                         .style("cursor",(d) => if budget_array_data[d.drilldown] then "pointer" else "inherit")
                         .on("click", (d,i) ->
                                 if budget_array_data[d.drilldown]
@@ -310,16 +352,19 @@ class BubbleChart extends Backbone.View
                                 d3.select("#tooltip .name").html(d.name)
                                 d3.select("#tooltip .department").text(d.group)
                                 d3.select("#tooltip .value").html(formatNumber(d.value*1000)+" \u20aa")
-                                pctchngout = if (d.change == "N.A.") then "N.A" else that.pctFormat(d.change)
-                                d3.select("#tooltip .change").html(pctchngout)
+                                if d?.changestr
+                                        pctchngout = d.changestr
+                                else
+                                        pctchngout = if (d.change == "N.A.") then "N.A" else that.pctFormat(Math.abs(d.change))
+                                        pctchngout = pctchngout + (if d.change < 0 then "-" else "+")
+                                d3.select("#tooltip .change").html( pctchngout)
                                 )
                         .on("mouseout", (d,i) ->
                                 d3.select(@)
-                                        .style("stroke-width",1)
+                                        .style("stroke-width", that.strokeWidth )
                                         .style("stroke", (d) -> that.getStrokeColor(d) )
                                 d3.select("#tooltip").style('display','none')
                                 )
-
                 if @transitiontime > 0
                         console.log "chart "+@id+" transitioning radius"
                         @circle.transition().duration(@transitiontime)
