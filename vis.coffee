@@ -45,7 +45,8 @@ class CompareData extends Backbone.Model
                         data = budget_array_data[field]
                         if data
                                 console.log('setting field ' + field)
-                                @set 'data', budget_array_data[field]
+                                @set 'data', budget_array_data[field].d
+                                @set 'title', budget_array_data[field].t
                         else
                                 console.log('field '+field+' is '+data)
 
@@ -457,13 +458,23 @@ if document.createElementNS? and document.createElementNS('http://www.w3.org/200
         $( ->
                 History.Adapter.bind window, 'statechange', handleNewState
                 query = window.location.search.slice(1)
+                if query.length == 0
+                        query = "plpsq1"
                 querys = query.split("/")
+                console.log "Q",querys
+                if querys.length == 1
+                        while budget_array_data[querys[0]]
+                                up = budget_array_data[querys[0]].u
+                                if up
+                                        querys.unshift up
+                                else
+                                        break
                 state = History.getState()
                 if state.data?.length and state.data.length> 0
                         handleNewState()
                 else
                         console.log "xxx",state.data.length
-                        History.replaceState(querys,null,"?"+query)
+                        History.replaceState(querys,null,"?"+querys.join("/"))
                         console.log "pushed "+querys
                 $(document).keyup (e) ->
                         if e.keyCode == 27

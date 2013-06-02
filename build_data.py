@@ -58,6 +58,7 @@ def copy_node_no_children(node):
              'value': node['value'],
              'group': node.get('group',""),
              'parent_value': node.get('parent_value'),
+             'nchildren': len(node.get('children')) if 'children' in node.keys() else node.get('nchildren', 0),
              'children': {} }
 
 def filter_tree(node,func):
@@ -182,15 +183,18 @@ def key_for_diff(year1,field1,year2,field2,income,divein):
 def adapt_for_js(drilldown, items):
     for item in items:
         if item['value'] != [0,0]:
-            yield { 'b0'  : item['value'][0],
+            ret= { 'b0'  : item['value'][0],
                     'b1'  : item['value'][1],
                     'n'   : get_string_id(item['title']),
                     'p'   : get_string_id(item['group']),
                     'pv'  : item.get('parent_value'),
                     'id'  : get_string_id(item['code']),
                     'c'   : int(100*item['value'][1] / item['value'][0] - 100) if item['value'][0] > 0 else 99999,
-                    'd'   : drilldown(item['code'])
                 }
+            if item.get('nchildren',0) > 0:
+                ret['d'] = drilldown(item['code'])
+            yield ret
+
 
 def describe(year,field):
     title = u"תכנון" if field.endswith("allocated") else u"ביצוע"
@@ -209,12 +213,17 @@ def get_items_for(year1,field1,year2,field2,income):
                                               ) == 2)
     merged = filter_tree(merged, lambda node: len(node.get('children',{}))>1 )
 
-    title = u"%s: %s לעומת %s" % ( u"הכנסות" if income else u"הוצאות", describe(year1,field1), describe(year2,field2) )
+    title_prefix = u"%s: %s לעומת %s" % ( u"הכנסות" if income else u"הוצאות", describe(year1,field1), describe(year2,field2) )
 
     for node in traverse_by_depth(merged,2):
         diff = list(adapt_for_js(lambda (c): key_for_diff(year1,field1,year2,field2,income,c),extract_by_depth(node,1)))
         if len(diff) > 1:
-            yield key_for_diff(year1,field1,year2,field2,income,node['code']), diff, u"%s - %s (%s)" % (title, node['title'], node['code'] )
+            up = None
+            title = u"%s - %s" % (title_prefix, node['title'],  )
+            if len(node['code']) > 0:
+                up = key_for_diff(year1,field1,year2,field2,income,node['code'][:-2])
+                title += " (%s)" % node['code']
+            yield key_for_diff(year1,field1,year2,field2,income,node['code']), up, diff, title
 
 #    for part in merged['children'].keys():
 #        key = key_for_diff(year1,field1,year2,field2,income,merged['code']+part)
@@ -241,16 +250,14 @@ if __name__=="__main__":
     diffs = itertools.chain( *( get_items_for(*diff) for diff in generated_diffs ) )
     diffsDict = {}
     urls = []
-    for key,diff,title in diffs:
-        diffsDict[key] = diff
+    for key,up,diff,title in diffs:
+        diffsDict[key] = { 't': title, 'd' : diff, 'u' : up }
         urls.append((key,title))
     out = file('data.js','w')
     out.write('budget_array_data = %s;\n' % json.dumps(diffsDict))
     out.write('strings = %s;\n' % json.dumps(strings))
     #print json.dumps(dict(diffs))
     urlsFile = file('all.html','w')
-    urlsFile.write("<ul style='direction:rtl;'>")
-    for x in urls: urlsFile.write(("<li><a href='/vis.html?%s'>%s</a></li>" % x).encode('utf8'))
-    urlsFile.write("</ul>")
-    
-    
+    urlsFile.write("<!DOCTYPE html><html><head><meta charset='utf-8'><title>כל ההשוואות</title></head><body><ul style='direction:rtl;'>")
+    for x in urls: urlsFile.write(("<li><a href='vis.html?%s'>%s</a></li>" % x).encode('utf8'))
+    urlsFile.write("</ul></body></html>")
