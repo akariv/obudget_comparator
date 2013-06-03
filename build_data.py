@@ -261,3 +261,9 @@ if __name__=="__main__":
     urlsFile.write("<!DOCTYPE html><html><head><meta charset='utf-8'><title>כל ההשוואות</title></head><body><ul style='direction:rtl;'>")
     for x in urls: urlsFile.write(("<li><a href='vis.html?%s'>%s</a></li>" % x).encode('utf8'))
     urlsFile.write("</ul></body></html>")
+    
+    imagesScript = file('load_images.sh','w')
+    imagesScript.write("#!/bin/bash\n")
+    for key, _ in urls:
+        imagesScript.write( "phantomjs images/rasterize.js http://localhost:8000/vis.html?%(url)s images/%(url)s.png\n" % { 'url' : key } )
+    

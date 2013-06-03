@@ -139,7 +139,7 @@ class BubbleChart extends Backbone.View
                 d3.select(@el).html("")
                 @svg = d3.select(@el)
                          .append("svg:svg")
-                         .attr("width", @width)
+                         #.attr("width", @width)
                 @svg.append("svg:rect")
                     .attr("x",-1000)
                     .attr("y",-1000)
@@ -187,7 +187,7 @@ class BubbleChart extends Backbone.View
                                         y               : -150+Math.random() * 300
 
                         out.sid = n.id
-                        out.code = strings[n.c]
+                        out.code = strings[n.id]
                         out.radius = radiusScale(n[currentYearDataColumn])
                         out.group = strings[n.p]
                         out.groupvalue = n.pv
@@ -311,8 +311,21 @@ class BubbleChart extends Backbone.View
                 container = $("div[data-id='#{@id}'] .overlayContainer")
                 overlay = $("div[data-id='#{@id}'] .overlay")
                 frame = $("div[data-id='#{@id}'] .frame")
-                console.log "height", frame.height()
-                container.css('height',$(@el).height()+"px")
+                overlay.css("height",frame.height()+"px")
+                $(window).resize () =>
+                        console.log "frame resize"
+                        @width = $(window).width() - 8
+                        if @width > 900 then @width = 900
+                        @centerX = @width/2
+                        if not @overlayShown and @circle
+                                @svg.attr "width", @width
+                                @circle.attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)")
+                        overlay.css("height",frame.height()+"px")
+
+                @width = $(window).width() - 8
+                if @width > 900 then @width = 900
+                @centerX = @width/2
+
                 if @transitiontime > 0
                         overlay
                                 .css("opacity",0)
@@ -352,6 +365,8 @@ class BubbleChart extends Backbone.View
                                         .classed('minus', (d.changeCategory < 0))
                                 d3.select("#tooltip .name").html(d.name)
                                 d3.select("#tooltip .department").text(d.group)
+                                console.log "explanation for "+d.code+" "+getExplanation(d.code,2012)
+                                d3.select("#tooltip .explanation").text(getExplanation(d.code,2012))
                                 d3.select("#tooltip .value").html(formatNumber(d.value*1000)+" \u20aa")
                                 if d?.changestr
                                         pctchngout = d.changestr
@@ -453,7 +468,45 @@ handleNewState = () ->
                         console.log "chart "+(charts.length-1)+": overlay removed"
                         charts[charts.length-1].overlayRemoved()
         first_time = false
-        
+
+explanations = {}
+getExplanation = (code,year) ->
+        years = explanations[code]
+        console.log "got years ",years
+        if years
+                year = parseInt(year)
+                explanation = years[year]
+                if not explanation
+                        explanation = years[Object.keys(years)[0]]
+                console.log explanations                        
+                return explanation
+        return null
+                
+window.handleExplanations = (data) ->
+        row = 1
+        code = null
+        explanation = null
+        years = null
+        for entry in data.feed.entry
+                title = entry.title.$t
+                if title.search( /B[0-9]+/ ) == 0
+                        code = entry.content.$t
+                if title.search( /D[0-9]+/ ) == 0
+                        explanation = entry.content.$t
+                if title.search( /F[0-9]+/ ) == 0
+                        years = entry.content.$t
+                        years = years.split(",")
+                        if code != null and explanation != null
+                                for _year in years
+                                        year = parseInt(_year)
+                                        curCodeExpl = explanations[code]
+                                        if not curCodeExpl
+                                                explanations[code] = {}
+                                        explanations[code][year] = explanation
+                        code = explanation = null
+        console.log explanations
+                       
+     
 if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
         $( ->
                 History.Adapter.bind window, 'statechange', handleNewState
@@ -479,6 +532,8 @@ if document.createElementNS? and document.createElementNS('http://www.w3.org/200
                 $(document).keyup (e) ->
                         if e.keyCode == 27
                                 removeState()
+                $("body").append('<script type="text/javascript" src="http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/od6/public/basic?alt=json-in-script&callback=window.handleExplanations"></script>')
+
                 )
 else
         $("#charts").hide()
