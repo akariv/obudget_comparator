@@ -1,13 +1,5 @@
-libs/backbone-min.js
-libs/bootstrap.min.css
-libs/bootstrap.min.js
-libs/coffee-script.js
-libs/d3.v3.min.js
-libs/jquery.bbq.min.js
-libs/jquery.min.js
-libs/less.min.js
-libs/native.history.min.js
-libs/underscore-min.js
+libs/*js
+libs/*css
 vis.coffee
 vis.html
 all.html

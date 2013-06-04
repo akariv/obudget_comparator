@@ -140,13 +140,7 @@ class BubbleChart extends Backbone.View
                 @svg = d3.select(@el)
                          .append("svg:svg")
                          #.attr("width", @width)
-                @svg.append("svg:rect")
-                    .attr("x",-1000)
-                    .attr("y",-1000)
-                    .attr("width",2000)
-                    .attr("height",2000)
-                    .attr("opacity",0)
-                    .on("click", -> removeState() )
+                @svg.on("click", -> removeState() )
 
                 console.log "init done", @id
         
@@ -349,7 +343,7 @@ class BubbleChart extends Backbone.View
                         .on("click", (d,i) ->
                                 if budget_array_data[d.drilldown]
                                         addState(d.drilldown)
-                                false
+                                d3.event.stopPropagation()
                                 )
                         .on("mouseover", (d,i) ->
                                 el = d3.select(@)
