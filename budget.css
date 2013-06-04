@@ -72,18 +72,16 @@ body {
 #tooltipContainer {
   position: absolute;
   bottom: 0;
-  width: 230px;
-  right: -145px;
+  width: 240px;
+  right: -150px;
   font-size: 12px;
   line-height: 16px;
-  padding: 10px;
-  border-radius: 3px;
+  padding: 5px 0;
   background: rgba(255, 255, 255, 0.9);
-  color: #000;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(200, 200, 200, 0.85);
   text-align: center;
+  border: 2px solid #777;
 }
 #tooltip {
   text-align: center;
@@ -103,16 +101,10 @@ body {
 #tooltip .department {
   text-transform: uppercase;
   text-align: right;
-  font-size: 10px;
-  margin-bottom: 2px;
+  font-size: 12px;
+  margin-bottom: 7px;
   color: #666;
   text-align: center;
-}
-#tooltip .rule {
-  height: 1px;
-  margin: 1px auto 3px;
-  background: #ddd;
-  width: 130px;
 }
 #tooltip .discretion {
   color: #666;
@@ -121,9 +113,17 @@ body {
   font-style: italic;
 }
 #tooltip .name {
-  text-align: right;
-  font-size: 13px;
+  color: #000;
+  font-size: 18px;
   text-align: center;
+  background: #ddd;
+  padding: 3px 0 6px;
+}
+#tooltip.minus .name {
+  background: #ffd75a;
+}
+#tooltip.plus .name {
+  background: #aaafe2;
 }
 #tooltip .value {
   left: 10px;
@@ -146,9 +146,22 @@ body {
 #tooltip .valuesContainer {
   padding-top: 7px;
 }
-#tooltip.minus .change {
+#tooltip.minus #tooltipContainer {
+  border-color: #c09100;
+}
+#tooltip.minus #tooltipContainer .change {
   color: #c09100;
 }
-#tooltip.plus .change {
+#tooltip.plus #tooltipContainer {
+  border-color: #3e48b5;
+}
+#tooltip.plus #tooltipContainer .change {
   color: #3e48b5;
+}
+#tooltip .tip,
+#tooltip .changeHistory {
+  font-size: 14px;
+  text-align: center;
+  margin: 3px;
+  line-height: 1.3em;
 }
