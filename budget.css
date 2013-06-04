@@ -1,6 +1,6 @@
 @import url(http://fonts.googleapis.com/earlyaccess/alefhebrew.css);
 body {
-  font-family: Alef, Arial, sans-serif;
+  font-family: Alef Hebrew, Arial, sans-serif;
 }
 .frame {
   position: absolute;
@@ -37,7 +37,7 @@ body {
   direction: rtl;
 }
 .chartContainer {
-  height: 100%;
+  height: 500px;
   -webkit-transition: height ease-in-out 1s;
   -moz-transition: height ease-in-out 1s;
   -o-transition: height ease-in-out 1s;
@@ -158,8 +158,8 @@ body {
 #tooltip.plus #tooltipContainer .change {
   color: #3e48b5;
 }
-#tooltip .tip,
-#tooltip .changeHistory {
+#tooltip .explanation,
+#tooltip .history {
   font-size: 14px;
   text-align: center;
   margin: 3px;
