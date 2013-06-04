@@ -264,6 +264,14 @@ if __name__=="__main__":
     
     imagesScript = file('load_images.sh','w')
     imagesScript.write("#!/bin/bash\n")
+    commands = []
     for key, _ in urls:
-        imagesScript.write( "phantomjs images/rasterize.js http://localhost:8000/vis.html?%(url)s images/%(url)s.png\n" % { 'url' : key } )
+        commands.append( "phantomjs images/rasterize.js http://localhost:8000/vis.html?%(url)s s images/small/%(url)s.jpg" % { 'url' : key } )
+        commands.append( "phantomjs images/rasterize.js http://localhost:8000/vis.html?%(url)s m images/medium/%(url)s.jpg" % { 'url' : key } )
+        commands.append( "phantomjs images/rasterize.js http://localhost:8000/vis.html?%(url)s l images/large/%(url)s.jpg" % { 'url' : key } )
+    while len(commands) > 0:
+        towrite = commands[:8]
+        commands = commands[8:]
+        imagesScript.write( "".join([ "sleep 1.5 ; for x in `pgrep phantomjs | sed '1,8d' | head -n1` ; do wait $x ; done ; %s &\n" % (cmd,) for i, cmd in enumerate(towrite)]) )
+                            
     
