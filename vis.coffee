@@ -348,7 +348,7 @@ class BubbleChart extends Backbone.View
                         .on("mouseover", (d,i) ->
                                 el = d3.select(@)
                                 svgPos = $(that.el).find("svg").position()
-                                xpos = Number(el.attr('cx'))+svgPos.left+that.centerX
+                                xpos = Number(el.attr('cx'))+svgPos.left+that.centerX-15
                                 ypos = (el.attr('cy') - d.radius - 10)+svgPos.top+that.centerY
                                 el.style("stroke","#000").style("stroke-width",3)
                                 d3.select("#tooltip")

@@ -8,14 +8,16 @@
 // variables:
 
 @frame: 4px solid #3B3B3B;
+@width: 900px;
 @growColor:		#3e48b5;
 @shrinkColor:	#c09100;
+@alef: Alef Hebrew, Arial, sans-serif;
+@textColor: #444;
 
 @import url(http://fonts.googleapis.com/earlyaccess/alefhebrew.css);
 
-body { 
-	font-family: Alef Hebrew, Arial, sans-serif; 
-  	
+body, form, input { 
+	font-family: @alef;
 }
 
 .frame{
@@ -25,7 +27,7 @@ body {
 
 	background: none;
 	border: @frame;
-	max-width: 900px;
+	max-width: @width;
 	direction: rtl;
 	h1{
 		font-weight: bold;
@@ -45,6 +47,54 @@ body {
 	}
 }
 
+#search{
+	margin-top: -10px;
+	background: #F2F1EF;
+	border-bottom: @frame;
+	padding: 10px;
+	.nav{
+		margin-bottom: 5px;
+		li{
+			float: right;
+			margin-left: 10px;
+		}
+		a{
+			font-size: 14px;
+			padding: 2px 8px;
+			/* Rectangle 14: */
+			border-radius: 39px;
+			background: #CFDFEA;
+		}
+	}
+	form{
+		max-width: @width - 10;
+		margin: 0;
+		position: relative;
+		input{
+			width: 100%;
+			height: 37px;
+			border-radius: 39px;
+			background: #FFFFFF;
+			border: 1px solid #D4D4D4;
+			padding: 0;
+			margin: 0 -1px;
+			text-indent: 20px;
+		}
+		button{
+			position: absolute;
+			top:6px;
+			left: 0;
+			font-size: 1.5em;
+			content:"";
+			background: none;
+			border: none;
+			box-shadow: none;
+			color: #aaa;
+			&:hover{color: @textColor}
+		}
+	}
+}
+
 .name {
   direction: rtl;
 }
@@ -55,14 +105,39 @@ body {
 	-webkit-transition: height ease-in-out 1s;  
 	-moz-transition: height ease-in-out 1s;    
 	-o-transition: height ease-in-out 1s;    
-	-ms-transition: height ease-in-out 1s;        
+	-ms-transition: height ease-in-out 1s;  
+	//position: relative;      
+}
+
+.chartButtons a{
+	position: absolute;
+	color: @textColor;
+	font-size: 1.5em;
+	&:hover{
+		opacity: 0.5;
+		text-decoration: none;
+	}
+	&.btnCancel,&.btnLupe{
+		margin-top:15px;
+		margin-left: 15px;
+		position: relative;
+		float: left;
+	}
+	&.btnDownload{
+		bottom:15px;
+		right: 15px;
+	}
+	&.btnShare{
+		bottom:15px;
+		left: 15px;
+	}
 }
 
 .chart {
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
-
+	//position: relative;
 	svg {
 		height: 100%;
 		overflow: hidden;
