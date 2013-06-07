@@ -31,15 +31,15 @@
       height = null;
       if (chart_size === "small") {
         width = 460;
-        height = 800;
+        height = 808;
       }
       if (chart_size === "medium") {
         width = 637;
-        height = 725;
+        height = 734;
       }
       if (chart_size === "large") {
         width = 959;
-        height = 650;
+        height = 719;
       }
       if (width && height) {
         _results.push(el.outerHTML = "<iframe src='//compare.open-budget.org.il/vis.html?" + chart_id + "' width='" + width + "' height='" + height + "'>" + el.outerHTML + "</iframe>");

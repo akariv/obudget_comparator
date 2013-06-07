@@ -139,7 +139,7 @@ def build_tree( data, year, field, income=False ):
                 parent_value = node['value']
         except KeyError:
             continue
-        item['group'] = group if group else "%s (%s)" % (item['title'], item['code'])
+        item['group'] = group if group else "תקציב המדינה"
         item['parent_value'] = parent_value
         node.setdefault('children',{})[code] = item
 
