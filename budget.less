@@ -12,6 +12,7 @@
 @growColor:		#3e48b5;
 @shrinkColor:	#c09100;
 @alef: Alef Hebrew, Arial, sans-serif;
+@textColor: #444;
 
 @import url(http://fonts.googleapis.com/earlyaccess/alefhebrew.css);
 
@@ -101,14 +102,39 @@ body, form, input {
 	-webkit-transition: height ease-in-out 1s;  
 	-moz-transition: height ease-in-out 1s;    
 	-o-transition: height ease-in-out 1s;    
-	-ms-transition: height ease-in-out 1s;        
+	-ms-transition: height ease-in-out 1s;  
+	//position: relative;      
+}
+
+.chartButtons a{
+	position: absolute;
+	color: @textColor;
+	font-size: 1.5em;
+	&:hover{
+		opacity: 0.5;
+		text-decoration: none;
+	}
+	&.btnCancel,&.btnLupe{
+		margin-top:15px;
+		margin-left: 15px;
+		position: relative;
+		float: left;
+	}
+	&.btnDownload{
+		bottom:15px;
+		right: 15px;
+	}
+	&.btnShare{
+		bottom:15px;
+		left: 15px;
+	}
 }
 
 .chart {
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
-
+	//position: relative;
 	svg {
 		height: 100%;
 		overflow: hidden;
