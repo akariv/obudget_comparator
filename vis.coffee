@@ -338,7 +338,7 @@ class BubbleChart extends Backbone.View
                         .style("stroke-width", @strokeWidth )
                         .style("fill", @getFillColor )
                         .style("stroke", @getStrokeColor )
-                        .style("cursor",(d) => if budget_array_data[d.drilldown] then "pointer" else "inherit")
+                        .style("cursor",(d) => if budget_array_data[d.drilldown] then "pointer" else "default")
                         .on("click", (d,i) ->
                                 if budget_array_data[d.drilldown]
                                         addState(d.drilldown)
