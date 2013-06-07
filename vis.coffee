@@ -64,7 +64,6 @@ class BubbleChart extends Backbone.View
                 strokeColor(d.changeCategory);
 
         strokeWidth: (d) ->
-                console.log d.name+" <> "+@selectedItem
                 if d.name == @selectedItem then 5 else 1
 
         # Formatting
@@ -348,8 +347,18 @@ class BubbleChart extends Backbone.View
                         .on("mouseover", (d,i) ->
                                 el = d3.select(@)
                                 svgPos = $(that.el).find("svg").position()
-                                xpos = Number(el.attr('cx'))+svgPos.left+that.centerX-15
-                                ypos = (el.attr('cy') - d.radius - 10)+svgPos.top+that.centerY
+                                xpos = Number(el.attr('cx'))+that.centerX
+                                if xpos < 120 then xpos = 120
+                                if xpos > (@width - 120) then xpos = (@width - 120)
+                                xpos += svgPos.left
+                                ypos = Number(el.attr('cy'))
+                                console.log "YPOS "+ypos
+                                if ypos > 0
+                                        ypos = ypos - d.radius - 10 +svgPos.top+that.centerY
+                                        $("#tooltipContainer").css("bottom",0)
+                                else
+                                        ypos = ypos + d.radius + 10 +svgPos.top+that.centerY
+                                        $("#tooltipContainer").css("bottom","")
                                 el.style("stroke","#000").style("stroke-width",3)
                                 d3.select("#tooltip")
                                         .style('top',ypos+"px")
@@ -359,8 +368,8 @@ class BubbleChart extends Backbone.View
                                         .classed('minus', (d.changeCategory < 0))
                                 d3.select("#tooltip .name").html(d.name)
                                 d3.select("#tooltip .department").text(d.group)
-                                console.log "explanation for "+d.code+" "+getExplanation(d.code,2012)
                                 d3.select("#tooltip .explanation").text(getExplanation(d.code,2012))
+                                d3.select("#tooltip .history").text("Hello there")
                                 d3.select("#tooltip .value").html(formatNumber(d.value*1000)+" \u20aa")
                                 if d?.changestr
                                         pctchngout = d.changestr
@@ -376,7 +385,6 @@ class BubbleChart extends Backbone.View
                                 d3.select("#tooltip").style('display','none')
                                 )
                 if @transitiontime > 0
-                        console.log "chart "+@id+" transitioning radius"
                         @circle.transition().duration(@transitiontime)
                                 .attr("r", (d) -> d.radius )
                                 .style("fill", (d) => @getFillColor(d) )
@@ -434,6 +442,7 @@ handleNewState = () ->
                         template = _.template( $("#chart-template").html(),{ id: id } )
                         $("#charts").append template
                         el =$("div[data-id='#{id}'] .chart")                       
+                        console.log "creating BubbleChart "+id
                         charts[i] = new BubbleChart
                                 el: el
                                 model: new CompareData
