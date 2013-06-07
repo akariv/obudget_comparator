@@ -7,7 +7,7 @@
     <meta property="fb:admins" content="100000025217694" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="libs/bootstrap-combined.min.css" rel="stylesheet">
-    <!--link href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet"-->
+    <link href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
     <!--link href="budget.css" rel="stylesheet"-->
     <link rel="stylesheet/less" type="text/css" href="budget.less" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -60,11 +60,16 @@
 	  <div class="description">
 	    <p><%= id %> תקציב המדינה הדו-שנתי 2011/2012 הועבר בכנסת בסוף דצמבר 2010. <span class="grow20">העיגולים הסגולים</span> מציגים סעיפים שגדלו ב2012 ביחס לתיקצובם ב2011 ו<span class="shrink20">הצהובים</span> את אלה שקטנו. שימו לב לדוגמה ל<a href="#">סעיף הבטחון</a> שתוכנן לעלות ב0.8% בלבד אך <a href="#"> בפועל</a> נרשמה הוצאה הגדולה ב18.8% מהתכנון.</p>
 	  </div>
-	  <div class="search">
-	    <input class="search" type="text" data-provide="typeahead" autocomplete="off">
-	    <span class="tag">משרד החינוך</span>
-	    <span class="tag">משרד הבריאות</span>
-	    <span class="tag">משרד הבטחון</span>
+	  <div id="search">
+      <ul class="tags nav nav-pills">
+        <li class="tag"><a href="#">משרד החינוך</a></li>
+        <li class="tag"><a href="#">משרד הבריאות</a></li>
+        <li class="tag"><a href="#">משרד הבטחון</a></li>
+      </ul>
+      <form class="form-search">
+        <input type="text" class="input-medium search-query search" data-provide="typeahead" autocomplete="off">
+        <button type="submit" class="btn"><i class="icon-search"></i></button>
+      </form>
 	  </div>
 	  <div class="chartContainer"><div class="chart"></div></div>
 	</div>

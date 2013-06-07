@@ -8,6 +8,7 @@
 // variables:
 
 @frame: 4px solid #3B3B3B;
+@width: 900px;
 @growColor:		#3e48b5;
 @shrinkColor:	#c09100;
 
@@ -25,7 +26,7 @@ body {
 
 	background: none;
 	border: @frame;
-	max-width: 900px;
+	max-width: @width;
 	direction: rtl;
 	h1{
 		font-weight: bold;
@@ -42,6 +43,51 @@ body {
 		padding: 0 10px 10px;
 		.grow20{color: @growColor; font-weight: bold}
 		.shrink20{color: @shrinkColor; font-weight: bold}
+	}
+}
+
+#search{
+	margin-top: -10px;
+	background: #F2F1EF;
+	border-bottom: @frame;
+	padding: 10px;
+	.nav{
+		margin-bottom: 5px;
+		li{
+			float: right;
+			margin-left: 10px;
+		}
+		a{
+			font-size: 14px;
+			padding: 2px 8px;
+			/* Rectangle 14: */
+			border-radius: 39px;
+			background: #CFDFEA;
+		}
+	}
+	form{
+		max-width: @width - 10;
+		margin: 0;
+		position: relative;
+		input{
+			width: 100%;
+			height: 37px;
+			border-radius: 39px;
+			background: #FFFFFF;
+			border: 1px solid #D4D4D4;
+			padding: 0;
+			margin: 0 -1px;
+			text-indent: 20px;
+		}
+		button{
+			position: absolute;
+			top:6px;
+			left: 3px;
+			content:"";
+			background: none;
+			border: none;
+			box-shadow: none;
+		}
 	}
 }
 
