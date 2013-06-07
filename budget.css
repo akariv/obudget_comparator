@@ -1,5 +1,7 @@
 @import url(http://fonts.googleapis.com/earlyaccess/alefhebrew.css);
-body {
+body,
+form,
+input {
   font-family: Alef Hebrew, Arial, sans-serif;
 }
 .frame {
