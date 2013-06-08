@@ -525,10 +525,17 @@ window.handleExplanations = (data) ->
 if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
         $( ->
                 History.Adapter.bind window, 'statechange', handleNewState
-                query = window.location.search.slice(1)
+                query = "plpsq1"
+                ret_query = window.location.search.slice(1)
                 if query.length == 0
-                        query = "plpsq1"
-                querys = query.split("/")
+                        query = window.location.hash
+                        if query.length > 0
+                                query = query.split("?")
+                                if query.length > 1
+                                        retquery = query[1]
+                else
+                        query = retquery
+                querys = retquery.split("/")
                 console.log "Q",querys
                 if querys.length == 1
                         while budget_array_data[querys[0]]
@@ -542,7 +549,7 @@ if document.createElementNS? and document.createElementNS('http://www.w3.org/200
                         handleNewState()
                 else
                         console.log "xxx",state.data.length
-                        History.replaceState(querys,null,"?"+querys.join("/"))
+                        History.pushState(querys,null,"?"+querys.join("/"))
                         console.log "pushed "+querys
                 $(document).keyup (e) ->
                         if e.keyCode == 27
