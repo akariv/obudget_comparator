@@ -100,8 +100,8 @@ body, form, input {
 }
 
 .chartContainer {
-	//width: 970px;
-	height: 500px;
+        position:relative;
+	height: 550px;
 	-webkit-transition: height ease-in-out 1s;  
 	-moz-transition: height ease-in-out 1s;    
 	-o-transition: height ease-in-out 1s;    
@@ -109,27 +109,29 @@ body, form, input {
 	//position: relative;      
 }
 
-.chartButtons a{
-	position: absolute;
-	color: @textColor;
-	font-size: 1.5em;
-	&:hover{
-		opacity: 0.5;
-		text-decoration: none;
-	}
-	&.btnCancel,&.btnLupe{
-		margin-top:15px;
-		margin-left: 15px;
-		position: relative;
-		float: left;
-	}
-	&.btnDownload{
-		bottom:15px;
-		right: 15px;
-	}
-	&.btnShare{
-		bottom:15px;
-		left: 15px;
+.chartButtons {
+	background: none;
+
+	a {
+	        position: absolute;
+		color: @textColor;
+		font-size: 1.5em;
+		&:hover{
+			opacity: 0.5;
+			text-decoration: none;
+			}
+		&.btnCancel,&.btnLupe{
+		    top:15px;
+		    left:15px;
+		}
+		&.btnDownload{
+		    bottom:15px;
+		    right: 15px;
+		}
+		&.btnShare{
+		    bottom:15px;
+		    left: 15px;
+		}
 	}
 }
 
@@ -166,7 +168,7 @@ body, form, input {
 #tooltipContainer {
 	position: absolute;
 	width: 240px;
-	right: -150px;
+	right: -120px;
 	font-size: 12px;
 	line-height: 16px;
 	padding: 5px 0;
@@ -184,13 +186,20 @@ body, form, input {
 	display: none;
 	direction:rtl;
 	
-	.tail {
+	.arrow {
 		position: absolute;
-		bottom: -8px;
-		right: 105px;
+		right: 100px;
 		width: 40px;
 		height: 8px;
-		background: url(images/tail_white.png) 50% 0%;
+		//color: #fff;
+		&.bottom {
+		    bottom: 0px;
+		    //background: url(images/bottom_white.png) 50% 0%;
+		}
+		&.top {
+		    top: -17px;
+		    //background: url(images/top_white.png) 50% 0%;
+		}
 	}
 	.department {
 		text-transform: uppercase;
@@ -239,13 +248,13 @@ body, form, input {
 	}
 	&.minus #tooltipContainer{
 		border-color: @shrinkColor;
-		.change{
+		.change, .arrow{
 			color:@shrinkColor;
 		}
 	}
 	&.plus #tooltipContainer{
 		border-color:@growColor;
-		.change{
+		.change, .arrow{
 			color:@growColor;
 		}
 	}

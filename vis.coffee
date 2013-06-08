@@ -212,6 +212,7 @@ class BubbleChart extends Backbone.View
 
                         @nodes.push(out)
 
+                @nodes.sort( (a,b) -> Math.abs(b.value) - Math.abs(a.value) )
                 @titles.sort()
                         
                 if data.length > 0
@@ -346,19 +347,29 @@ class BubbleChart extends Backbone.View
                                 )
                         .on("mouseover", (d,i) ->
                                 el = d3.select(@)
-                                svgPos = $(that.el).find("svg").position()
+                                svgPos = $(that.el).find("svg").offset()
+                                console.log svgPos.top, svgPos.left, that.width
                                 xpos = Number(el.attr('cx'))+that.centerX
-                                if xpos < 120 then xpos = 120
-                                if xpos > (@width - 120) then xpos = (@width - 120)
+                                tail = 100
+                                if xpos < 125
+                                        tail += 125 - xpos
+                                        xpos = 125
+                                if xpos > (that.width - 125)
+                                        tail -= xpos - (that.width - 125)
+                                        xpos = (that.width - 125)
                                 xpos += svgPos.left
                                 ypos = Number(el.attr('cy'))
                                 console.log "YPOS "+ypos
                                 if ypos > 0
                                         ypos = ypos - d.radius - 10 +svgPos.top+that.centerY
                                         $("#tooltipContainer").css("bottom",0)
+                                        d3.select("#tooltip .arrow.top").style("display","none")
+                                        d3.select("#tooltip .arrow.bottom").style("display","block")
                                 else
                                         ypos = ypos + d.radius + 10 +svgPos.top+that.centerY
                                         $("#tooltipContainer").css("bottom","")
+                                        d3.select("#tooltip .arrow.top").style("display","block")
+                                        d3.select("#tooltip .arrow.bottom").style("display","none")                                        
                                 el.style("stroke","#000").style("stroke-width",3)
                                 d3.select("#tooltip")
                                         .style('top',ypos+"px")
@@ -371,6 +382,7 @@ class BubbleChart extends Backbone.View
                                 d3.select("#tooltip .explanation").text(getExplanation(d.code,2012))
                                 d3.select("#tooltip .history").text("Hello there")
                                 d3.select("#tooltip .value").html(formatNumber(d.value*1000)+" \u20aa")
+                                d3.selectAll("#tooltip .arrow").style("right",tail+"px")
                                 if d?.changestr
                                         pctchngout = d.changestr
                                 else
@@ -481,7 +493,7 @@ getExplanation = (code,year) ->
                 explanation = years[year]
                 if not explanation
                         explanation = years[Object.keys(years)[0]]
-                console.log explanations                        
+                #console.log explanations                        
                 return explanation
         return null
                 
@@ -535,6 +547,8 @@ if document.createElementNS? and document.createElementNS('http://www.w3.org/200
                 $(document).keyup (e) ->
                         if e.keyCode == 27
                                 removeState()
+                $(".btnCancel:last").live("click", -> removeState())
+                
                 $("body").append('<script type="text/javascript" src="http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/od6/public/basic?alt=json-in-script&callback=window.handleExplanations"></script>')
 
                 )

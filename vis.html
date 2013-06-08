@@ -21,22 +21,23 @@
       </div>
     </div> <!-- End Container -->
     
-      <div id="tooltip">
-	<div id="tooltipContainer">
-	  <div class="department"></div>
-	  <div class="rule"></div>
-	  <div class="name"></div>
-	  <div class="discretion"></div>
-	  <div class="valuesContainer">
-	    <span class="value"></span>
-	    <span class="change"></span>
-	  </div>
-	  <div class="explanation"></div>
-	  <div class="history"></div>
-	  <!--div class="chart"></div-->
-	  <div class="tail"></div>
+    <div id="tooltip">
+      <div id="tooltipContainer">
+	<div class="department"></div>
+	<div class="rule"></div>
+	<div class="name"></div>
+	<div class="discretion"></div>
+	<div class="valuesContainer">
+	  <span class="value"></span>
+	  <span class="change"></span>
 	</div>
+	<div class="explanation"></div>
+	<div class="history"></div>
+	<!--div class="chart"></div-->
+	<div class="arrow top icon-caret-up icon-2x"></div>
+	<div class="arrow bottom icon-caret-down icon-2x"></div>
       </div>
+    </div>
 
     <!-- Budget data -->
     <script src="libs/jquery.min.js" type="text/javascript"></script>
@@ -60,25 +61,25 @@
 	    <p><%= id %> תקציב המדינה הדו-שנתי 2011/2012 הועבר בכנסת בסוף דצמבר 2010. <span class="grow20">העיגולים הסגולים</span> מציגים סעיפים שגדלו ב2012 ביחס לתיקצובם ב2011 ו<span class="shrink20">הצהובים</span> את אלה שקטנו. שימו לב לדוגמה ל<a href="#">סעיף הבטחון</a> שתוכנן לעלות ב0.8% בלבד אך <a href="#"> בפועל</a> נרשמה הוצאה הגדולה ב18.8% מהתכנון.</p>
 	  </div>
 	  <div id="search">
-      <ul class="tags nav nav-pills">
-        <li class="tag"><a href="#">משרד החינוך</a></li>
-        <li class="tag"><a href="#">משרד הבריאות</a></li>
-        <li class="tag"><a href="#">משרד הבטחון</a></li>
-      </ul>
-      <form class="form-search">
-        <input type="text" class="input-medium search-query search" data-provide="typeahead" autocomplete="off">
-        <button type="submit" class="btn"><i class="icon-search"></i></button>
-      </form>
+	    <ul class="tags nav nav-pills">
+              <li class="tag"><a href="#">משרד החינוך</a></li>
+              <li class="tag"><a href="#">משרד הבריאות</a></li>
+              <li class="tag"><a href="#">משרד הבטחון</a></li>
+	    </ul>
+	    <form class="form-search">
+              <input type="text" class="input-medium search-query search" data-provide="typeahead" autocomplete="off">
+              <button type="submit" class="btn"><i class="icon-search"></i></button>
+	    </form>
 	  </div>
 	  <div class="chartContainer">
-      <div class="chartButtons">
-        <a href="#" class="btnCancel"><i class="icon-remove"></i></a>
-        <a href="#" class="btnShare"><i class="icon-facebook"></i></a>
-        <a href="#" class="btnDownload"><i class="icon-download-alt"></i></a>
-      </div>
-      <div class="chart"></div>
-    </div>
+	    <div class="chart"></div>
+	    <div class="chartButtons">
+              <a href="#" class="btnCancel"><i class="icon-remove"></i></a>
+              <a href="#" class="btnShare"><i class="icon-facebook"></i></a>
+              <a href="#" class="btnDownload"><i class="icon-download-alt"></i></a>
+	    </div>
+	  </div>
 	</div>
       </div>
-     </script>
+    </script>
   </body>
