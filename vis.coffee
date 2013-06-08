@@ -306,19 +306,19 @@ class BubbleChart extends Backbone.View
                 overlay = $("div[data-id='#{@id}'] .overlay")
                 frame = $("div[data-id='#{@id}'] .frame")
                 overlay.css("height",frame.height()+"px")
-                $(window).resize () =>
+
+                resizeFrame = () =>
                         console.log "frame resize"
                         @width = $(window).width() - 8
                         if @width > 900 then @width = 900
                         @centerX = @width/2
+                        @svg.attr "width", @width
+                        @svg.style "width", @width
                         if not @overlayShown and @circle
-                                @svg.attr "width", @width
                                 @circle.attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)")
                         overlay.css("height",frame.height()+"px")
-
-                @width = $(window).width() - 8
-                if @width > 900 then @width = 900
-                @centerX = @width/2
+                        
+                resizeFrame()
 
                 if @transitiontime > 0
                         overlay
@@ -427,31 +427,33 @@ class BubbleChart extends Backbone.View
                                         )
                 		.start()
 
-querys = []
+state = { querys: [], selectedStory: null }
 charts = []
 first_time = true
 
 addState = (toAdd) ->
-        querys.push(toAdd)
-        History.pushState(querys,null,"?" + querys.join("/") )
+        state.querys.push(toAdd)
+        History.pushState(state,null,"?" + state.querys.join("/") )
 
 removeState = ->
-        if querys.length > 1
-                querys.pop()
-                History.pushState(querys,null,"?" + querys.join("/") )
+        if state.querys.length > 1
+                state.querys.pop()
+                History.pushState(state,null,"?" + state.querys.join("/") )
 
 handleNewState = () ->
         state = History.getState()
-        querys = state.data
+        state = state.data
         console.log "state changed: ",state
-        for i in [0...querys.length]
-                query = querys[i]
-                nextquery = querys[i+1]
+        for i in [0...state.querys.length]
+                query = state.querys[i]
+                nextquery = state.querys[i+1]
                 id = "id"+i
                 el = $("div[data-id='#{id}'] .chart")
                 if el.size() == 0
                         console.log "creating chart "+id
-                        template = _.template( $("#chart-template").html(),{ id: id } )
+                        title = state.selectedStory?.title or "שינויי תכנון תקציב 2012 מול 2011"
+                        subtitle = state.selectedStory?.subtitle or ""
+                        template = _.template( $("#chart-template").html(),{ id: id, title:title, subtitle:subtitle } )
                         $("#charts").append template
                         el =$("div[data-id='#{id}'] .chart")                       
                         console.log "creating BubbleChart "+id
@@ -460,25 +462,25 @@ handleNewState = () ->
                                 model: new CompareData
                                 id: id
 
-        max = if querys.length > charts.length then querys.length else charts.length
+        max = if state.querys.length > charts.length then state.querys.length else charts.length
         console.log "max: "+max
         for i in [max-1..0]
                 console.log "setting field for "+i
-                if i >= querys.length
+                if i >= state.querys.length
                         console.log "removing chart #"+i
                         charts[i].updateData([])
                         charts.pop()
                         continue
 
-                query = querys[i]
+                query = state.querys[i]
                 overlaid = false
-                if (i < querys.length - 2) or (first_time and (i < querys.length - 1))
+                if (i < state.querys.length - 2) or (first_time and (i < state.querys.length - 1))
                         overlaid = true
                 charts[i].setOverlayed( overlaid )
                 charts[i].model.set "field", query
-                if i < querys.length - 1
-                        charts[i].showOverlay(querys[i+1])                       
-        if max > querys.length
+                if i < state.querys.length - 1
+                        charts[i].showOverlay(state.querys[i+1])                       
+        if max > state.querys.length
                 if charts.length > 0
                         console.log "chart "+(charts.length-1)+": overlay removed"
                         charts[charts.length-1].overlayRemoved()
@@ -520,44 +522,72 @@ window.handleExplanations = (data) ->
                                         explanations[code][year] = explanation
                         code = explanation = null
         console.log explanations
-                       
+
+stories = {}
+window.handleStories = (data) ->
+        row = 1
+        code = null
+        title = null
+        subtitle = null
+        chartid = null
+        for entry in data.feed.entry
+                range = entry.title.$t
+                if range.search( /B[0-9]+/ ) == 0
+                        code = entry.content.$t
+                if range.search( /C[0-9]+/ ) == 0
+                        title = entry.content.$t
+                if range.search( /D[0-9]+/ ) == 0
+                        subtitle = entry.content.$t
+                if range.search( /F[0-9]+/ ) == 0
+                        chartid = entry.content.$t
+                        stories[chartid] = { code:code, title:title, subtitle:subtitle }
+                        code = title = subtitle = chartid = null
+        console.log explanations
+
+        History.Adapter.bind window, 'statechange', handleNewState
+        query = "plpsq1"
+        ret_query = window.location.search.slice(1)
+        if ret_query.length == 0
+                ret_query = window.location.hash
+                console.log "using hash: "+ret_query
+                if ret_query.length > 0
+                        ret_query = query.split("?")
+                        if ret_query.length > 1
+                                query = ret_query[1]
+                                console.log "got state (hash): "+query
+        else
+                query = ret_query
+                console.log "got state (search): "+query
+        if stories[query]
+                state.selectedStory = stories[query]
+                query = state.selectedStory.code
+                console.log "Selected story ("+state.selectedStory.code+")! "+state.selectedStory.title+", "+state.selectedStory.subtitle
+        state.querys = query.split("/")
+        console.log "Q",state.querys
+        if state.querys.length == 1
+                while budget_array_data[state.querys[0]]
+                        up = budget_array_data[state.querys[0]].u
+                        if up
+                                state.querys.unshift up
+                        else
+                                break
+        _state = History.getState()
+        if _state.data?.queries and _state.data.queries.length> 0
+                handleNewState()
+        else
+                console.log "xxx",state.data
+                History.replaceState(state,null,"?"+state.querys.join("/"))
+                console.log "pushed "+state
+        $(document).keyup (e) ->
+                if e.keyCode == 27
+                        removeState()
+        $(".btnCancel:last").live("click", -> removeState())
+                
+        $("body").append('<script type="text/javascript" src="http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/od6/public/basic?alt=json-in-script&callback=window.handleExplanations"></script>')
      
 if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
         $( ->
-                History.Adapter.bind window, 'statechange', handleNewState
-                query = "plpsq1"
-                ret_query = window.location.search.slice(1)
-                if ret_query.length == 0
-                        ret_query = window.location.hash
-                        if ret_query.length > 0
-                                ret_query = query.split("?")
-                                if ret_query.length > 1
-                                        query = ret_query[1]
-                else
-                        query = ret_query
-                querys = query.split("/")
-                console.log "Q",querys
-                if querys.length == 1
-                        while budget_array_data[querys[0]]
-                                up = budget_array_data[querys[0]].u
-                                if up
-                                        querys.unshift up
-                                else
-                                        break
-                state = History.getState()
-                if state.data?.length and state.data.length> 0
-                        handleNewState()
-                else
-                        console.log "xxx",state.data.length
-                        History.pushState(querys,null,"?"+querys.join("/"))
-                        console.log "pushed "+querys
-                $(document).keyup (e) ->
-                        if e.keyCode == 27
-                                removeState()
-                $(".btnCancel:last").live("click", -> removeState())
-                
-                $("body").append('<script type="text/javascript" src="http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/od6/public/basic?alt=json-in-script&callback=window.handleExplanations"></script>')
-
+                $("body").append('<script type="text/javascript" src="http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script&callback=window.handleStories"></script>')
                 )
 else
         $("#charts").hide()
