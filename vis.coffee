@@ -527,15 +527,15 @@ if document.createElementNS? and document.createElementNS('http://www.w3.org/200
                 History.Adapter.bind window, 'statechange', handleNewState
                 query = "plpsq1"
                 ret_query = window.location.search.slice(1)
-                if query.length == 0
-                        query = window.location.hash
-                        if query.length > 0
-                                query = query.split("?")
-                                if query.length > 1
-                                        retquery = query[1]
+                if ret_query.length == 0
+                        ret_query = window.location.hash
+                        if ret_query.length > 0
+                                ret_query = query.split("?")
+                                if ret_query.length > 1
+                                        query = ret_query[1]
                 else
-                        query = retquery
-                querys = retquery.split("/")
+                        query = ret_query
+                querys = query.split("/")
                 console.log "Q",querys
                 if querys.length == 1
                         while budget_array_data[querys[0]]
