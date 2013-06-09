@@ -89,11 +89,15 @@ input {
   direction: rtl;
 }
 .chartContainer {
-  height: 500px;
+  position: relative;
+  height: 550px;
   -webkit-transition: height ease-in-out 1s;
   -moz-transition: height ease-in-out 1s;
   -o-transition: height ease-in-out 1s;
   -ms-transition: height ease-in-out 1s;
+}
+.chartButtons {
+  background: none;
 }
 .chartButtons a {
   position: absolute;
@@ -106,10 +110,8 @@ input {
 }
 .chartButtons a.btnCancel,
 .chartButtons a.btnLupe {
-  margin-top: 15px;
-  margin-left: 15px;
-  position: relative;
-  float: left;
+  top: 15px;
+  left: 15px;
 }
 .chartButtons a.btnDownload {
   bottom: 15px;
@@ -147,9 +149,8 @@ input {
 }
 #tooltipContainer {
   position: absolute;
-  bottom: 0;
   width: 240px;
-  right: -150px;
+  right: -120px;
   font-size: 12px;
   line-height: 16px;
   padding: 5px 0;
@@ -166,13 +167,17 @@ input {
   display: none;
   direction: rtl;
 }
-#tooltip .tail {
+#tooltip .arrow {
   position: absolute;
-  bottom: -8px;
-  right: 105px;
+  right: 100px;
   width: 40px;
   height: 8px;
-  background: url(images/tail_white.png) 50% 0%;
+}
+#tooltip .arrow.bottom {
+  bottom: 0px;
+}
+#tooltip .arrow.top {
+  top: -18px;
 }
 #tooltip .department {
   text-transform: uppercase;
@@ -225,13 +230,15 @@ input {
 #tooltip.minus #tooltipContainer {
   border-color: #c09100;
 }
-#tooltip.minus #tooltipContainer .change {
+#tooltip.minus #tooltipContainer .change,
+#tooltip.minus #tooltipContainer .arrow {
   color: #c09100;
 }
 #tooltip.plus #tooltipContainer {
   border-color: #3e48b5;
 }
-#tooltip.plus #tooltipContainer .change {
+#tooltip.plus #tooltipContainer .change,
+#tooltip.plus #tooltipContainer .arrow {
   color: #3e48b5;
 }
 #tooltip .explanation,
