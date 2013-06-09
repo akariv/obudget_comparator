@@ -139,7 +139,10 @@ class BubbleChart extends Backbone.View
                 @svg = d3.select(@el)
                          .append("svg:svg")
                          #.attr("width", @width)
-                @svg.on("click", -> removeState() )
+                @svg.on("click", ->
+                        removeState()
+                        false
+                )
 
                 console.log "init done", @id
         
@@ -301,6 +304,7 @@ class BubbleChart extends Backbone.View
                         .click     ( () ->
                                         that.selectItem( $(@).text() )
                                         tagClicked = true
+                                        false
                                 )
                 container = $("div[data-id='#{@id}'] .overlayContainer")
                 overlay = $("div[data-id='#{@id}'] .overlay")
@@ -313,7 +317,7 @@ class BubbleChart extends Backbone.View
                         if @width > 900 then @width = 900
                         @centerX = @width/2
                         @svg.attr "width", @width
-                        @svg.style "width", @width
+                        @svg.style "width", @width+"px"
                         if not @overlayShown and @circle
                                 @circle.attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)")
                         overlay.css("height",frame.height()+"px")
@@ -344,6 +348,7 @@ class BubbleChart extends Backbone.View
                                 if budget_array_data[d.drilldown]
                                         addState(d.drilldown)
                                 d3.event.stopPropagation()
+                                false
                                 )
                         .on("mouseover", (d,i) ->
                                 el = d3.select(@)
@@ -581,7 +586,11 @@ window.handleStories = (data) ->
         $(document).keyup (e) ->
                 if e.keyCode == 27
                         removeState()
-        $(".btnCancel:last").live("click", -> removeState())
+                false
+        $(".btnCancel:last").live("click", ->
+                removeState()
+                false
+        )
                 
         $("body").append('<script type="text/javascript" src="http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/od6/public/basic?alt=json-in-script&callback=window.handleExplanations"></script>')
      
