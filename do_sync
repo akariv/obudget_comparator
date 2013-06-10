@@ -1,2 +1,5 @@
 #!/bin/bash
-s3cmd sync --delete-removed -P --exclude '*' --exclude '.*' --include-from=sync_files . s3://compare.open-budget.org.il/
+for x in `cat sync_files` ; do s3cmd put -P --include-from=sync_files $x s3://compare.open-budget.org.il/$x ; done
+s3cmd --acl-public --no-preserve --add-header="Content-Encoding:gzip" --mime-type="text/html; charset=utf-8"  put budget.min.js.gz s3://compare.open-budget.org.il/budget.min.js
+echo IMAGES
+s3cmd sync -P --exclude '*' --exclude '.*' --include 'images/*/*.jpg' . s3://compare.open-budget.org.il/

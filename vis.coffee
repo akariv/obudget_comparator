@@ -39,14 +39,16 @@ class CompareData extends Backbone.Model
         defaults:
                 data: []
                 field: ""
+                title: "?"
         initialize: ->
                 @on 'change:field', () ->
                         field = @get 'field'
                         data = budget_array_data[field]
                         if data
-                                console.log('setting field ' + field)
-                                @set 'data', budget_array_data[field].d
-                                @set 'title', budget_array_data[field].t
+                                console.log('setting field ' + field + " title: " + data.t)
+                                @set 'title', data.t
+                                @set 'breadcrumbs', data.b
+                                @set 'data', data.d
                         else
                                 console.log('field '+field+' is '+data)
 
@@ -149,13 +151,11 @@ class BubbleChart extends Backbone.View
 
         collectTitles: (titles, field, prefix = '', state = []) ->
                 if not field then return
-                console.log "collectTitles", titles.length, field, prefix
                 data = budget_array_data[field]
                 if data
                         for n in data.d
                                 code = strings[n.id]
                                 name = strings[n.n]
-                                console.log code,":",name
                                 if name and code
                                         titles.push( id:name, text:prefix + name, code:code, state:state )
                                 @collectTitles( titles, n.d, prefix + name + ' | ', state.concat([n.d]) )
@@ -309,13 +309,12 @@ class BubbleChart extends Backbone.View
                 #                return item
                 #)
                 search.select2(
-                        placeholder: "חפש סעיף ספציפי"
+                        placeholder: 'תקציב '+ (@model.get 'breadcrumbs') + ": חפשו סעיף ספציפי"
                         allowClear: true
                         data: @titles
                 )
                 search.on("select2-highlight",
                         (e) ->
-                                console.log e
                                 that.selectItem(e.choice.id)
                 ).on("change",
                         (e) ->
@@ -344,21 +343,22 @@ class BubbleChart extends Backbone.View
                 container = $("div[data-id='#{@id}'] .overlayContainer")
                 overlay = $("div[data-id='#{@id}'] .overlay")
                 frame = $("div[data-id='#{@id}'] .frame")
-                overlay.css("height",frame.height()+"px")
 
                 resizeFrame = () =>
                         console.log "frame resize"
                         @width = $(window).width() - 8
                         if @width > 900 then @width = 900
-                        @centerX = @width/2
+                        @centerX = @width/2 +4
                         @svg.attr "width", @width
                         @svg.style "width", @width+"px"
                         if not @overlayShown and @circle
-                                @circle.attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)")
-                        overlay.css("height",frame.height()+"px")
-                        
-                resizeFrame()
+                                @circle.attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(0,0)scale(1)")
+                        overlay.css("height",(frame.height()+8)+"px")
 
+                $(window).resize resizeFrame
+                                
+                resizeFrame()
+                
                 if @transitiontime > 0
                         overlay
                                 .css("opacity",0)
@@ -373,7 +373,7 @@ class BubbleChart extends Backbone.View
                 that = @
                 @circle.enter()
                         .append("svg:circle")
-                        .attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)")
+                        .attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(0,0)scale(1)")
                         .attr("data-title", (d) -> d.name )
                         .style("stroke-width", @strokeWidth )
                         .style("fill", @getFillColor )
@@ -388,7 +388,6 @@ class BubbleChart extends Backbone.View
                         .on("mouseover", (d,i) ->
                                 el = d3.select(@)
                                 svgPos = $(that.el).find("svg").offset()
-                                console.log svgPos.top, svgPos.left, that.width
                                 xpos = Number(el.attr('cx'))+that.centerX
                                 tail = 100
                                 if xpos < 125
@@ -399,7 +398,6 @@ class BubbleChart extends Backbone.View
                                         xpos = (that.width - 125)
                                 xpos += svgPos.left
                                 ypos = Number(el.attr('cy'))
-                                console.log "YPOS "+ypos
                                 if ypos > 0
                                         ypos = ypos - d.radius - 10 +svgPos.top+that.centerY
                                         $("#tooltipContainer").css("bottom",0)
@@ -409,8 +407,9 @@ class BubbleChart extends Backbone.View
                                         ypos = ypos + d.radius + 10 +svgPos.top+that.centerY
                                         $("#tooltipContainer").css("bottom","")
                                         d3.select("#tooltip .arrow.top").style("display","block")
-                                        d3.select("#tooltip .arrow.bottom").style("display","none")                                        
-                                el.style("stroke","#000").style("stroke-width",3)
+                                        d3.select("#tooltip .arrow.bottom").style("display","none")
+                                if d.drilldown
+                                        el.style("stroke","#000").style("stroke-width",3)
                                 d3.select("#tooltip")
                                         .style('top',ypos+"px")
                                         .style('left',xpos+"px")
@@ -460,9 +459,20 @@ class BubbleChart extends Backbone.View
                 		.charge(@defaultCharge)
                 		.friction(0.9)
                                 .on("tick", (e) =>
+                                        maxx = 0
+                                        minx = 0
+                                        avgx = 0
+                                        num = @nodes.length
                                         @circle .each(@totalSort(e.alpha))
                                                 .each(@buoyancy(e.alpha))
-                                                .attr("cx", (d) -> d.x )
+                                                .each((d) ->
+                                                        max = d.x + d.radius
+                                                        maxx = if max > maxx then max else maxx
+                                                        min = d.x - d.radius
+                                                        minx = if min < minx then min else minx
+                                                        avgx = (maxx + minx)/2
+                                                )
+                                                .attr("cx", (d) -> d.x - avgx )
                                                 .attr("cy", (d) -> d.y )
                                         )
                 		.start()
@@ -525,6 +535,7 @@ handleNewState = () ->
                         console.log "chart "+(charts.length-1)+": overlay removed"
                         charts[charts.length-1].overlayRemoved()
         first_time = false
+        $(".btnCancel:first").css("display","none")
 
 explanations = {}
 getExplanation = (code,year) ->
@@ -535,7 +546,6 @@ getExplanation = (code,year) ->
                 explanation = years[year]
                 if not explanation
                         explanation = years[Object.keys(years)[0]]
-                #console.log explanations                        
                 return explanation
         return null
                 
@@ -582,7 +592,7 @@ window.handleStories = (data) ->
                         chartid = entry.content.$t
                         stories[chartid] = { code:code, title:title, subtitle:subtitle }
                         code = title = subtitle = chartid = null
-        console.log explanations
+        console.log stories
 
         History.Adapter.bind window, 'statechange', handleNewState
         query = "plpsq1"
