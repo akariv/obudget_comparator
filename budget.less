@@ -155,10 +155,32 @@ body, form, input {
 		    bottom:15px;
 		    right: 15px;
 		}
-		&.btnShare{
+		&.btnShare {	    
 		    bottom:15px;
 		    left: 15px;
+		}		      
+	}
+
+	div.btnShareContainer {
+	    position: absolute;
+	    width:100px;
+	    height:20px;
+	    bottom:15px;
+	    left: 15px;
+
+	    .fb-like {
+		display:none;
+	    }
+
+	    &:hover .fb-like {
+		display:inline-block;
+
+		iframe {
+		    position:absolute;
+		    bottom:0px;
+		    left:0px;
 		}
+	    }
 	}
 
 	div.color-index{
@@ -1093,4 +1115,8 @@ select.select2 {
 .select2-drop { 
     direction: rtl; 
     background-color: rgba(255,255,255,0.5);
+}
+
+div.select2-search {
+    margin-top: 25px;
 }

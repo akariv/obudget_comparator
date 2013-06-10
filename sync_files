@@ -1,11 +1,9 @@
-libs/*js
-libs/*css
-vis.coffee
 vis.html
 all.html
-budget.less
-data.js
-fonts/Alef-Regular.*
-images/*/*.jpg
+budget.css
 embed_example.html
 embed.js
+select2-spinner.gif
+select2.png
+select2x2.png
+color-index.png

@@ -163,14 +163,14 @@ def extract_by_depth(node,target_depth,depth=0):
         child = node.get('children')[key]
         for x in extract_by_depth(child,target_depth,depth+1): yield x
 
-def traverse_by_depth(node,max_depth,depth=0):
-    yield node
+def traverse_by_depth(node,max_depth,depth=0,breadcrumbs=[]):
+    yield node, breadcrumbs + [node['title']]
     if depth == max_depth: return
     keys = node.get('children').keys()
     keys.sort()
     for key in keys:
         child = node.get('children')[key]
-        for x in traverse_by_depth(child,max_depth,depth+1): yield x
+        for x in traverse_by_depth(child,max_depth,depth+1,breadcrumbs + [node['title']]): yield x
     
 
 def key_for_diff(year1,field1,year2,field2,income,divein):
@@ -215,7 +215,7 @@ def get_items_for(year1,field1,year2,field2,income):
 
     title_prefix = u"%s: %s לעומת %s" % ( u"הכנסות" if income else u"הוצאות", describe(year1,field1), describe(year2,field2) )
 
-    for node in traverse_by_depth(merged,2):
+    for node,breadcrumbs in traverse_by_depth(merged,2):
         diff = list(adapt_for_js(lambda (c): key_for_diff(year1,field1,year2,field2,income,c),extract_by_depth(node,1)))
         if len(diff) > 1:
             up = None
@@ -223,7 +223,7 @@ def get_items_for(year1,field1,year2,field2,income):
             if len(node['code']) > 0:
                 up = key_for_diff(year1,field1,year2,field2,income,node['code'][:-2])
                 title += " (%s)" % node['code']
-            yield key_for_diff(year1,field1,year2,field2,income,node['code']), up, diff, title
+            yield key_for_diff(year1,field1,year2,field2,income,node['code']), up, diff, title, ' | '.join(breadcrumbs)
 
 #    for part in merged['children'].keys():
 #        key = key_for_diff(year1,field1,year2,field2,income,merged['code']+part)
@@ -250,8 +250,8 @@ if __name__=="__main__":
     diffs = itertools.chain( *( get_items_for(*diff) for diff in generated_diffs ) )
     diffsDict = {}
     urls = []
-    for key,up,diff,title in diffs:
-        diffsDict[key] = { 't': title, 'd' : diff, 'u' : up }
+    for key,up,diff,title,breadcrumbs in diffs:
+        diffsDict[key] = { 't': title, 'd' : diff, 'u' : up, 'b' : breadcrumbs }
         urls.append((key,title))
     out = file('data.js','w')
     out.write('budget_array_data = %s;\n' % json.dumps(diffsDict))
@@ -272,6 +272,6 @@ if __name__=="__main__":
     while len(commands) > 0:
         towrite = commands[:8]
         commands = commands[8:]
-        imagesScript.write( "".join([ "sleep 1.5 ; for x in `pgrep phantomjs | sed '1,8d' | head -n1` ; do wait $x ; done ; %s &\n" % (cmd,) for i, cmd in enumerate(towrite)]) )
+        imagesScript.write( "".join([ "sleep 2.5 ; for x in `pgrep phantomjs | sed '1,8d' | head -n1` ; do wait $x ; done ; %s &\n" % (cmd,) for i, cmd in enumerate(towrite)]) )
                             
     
