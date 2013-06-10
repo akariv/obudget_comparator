@@ -490,10 +490,10 @@ Version: @@ver@@ Timestamp: @@timestamp@@
   display: inline-block;
   width: 100%;
   min-height: 26px;
-  margin: 0;
-  padding-top: 5px;
-  padding-left: 4px;
-  padding-right: 4px;
+  margin: 1px 0;
+  padding: 5px 4px 4px;
+  background: #eee;
+  border-bottom: 1px solid #919191;
   position: relative;
   z-index: 10000;
   white-space: nowrap;
