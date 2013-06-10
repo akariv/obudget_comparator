@@ -88,8 +88,10 @@ body, form, input {
 			content:"";
 			background: none;
 			border: none;
+			border-radius: 0;
+			border-right: 2px solid #ccc;
 			box-shadow: none;
-			color: #aaa;
+			color: #444;
 			&:hover{color: @textColor}
 		}
 	}
@@ -101,19 +103,44 @@ body, form, input {
 
 .chartContainer {
         position:relative;
-	height: 550px;
+	height: 580px;
 	-webkit-transition: height ease-in-out 1s;  
 	-moz-transition: height ease-in-out 1s;    
 	-o-transition: height ease-in-out 1s;    
 	-ms-transition: height ease-in-out 1s;  
-	//position: relative;      
+	//position: relative;   
+
+	h2{
+		//text-align: center;
+		background: #f9f9f9;
+		padding: 5px 10px;
+		margin: 1px 0 0 0;
+		color: #aaa;
+		line-height: 1.2em;
+		font-size: 16px;
+		font-weight: normal;
+		a.active{
+			display: block;
+		}
+		a.btnBack{
+			float: left;
+			padding: 8px 10px 8px 10px;
+			display: block;
+			color: lighten(@textColor,30%);
+			font-size: 1.2em;
+			&:hover{
+				text-decoration: none;
+				color: @textColor;
+			}
+		}
+	}   
 }
 
 .chartButtons {
 	background: none;
 
 	a {
-	        position: absolute;
+	    position: absolute;
 		color: @textColor;
 		font-size: 1.5em;
 		&:hover{
