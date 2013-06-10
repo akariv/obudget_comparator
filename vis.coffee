@@ -50,6 +50,7 @@ class CompareData extends Backbone.Model
                         else
                                 console.log('field '+field+' is '+data)
 
+globalSelectedItem = null
 class BubbleChart extends Backbone.View
 
 
@@ -59,12 +60,12 @@ class BubbleChart extends Backbone.View
                 if (d.isNegative) then "#fff" else fillColor(d.changeCategory)
 
         getStrokeColor: (d) ->
-                if d.name == @selectedItem then return "#FF0"
+                if d.name == globalSelectedItem then return "#FF0"
                 strokeColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range(["#c09100", "#e7bd53","#d9c292","#999","#a7aed3", "#7f8ab8", "#4f5fb0"])
                 strokeColor(d.changeCategory);
 
         strokeWidth: (d) ->
-                if d.name == @selectedItem then 5 else 1
+                if d.name == globalSelectedItem then 5 else 1
 
         # Formatting
         pctFormat: (p) ->
@@ -145,11 +146,22 @@ class BubbleChart extends Backbone.View
                 )
 
                 console.log "init done", @id
+
+        collectTitles: (titles, field, prefix = '', state = []) ->
+                if not field then return
+                console.log "collectTitles", titles.length, field, prefix
+                data = budget_array_data[field]
+                if data
+                        for n in data.d
+                                code = strings[n.id]
+                                name = strings[n.n]
+                                console.log code,":",name
+                                if name and code
+                                        titles.push( id:name, text:prefix + name, code:code, state:state )
+                                @collectTitles( titles, n.d, prefix + name + ' | ', state.concat([n.d]) )
         
         updateData: (data) ->
                 oldNodes = []
-
-                @selectedItem = null
 
                 sum = 0
                 for x in data
@@ -161,14 +173,14 @@ class BubbleChart extends Backbone.View
                                 oldNodes.push(node)
                 @nodes = []
                 @titles = []
-
-                rScale = d3.scale.pow().exponent(0.5).domain([0,@totalValue]).range([1,200])
+                @collectTitles( @titles, @model.get 'field' )
+                
+                rScale = d3.scale.pow().exponent(0.5).domain([0,@totalValue]).range([10,180])
                 radiusScale = (n) -> rScale( Math.abs(n) )
                 @boundingRadius = radiusScale(@totalValue)
 
                 currentYearDataColumn = 'b1'
                 previousYearDataColumn = 'b0'
-
 
                 # Builds the nodes data array from the original data
                 for n in data
@@ -195,7 +207,6 @@ class BubbleChart extends Backbone.View
                         out.positions = n.positions
                         out.drilldown = n.d
 
-                        @titles.push( out.name )
                         ###
                         #  if (n.positions.total) 
         	    	#     out.x = n.positions.total.x + (n.positions.total.x - (@width / 2)) * 0.5
@@ -216,7 +227,7 @@ class BubbleChart extends Backbone.View
                         @nodes.push(out)
 
                 @nodes.sort( (a,b) -> Math.abs(b.value) - Math.abs(a.value) )
-                @titles.sort()
+                @titles.sort( (a,b) -> if a.code > b.code then 1 else -1 )
                         
                 if data.length > 0
                         @render()
@@ -275,25 +286,49 @@ class BubbleChart extends Backbone.View
                 @circle.attr("r", (d) -> d.radius )
 
         selectItem: (item) ->
-                @selectedItem = item
+                globalSelectedItem = item
                 @circle.style("stroke-width",@strokeWidth)
                 @circle.style("stroke", @getStrokeColor)
 
         render: () ->
 
                 that = this
-                typeahead = $("div[data-id='#{@id}'] .search")
-                typeahead.typeahead(
-                        source: =>
-                                @selectItem(null)
-                                @selectedItem = null
-                                @circle.style("stroke-width",@strokeWidth)
-                                @circle.style("stroke", @getStrokeColor)
-                                @titles
-                        updater: (item) =>
-                                @selectItem(item)
-                                return item
+
+                $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
+
+                search = $("div[data-id='#{@id}'] .mysearch")
+                #search.typeahead(
+                #        source: =>
+                #                @selectItem(null)
+                #                globalSelectedItem = null
+                #                @circle.style("stroke-width",@strokeWidth)
+                #                @circle.style("stroke", @getStrokeColor)
+                #                @titles
+                #        updater: (item) =>
+                #                @selectItem(item)
+                #                return item
+                #)
+                search.select2(
+                        placeholder: "חפש סעיף ספציפי"
+                        allowClear: true
+                        data: @titles
                 )
+                search.on("select2-highlight",
+                        (e) ->
+                                console.log e
+                                that.selectItem(e.choice.id)
+                ).on("change",
+                        (e) ->
+                                console.log "changed:",e
+                                if e.added
+                                        that.selectItem(e.added.id)
+                                        for x in e.added.state
+                                                addState(x)
+                                        search.select2("val", "")
+                                else
+                                        that.selectItem(null)
+                )
+                        
                 tags = $("div[data-id='#{@id}'] .tag")
                 tagClicked = false
                 tags.mouseenter( () ->
@@ -577,12 +612,13 @@ window.handleStories = (data) ->
                         else
                                 break
         _state = History.getState()
-        if _state.data?.queries and _state.data.queries.length> 0
+        console.log "getState: ",_state
+        if _state.data?.querys and _state.data.querys.length> 0
                 handleNewState()
         else
-                console.log "xxx",state.data
+                console.log "xxx",_state.data
                 History.replaceState(state,null,"?"+state.querys.join("/"))
-                console.log "pushed "+state
+                console.log "pushed ",state
         $(document).keyup (e) ->
                 if e.keyCode == 27
                         removeState()
@@ -591,7 +627,7 @@ window.handleStories = (data) ->
                 removeState()
                 false
         )
-                
+
         $("body").append('<script type="text/javascript" src="http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/od6/public/basic?alt=json-in-script&callback=window.handleExplanations"></script>')
      
 if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
