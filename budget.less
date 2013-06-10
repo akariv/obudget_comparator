@@ -309,9 +309,9 @@ Version: @@ver@@ Timestamp: @@timestamp@@
     color: #444;
     text-decoration: none;
 
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-            border-radius: 4px;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
 
     -webkit-background-clip: padding-box;
        -moz-background-clip: padding;
@@ -355,7 +355,9 @@ Version: @@ver@@ Timestamp: @@timestamp@@
 }
 
 .select2-container .select2-choice span {
-    margin-right: 26px;
+    margin-right: 12px;
+    font-size: 1.2em;
+	line-height: 2.2em;
     display: block;
     overflow: hidden;
 
@@ -459,7 +461,8 @@ Version: @@ver@@ Timestamp: @@timestamp@@
 }
 
 .select2-container .select2-choice div {
-    display: inline-block;
+    //display: inline-block;
+    display: none;
     width: 18px;
     height: 100%;
     position: absolute;
@@ -489,7 +492,8 @@ Version: @@ver@@ Timestamp: @@timestamp@@
     display: block;
     width: 100%;
     height: 100%;
-    background: url('select2.png') no-repeat 0 1px;
+    //background: url('select2.png') no-repeat 0 1px;
+    content: "&#xf0dd";
 }
 
 .select2-search {
@@ -497,6 +501,7 @@ Version: @@ver@@ Timestamp: @@timestamp@@
     width: 100%;
     min-height: 26px;
     margin: 0;
+    padding-top: 5px;
     padding-left: 4px;
     padding-right: 4px;
 
@@ -510,29 +515,33 @@ Version: @@ver@@ Timestamp: @@timestamp@@
     width: 100%;
     height: auto !important;
     min-height: 26px;
-    padding: 4px 20px 4px 5px;
+    padding: 4px 35px 4px 5px;
     margin: 0;
+    line-height: 26px;
+    font-size: 1.2em;
+
+    -webkit-border-radius: 20px;
+       -moz-border-radius: 20px;
+            border-radius: 20px;
 
     outline: 0;
     font-family: sans-serif;
     font-size: 1em;
 
     border: 1px solid #aaa;
-    -webkit-border-radius: 0;
-       -moz-border-radius: 0;
-            border-radius: 0;
 
     -webkit-box-shadow: none;
        -moz-box-shadow: none;
             box-shadow: none;
 
-    background: #fff url('select2.png') no-repeat 100% -22px;
-    background: url('select2.png') no-repeat 100% -22px, -webkit-gradient(linear, left bottom, left top, color-stop(0.85, white), color-stop(0.99, #eeeeee));
-    background: url('select2.png') no-repeat 100% -22px, -webkit-linear-gradient(center bottom, white 85%, #eeeeee 99%);
-    background: url('select2.png') no-repeat 100% -22px, -moz-linear-gradient(center bottom, white 85%, #eeeeee 99%);
-    background: url('select2.png') no-repeat 100% -22px, -o-linear-gradient(bottom, white 85%, #eeeeee 99%);
-    background: url('select2.png') no-repeat 100% -22px, -ms-linear-gradient(top, #ffffff 85%, #eeeeee 99%);
-    background: url('select2.png') no-repeat 100% -22px, linear-gradient(top, #ffffff 85%, #eeeeee 99%);
+    background: #fff url('icon-search.png') no-repeat right 6px;
+
+    background: url('icon-search.png') no-repeat right 6px, -webkit-gradient(linear, left bottom, left top, color-stop(0.85, white), color-stop(0.99, #eeeeee));
+    background: url('icon-search.png') no-repeat right 6px, -webkit-linear-gradient(center bottom, white 85%, #eeeeee 99%);
+    background: url('icon-search.png') no-repeat right 6px, -moz-linear-gradient(center bottom, white 85%, #eeeeee 99%);
+    background: url('icon-search.png') no-repeat right 6px, -o-linear-gradient(bottom, white 85%, #eeeeee 99%);
+    background: url('icon-search.png') no-repeat right 6px, -ms-linear-gradient(top, #ffffff 85%, #eeeeee 99%);
+    background: url('icon-search.png') no-repeat right 6px, linear-gradient(top, #ffffff 85%, #eeeeee 99%);
 }
 
 .select2-drop.select2-drop-above .select2-search input {
@@ -946,12 +955,12 @@ disabled look for disabled choices in the results dropdown
 
 .select2-container .select2-choice,
 .select2-container-multi .select2-choices {
-  height: 28px;
+  height: 38px;
   line-height: 29px;
   border: 1px solid #cccccc;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  border-radius: 8px;
   background: none;
   background-color: #ffffff;
   filter: none;
@@ -1030,5 +1039,5 @@ select.select2 {
 /* Local modifications */
 .select2-drop { 
     direction: rtl; 
-    background-color: rgba(255,255,255,0.25);
+    background-color: rgba(255,255,255,0.5);
 }
