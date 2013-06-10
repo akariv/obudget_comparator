@@ -79,8 +79,10 @@ input {
   content: "";
   background: none;
   border: none;
+  border-radius: 0;
+  border-right: 1px solid #ccc;
   box-shadow: none;
-  color: #aaa;
+  color: #444;
 }
 #search form button:hover {
   color: #444444;
@@ -90,11 +92,39 @@ input {
 }
 .chartContainer {
   position: relative;
-  height: 550px;
+  height: 580px;
   -webkit-transition: height ease-in-out 1s;
   -moz-transition: height ease-in-out 1s;
   -o-transition: height ease-in-out 1s;
   -ms-transition: height ease-in-out 1s;
+}
+.chartContainer h2 {
+  background: #f9f9f9;
+  padding: 5px 10px;
+  margin: 1px 0 0 0;
+  line-height: 1.2em;
+  font-size: 16px;
+  font-weight: normal;
+}
+.chartContainer h2 a.active {
+  display: block;
+}
+.chartContainer h2 a.btnBack {
+  float: left;
+  padding: 8px 10px 8px 10px;
+  display: block;
+  color: #919191;
+  font-size: 1.2em;
+}
+.chartContainer h2 a.btnBack:hover {
+  text-decoration: none;
+  color: #444444;
+}
+.chartContainer h2 a {
+  color: #999999;
+}
+.chartContainer h2:hover a {
+  color: #00aaff;
 }
 .chartButtons {
   background: none;
@@ -141,12 +171,12 @@ input {
 }
 .chartButtons div.color-index {
   background: url(color-index.png);
-  height: 24px;
-  width: 245px;
+  width: 24px;
+  height: 245px;
   position: absolute;
-  margin-left: -122px;
-  left: 50%;
-  bottom: 15px;
+  margin-top: -122px;
+  left: 4px;
+  top: 50%;
 }
 .chart {
   width: 100%;
@@ -274,6 +304,9 @@ input {
   text-align: center;
   margin: 3px;
   line-height: 1.3em;
+}
+#footer {
+  background: #fff;
 }
 /*
 Version: @@ver@@ Timestamp: @@timestamp@@
@@ -483,10 +516,10 @@ Version: @@ver@@ Timestamp: @@timestamp@@
   display: inline-block;
   width: 100%;
   min-height: 26px;
-  margin: 0;
-  padding-top: 5px;
-  padding-left: 4px;
-  padding-right: 4px;
+  margin: 1px 0;
+  padding: 5px 4px 4px;
+  background: #eee;
+  border-bottom: 1px solid #919191;
   position: relative;
   z-index: 10000;
   white-space: nowrap;
@@ -951,7 +984,4 @@ select.select2 {
 .select2-drop {
   direction: rtl;
   background-color: rgba(255, 255, 255, 0.5);
-}
-div.select2-search {
-  margin-top: 25px;
 }

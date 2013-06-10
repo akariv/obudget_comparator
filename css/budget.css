@@ -146,6 +146,24 @@ input {
   bottom: 15px;
   left: 15px;
 }
+.chartButtons div.btnShareContainer {
+  position: absolute;
+  width: 100px;
+  height: 20px;
+  bottom: 15px;
+  left: 15px;
+}
+.chartButtons div.btnShareContainer .fb-like {
+  display: none;
+}
+.chartButtons div.btnShareContainer:hover .fb-like {
+  display: inline-block;
+}
+.chartButtons div.btnShareContainer:hover .fb-like iframe {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+}
 .chartButtons div.color-index {
   background: url(color-index.png);
   height: 24px;
@@ -958,4 +976,7 @@ select.select2 {
 .select2-drop {
   direction: rtl;
   background-color: rgba(255, 255, 255, 0.5);
+}
+div.select2-search {
+  margin-top: 25px;
 }
