@@ -772,7 +772,7 @@
       if (range.search(/D[0-9]+/) === 0) {
         subtitle = entry.content.$t;
       }
-      if (range.search(/F[0-9]+/) === 0) {
+      if (range.search(/G[0-9]+/) === 0) {
         chartid = entry.content.$t;
         stories[chartid] = {
           code: code,

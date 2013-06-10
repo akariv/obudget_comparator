@@ -2,6 +2,6 @@
 for x in `cat sync_files` ; do s3cmd put -P --include-from=sync_files $x s3://compare.open-budget.org.il/$x ; done
 s3cmd --acl-public --no-preserve --add-header="Content-Encoding:gzip" --mime-type="text/html; charset=utf-8"  put budget.min.js.gz s3://compare.open-budget.org.il/budget.min.js
 echo PROXY
-for x in `ls -1 p*/html` ; do s3cmd put -P --include-from=sync_files $x s3://compare.open-budget.org.il/$x ; done
+for x in `ls -1 p/*.html` ; do s3cmd put -P --include-from=sync_files $x s3://compare.open-budget.org.il/$x ; done
 echo IMAGES
 for x in `ls -1 images/*/*.jpg` ; do s3cmd put -P --include-from=sync_files $x s3://compare.open-budget.org.il/$x ; done
