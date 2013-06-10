@@ -231,6 +231,32 @@ def get_items_for(year1,field1,year2,field2,income):
 #        if len(diff) > 1:
 #            yield key, diff
 
+def writeProxyHtml( key, title, description="" ):
+    html = u"""<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<title>התקציב הפתוח - {{r.title}}</title>
+<meta property="og:title" content="%(title)s" />
+<meta property="og:type" content="cause" />
+<meta property="og:url" content="http://compare.open-budget.org.il/?%(key)s" />
+<meta property="og:description" content="%(description)s" />
+<meta property="og:image" content="http://compare.open-budget.org.il/images/large/%(key)s.jpg" />
+<meta property="og:image:width" content="959" />
+<meta property="og:image:height" content="800" />
+<meta property="og:site_name" content="התקציב הפתוח" />
+<meta property="fb:admins" content="100000025217694" />
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    window.location = "http://compare.open-budget.org.il/?%(key)s";
+});
+</script>
+</head>
+<body>
+</body>
+</html>""" % { 'key': key, 'title' : title, 'description': description }
+    file("p/%s.html" % key,"w").write(html.encode('utf8'))
+
 if __name__=="__main__":
     generated_diffs = [ (2011, "net_allocated", 2011, "net_used", False),
                          (2012, "net_allocated", 2012, "net_used", False),
@@ -265,10 +291,13 @@ if __name__=="__main__":
     imagesScript = file('load_images.sh','w')
     imagesScript.write("#!/bin/bash\n")
     commands = []
-    for key, _ in urls:
+    for key, title in urls:
         commands.append( "phantomjs images/rasterize.js http://localhost:8000/vis.html?%(url)s s images/small/%(url)s.jpg" % { 'url' : key } )
         commands.append( "phantomjs images/rasterize.js http://localhost:8000/vis.html?%(url)s m images/medium/%(url)s.jpg" % { 'url' : key } )
         commands.append( "phantomjs images/rasterize.js http://localhost:8000/vis.html?%(url)s l images/large/%(url)s.jpg" % { 'url' : key } )
+
+        writeProxyHtml( key, title ) 
+
     while len(commands) > 0:
         towrite = commands[:8]
         commands = commands[8:]

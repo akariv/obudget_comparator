@@ -1,3 +1,5 @@
+L = (x...) -> console.log x...
+
 formatNumber = (n,decimals) ->
         suffix = ""
         negativePrefix = ""
@@ -45,12 +47,12 @@ class CompareData extends Backbone.Model
                         field = @get 'field'
                         data = budget_array_data[field]
                         if data
-                                console.log('setting field ' + field + " title: " + data.t)
+                                L('setting field ' + field + " title: " + data.t)
                                 @set 'title', data.t
                                 @set 'breadcrumbs', data.b
                                 @set 'data', data.d
                         else
-                                console.log('field '+field+' is '+data)
+                                L('field '+field+' is '+data)
 
 globalSelectedItem = null
 class BubbleChart extends Backbone.View
@@ -123,7 +125,7 @@ class BubbleChart extends Backbone.View
                 @id = @options.id
                 @overlayShown = false
 
-                console.log "BubbleChart:initialize", @id
+                L "BubbleChart:initialize", @id
 
         	# d3 settings
                 @defaultGravity = 0.1
@@ -147,7 +149,7 @@ class BubbleChart extends Backbone.View
                         false
                 )
 
-                console.log "init done", @id
+                L "init done", @id
 
         collectTitles: (titles, field, prefix = '', state = []) ->
                 if not field then return
@@ -167,7 +169,7 @@ class BubbleChart extends Backbone.View
                 for x in data
                         sum += x.b1
                 @totalValue = sum ? 400000000
-                console.log "Totalvalue: "+@totalValue
+                L "Totalvalue: "+@totalValue
                 if @?.nodes
                         for node in @nodes
                                 oldNodes.push(node)
@@ -253,7 +255,7 @@ class BubbleChart extends Backbone.View
                 if node == null
                         return
                 scale = @height / node.radius / 3
-                console.log "showOverlay: ", node.radius, @height, scale
+                L "showOverlay: ", node.radius, @height, scale
                 origin = "translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)"
                 target = "translate(#{@centerX},#{@centerY})rotate(120)translate(#{-node.x*scale},#{-node.y*scale})scale(#{scale})"
 
@@ -267,7 +269,7 @@ class BubbleChart extends Backbone.View
                                                    -> d3.interpolateString( origin, target )
                                                 )
                 
-                                console.log("TRANSITION "+origin+" -> "+target)
+                                L("TRANSITION "+origin+" -> "+target)
                 $("#tooltip").hide()
 
         overlayRemoved: ->
@@ -295,8 +297,13 @@ class BubbleChart extends Backbone.View
                 that = this
 
                 $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
+                $("div[data-id='#{@id}'] .breadcrumbs").append("תקציב "+(@model.get 'breadcrumbs')+"<br/>&nbsp;")
 
                 search = $("div[data-id='#{@id}'] .mysearch")
+                $("div[data-id='#{@id}'] .mysearch-open").click( ->
+                        search.select2("open")
+                        false
+                )
                 #search.typeahead(
                 #        source: =>
                 #                @selectItem(null)
@@ -309,16 +316,22 @@ class BubbleChart extends Backbone.View
                 #                return item
                 #)
                 search.select2(
-                        placeholder: 'תקציב '+ (@model.get 'breadcrumbs') + ": חפשו סעיף ספציפי"
+                        placeholder: "חפשו סעיף ספציפי"
                         allowClear: true
                         data: @titles
                 )
-                search.on("select2-highlight",
+                search.on("select2-open",
+                        (e) ->
+                                $("div[data-id='#{that.id}'] .breadcrumbs").css("visibility","hidden")
+                ).on("select2-close",
+                        (e) ->
+                                $("div[data-id='#{that.id}'] .breadcrumbs").css("visibility","visible")
+                ).on("select2-highlight",
                         (e) ->
                                 that.selectItem(e.choice.id)
                 ).on("change",
                         (e) ->
-                                console.log "changed:",e
+                                L "changed:",e
                                 if e.added
                                         that.selectItem(e.added.id)
                                         for x in e.added.state
@@ -345,7 +358,7 @@ class BubbleChart extends Backbone.View
                 frame = $("div[data-id='#{@id}'] .frame")
 
                 resizeFrame = () =>
-                        console.log "frame resize"
+                        L "frame resize"
                         @width = $(window).width() - 8
                         if @width > 900 then @width = 900
                         @centerX = @width/2 +4
@@ -493,31 +506,31 @@ removeState = ->
 handleNewState = () ->
         state = History.getState()
         state = state.data
-        console.log "state changed: ",state
+        L "state changed: ",state
         for i in [0...state.querys.length]
                 query = state.querys[i]
                 nextquery = state.querys[i+1]
                 id = "id"+i
                 el = $("div[data-id='#{id}'] .chart")
                 if el.size() == 0
-                        console.log "creating chart "+id
+                        L "creating chart "+id
                         title = state.selectedStory?.title or "שינויי תכנון תקציב 2012 מול 2011"
                         subtitle = state.selectedStory?.subtitle or ""
                         template = _.template( $("#chart-template").html(),{ id: id, title:title, subtitle:subtitle } )
                         $("#charts").append template
                         el =$("div[data-id='#{id}'] .chart")                       
-                        console.log "creating BubbleChart "+id
+                        L "creating BubbleChart "+id
                         charts[i] = new BubbleChart
                                 el: el
                                 model: new CompareData
                                 id: id
 
         max = if state.querys.length > charts.length then state.querys.length else charts.length
-        console.log "max: "+max
+        L "max: "+max
         for i in [max-1..0]
-                console.log "setting field for "+i
+                L "setting field for "+i
                 if i >= state.querys.length
-                        console.log "removing chart #"+i
+                        L "removing chart #"+i
                         charts[i].updateData([])
                         charts.pop()
                         continue
@@ -532,15 +545,15 @@ handleNewState = () ->
                         charts[i].showOverlay(state.querys[i+1])                       
         if max > state.querys.length
                 if charts.length > 0
-                        console.log "chart "+(charts.length-1)+": overlay removed"
+                        L "chart "+(charts.length-1)+": overlay removed"
                         charts[charts.length-1].overlayRemoved()
         first_time = false
-        $(".btnCancel:first").css("display","none")
+        $(".btnBack:first").css("display","none")
 
 explanations = {}
 getExplanation = (code,year) ->
         years = explanations[code]
-        console.log "got years ",years
+        L "got years ",years
         if years
                 year = parseInt(year)
                 explanation = years[year]
@@ -571,7 +584,7 @@ window.handleExplanations = (data) ->
                                                 explanations[code] = {}
                                         explanations[code][year] = explanation
                         code = explanation = null
-        console.log explanations
+        L explanations
 
 stories = {}
 window.handleStories = (data) ->
@@ -588,32 +601,32 @@ window.handleStories = (data) ->
                         title = entry.content.$t
                 if range.search( /D[0-9]+/ ) == 0
                         subtitle = entry.content.$t
-                if range.search( /F[0-9]+/ ) == 0
+                if range.search( /G[0-9]+/ ) == 0
                         chartid = entry.content.$t
                         stories[chartid] = { code:code, title:title, subtitle:subtitle }
                         code = title = subtitle = chartid = null
-        console.log stories
+        L stories
 
         History.Adapter.bind window, 'statechange', handleNewState
         query = "plpsq1"
         ret_query = window.location.search.slice(1)
         if ret_query.length == 0
                 ret_query = window.location.hash
-                console.log "using hash: "+ret_query
+                L "using hash: "+ret_query
                 if ret_query.length > 0
                         ret_query = query.split("?")
                         if ret_query.length > 1
                                 query = ret_query[1]
-                                console.log "got state (hash): "+query
+                                L "got state (hash): "+query
         else
                 query = ret_query
-                console.log "got state (search): "+query
+                L "got state (search): "+query
         if stories[query]
                 state.selectedStory = stories[query]
                 query = state.selectedStory.code
-                console.log "Selected story ("+state.selectedStory.code+")! "+state.selectedStory.title+", "+state.selectedStory.subtitle
+                L "Selected story ("+state.selectedStory.code+")! "+state.selectedStory.title+", "+state.selectedStory.subtitle
         state.querys = query.split("/")
-        console.log "Q",state.querys
+        L "Q",state.querys
         if state.querys.length == 1
                 while budget_array_data[state.querys[0]]
                         up = budget_array_data[state.querys[0]].u
@@ -622,18 +635,18 @@ window.handleStories = (data) ->
                         else
                                 break
         _state = History.getState()
-        console.log "getState: ",_state
+        L "getState: ",_state
         if _state.data?.querys and _state.data.querys.length> 0
                 handleNewState()
         else
-                console.log "xxx",_state.data
+                L "xxx",_state.data
                 History.replaceState(state,null,"?"+state.querys.join("/"))
-                console.log "pushed ",state
+                L "pushed ",state
         $(document).keyup (e) ->
                 if e.keyCode == 27
                         removeState()
                 false
-        $(".btnCancel:last").live("click", ->
+        $(".btnBack:last").live("click", ->
                 removeState()
                 false
         )
