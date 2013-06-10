@@ -56,7 +56,7 @@ class BubbleChart extends Backbone.View
 
         # Colors
         getFillColor: (d) -> 
-                fillColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range (["#ddad13", "#eeca7c","#e4d0ae","#AAA","#bfc3dc", "#9ea5c8", "#7b82c2"])
+                fillColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range (["#dbae00", "#eac865","#f5dd9c","#AAA","#bfc3dc", "#9ea5c8", "#7b82c2"])
                 if (d.isNegative) then "#fff" else fillColor(d.changeCategory)
 
         getStrokeColor: (d) ->
