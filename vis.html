@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="libs/bootstrap-combined.min.css" rel="stylesheet">
     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
     <link href="budget.css" rel="stylesheet">
     <!--link rel="stylesheet/less" type="text/css" href="budget.less" /-->
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -70,7 +71,8 @@
 	  </div>
 	  <div class="chartContainer">
 	    <h2 class="breadcrumbs">
-              <a href="#" class="btnBack" title="חזרה לסעיף אב"><i class="icon-arrow-left"></i></a>
+              <a href="#" class="btnBack" title="חזרה לסעיף אב"><i class="icon-undo"></i></a>
+              <a href="#" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">שם סעיף נוכחי (#0000)</a>
 	    </h2>
 	    <div class="chart"></div>
 	    <div class="chartButtons">
@@ -78,8 +80,8 @@
   	    <div class="btnShareContainer">
     	 	  <fb:like href="http://compare.open-budget.org.il/p/abcdef.html" send="false" layout="button_count" width="200" show_faces="false"></fb:like>
   	    </div>
-        <a href="#" class="btnDownload" download target="_new"><i class="icon-download-alt"></i></a>
-        <div class="color-index"></div>
+        <a href="#" class="btnDownload" target="_new" data-toggle="tooltip" title="החיתוך הנוכחי כקובץ תמונה"><i class="icon-picture"></i></a>
+        <div class="color-index" data-toggle="tooltip" title="התפלגות הצבעים מצביע על אחוז השינויים שחלו ביחס לתקציב הקודם"></div>
   	  </div>
       <div id="footer">
         <a href="http://hasadna.org.il/" target="top" title="הסדנא לידע ציבורי"><img src="images/hasadna-icon.png" alt="הסדנא לידע ציבורי"></a>

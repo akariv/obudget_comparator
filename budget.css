@@ -109,13 +109,14 @@ a {
   font-size: 16px;
   font-weight: normal;
   min-height: 38px;
+  border-bottom: 1px solid #D4D4D4;
 }
 .chartContainer h2 a.active {
   display: block;
 }
 .chartContainer h2 a.btnBack {
   float: left;
-  padding: 8px 10px 8px 10px;
+  padding: 10px 10px 8px 8px;
   display: block;
   color: #919191;
   font-size: 1.2em;
@@ -127,8 +128,16 @@ a {
 .chartContainer h2 a {
   color: #999999;
 }
+.chartContainer h2 a.active {
+  color: #009ac8;
+}
+.chartContainer h2 a.active:after {
+  content: " ";
+  font-size: 0.7em;
+  font-family: FontAwesome;
+}
 .chartContainer h2:hover a {
-  color: #00aaff;
+  color: #009ac8;
 }
 .chartButtons {
   background: none;
@@ -148,18 +157,18 @@ a {
   left: 15px;
 }
 .chartButtons a.btnDownload {
-  bottom: 35px;
+  bottom: 40px;
   right: 15px;
 }
 .chartButtons a.btnShare {
-  bottom: 35px;
+  bottom: 40px;
   left: 15px;
 }
 .chartButtons div.btnShareContainer {
   position: absolute;
   width: 100px;
   height: 20px;
-  bottom: 35px;
+  bottom: 40px;
   left: 50px;
 }
 .chartButtons div.btnShareContainer iframe {
@@ -172,11 +181,11 @@ a {
   left: 0px;
 }
 .chartButtons div.color-index {
-  background: url(color-index.png);
-  width: 24px;
-  height: 245px;
+  background: url(images/color-index.png);
+  width: 31px;
+  height: 328px;
   position: absolute;
-  margin-top: -122px;
+  margin-top: -164px;
   left: 4px;
   top: 50%;
 }
