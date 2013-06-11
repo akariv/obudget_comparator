@@ -90,7 +90,7 @@ body, form, input {
 			background: none;
 			border: none;
 			border-radius: 0;
-			border-right: 2px solid #ccc;
+			border-right: 1px solid #ccc;
 			box-shadow: none;
 			color: #444;
 			&:hover{color: @textColor}
@@ -115,7 +115,6 @@ body, form, input {
 		background: #f9f9f9;
 		padding: 5px 10px;
 		margin: 1px 0 0 0;
-		color: #aaa;
 		line-height: 1.2em;
 		font-size: 16px;
 		font-weight: normal;
@@ -135,6 +134,10 @@ body, form, input {
 				text-decoration: none;
 				color: @textColor;
 			}
+		}
+		a{color: #999}
+		&:hover a{
+			color: lighten(#0088cc, 10%);
 		}
 	}   
 }
@@ -185,12 +188,12 @@ body, form, input {
 
 	div.color-index{
 		background: url(color-index.png);
-		height: 24px;
-		width: 245px;
+		width: 24px;
+		height: 245px;
 		position: absolute;
-		margin-left: -122px;
-		left: 50%;
-		bottom: 15px;
+		margin-top: -122px;
+		left: 4px;
+		top: 50%;
 	}
 }
 
@@ -329,6 +332,11 @@ body, form, input {
 		margin: 3px;
 		line-height: 1.3em;
 	}
+}
+
+#footer{
+	background: #fff;
+
 }
 
 
@@ -575,10 +583,10 @@ Version: @@ver@@ Timestamp: @@timestamp@@
     display: inline-block;
     width: 100%;
     min-height: 26px;
-    margin: 0;
-    padding-top: 5px;
-    padding-left: 4px;
-    padding-right: 4px;
+    margin: 1px 0;
+    padding: 5px 4px 4px;
+    background: #eee;
+    border-bottom: 1px solid lighten(@textColor, 30%);
 
     position: relative;
     z-index: 10000;
@@ -1118,5 +1126,5 @@ select.select2 {
 }
 
 div.select2-search {
-    margin-top: 25px;
+    //margin-top: 25px;
 }
