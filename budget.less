@@ -14,11 +14,16 @@
 @shrinkColor:	#c09100;
 @alef: Alef Hebrew, Arial, sans-serif;
 @textColor: #444;
+@linkColor: #009AC8;
 
 @import url(http://fonts.googleapis.com/earlyaccess/alefhebrew.css);
 
 body, form, input { 
 	font-family: @alef;
+}
+
+a{
+	color: @linkColor;
 }
 
 .frame{
@@ -84,7 +89,8 @@ body, form, input {
 		button{
 			position: absolute;
 			top:6px;
-			left: 0;
+			left: 2px;
+			padding: 3px 10px;
 			font-size: 1.5em;
 			content:"";
 			background: none;
@@ -158,11 +164,11 @@ body, form, input {
 		    left:15px;
 		}
 		&.btnDownload{
-		    bottom:15px;
+	    	bottom:35px;
 		    right: 15px;
 		}
-		&.btnShare {	    
-		    bottom:15px;
+		&.btnShare {	
+	    	bottom:35px;
 		    left: 15px;
 		}		      
 	}
@@ -171,7 +177,7 @@ body, form, input {
 	    position: absolute;
 	    width:100px;
 	    height:20px;
-	    bottom:15px;
+	    bottom:35px;
 	    left: 50px;
 
 	    & iframe  {
@@ -335,8 +341,21 @@ body, form, input {
 }
 
 #footer{
-	background: #fff;
-
+	background: #ddd;
+	border-top: 2px solid #444;
+	padding: 2px;
+	a.more{
+		float: left;
+		display: block;
+		@media all and (max-width: 570px){
+			span{
+				display:none;
+			}
+			&:before{
+				content: "עוד ";
+			}
+		}
+	}
 }
 
 

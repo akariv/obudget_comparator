@@ -4,6 +4,9 @@ form,
 input {
   font-family: Alef Hebrew, Arial, sans-serif;
 }
+a {
+  color: #009ac8;
+}
 .frame {
   position: absolute;
   left: 0px;
@@ -74,7 +77,8 @@ input {
 #search form button {
   position: absolute;
   top: 6px;
-  left: 0;
+  left: 2px;
+  padding: 3px 10px;
   font-size: 1.5em;
   content: "";
   background: none;
@@ -144,18 +148,18 @@ input {
   left: 15px;
 }
 .chartButtons a.btnDownload {
-  bottom: 15px;
+  bottom: 35px;
   right: 15px;
 }
 .chartButtons a.btnShare {
-  bottom: 15px;
+  bottom: 35px;
   left: 15px;
 }
 .chartButtons div.btnShareContainer {
   position: absolute;
   width: 100px;
   height: 20px;
-  bottom: 15px;
+  bottom: 35px;
   left: 50px;
 }
 .chartButtons div.btnShareContainer iframe {
@@ -304,7 +308,21 @@ input {
   line-height: 1.3em;
 }
 #footer {
-  background: #fff;
+  background: #ddd;
+  border-top: 2px solid #444;
+  padding: 2px;
+}
+#footer a.more {
+  float: left;
+  display: block;
+}
+@media all and (max-width: 570px) {
+  #footer a.more span {
+    display: none;
+  }
+  #footer a.more:before {
+    content: "עוד ";
+  }
 }
 /*
 Version: @@ver@@ Timestamp: @@timestamp@@
