@@ -28,8 +28,8 @@ INFLATION = {1992: 2.338071159424868,
  2010: 1.0384046275616676,
  2011: 1.0163461588107117,
  2012: 1.0,
- 2013: 1.0,
- 2014: 1.0,
+ 2013: 1.017,
+ 2014: 1.017*1.023,
 }
 
 strings = []
@@ -132,6 +132,7 @@ def build_tree( data, year, field, income=False ):
 
     if len(filtered_items) == 0: return {}
     root = filtered_items[0]
+    root['title'] = u"תקציב המדינה" if not income else u"הכנסות המדינה"
     assert(root['code']== "")
 
     for item in filtered_items[1:]:
@@ -209,13 +210,14 @@ def describe(year,field):
     title += " %d" % year
     return title
 
+def get_titles(items, year, income):
+    return dict((x['code'][4 if income else 2:],x['title']) for x in items if x['year']==year)
+
 def get_items_for(year1,field1,year2,field2,income):
     tree1 = build_tree(budget_file(), year1, field1, income)
     tree2 = build_tree(budget_file(), year2, field2, income)
-    merged, report = merge_trees(tree1, tree2)
-
-    print "REPORT"
-    pprint.pprint(report)
+    titles = [ get_titles(budget_file(), year1, income), get_titles(budget_file(), year2, income) ]
+    merged, report = merge_trees(tree1, tree2) 
 
     merged = filter_tree(merged, lambda node: node['value'][0] > 0)
     merged = filter_tree(merged, lambda node: sum([ (node['value'][i] > 0) and
@@ -225,6 +227,18 @@ def get_items_for(year1,field1,year2,field2,income):
     merged = filter_tree(merged, lambda node: len(node.get('children',{}))>1 )
 
     title_prefix = u"%s: %s לעומת %s" % ( u"הכנסות" if income else u"הוצאות", describe(year1,field1), describe(year2,field2) )
+
+    only = []
+    for i,r in enumerate(report['only']):
+        processed = []
+        for code in r:
+            processed.append(("%s: %s" % ( code, titles[i][code] )).encode('utf8'))
+        processed.sort()
+        only.append(processed)
+    reportfile = file("reports/"+title_prefix+".html","w")
+    reportfile.write("<body style='direction:rtl'><table><tr><th>%s</th><th>%s</th></tr>" % (year1, year2))
+    reportfile.write("<tr>%s</tr>" % "".join(["<td>%s</td>" % "".join(["<p>%s</p>" % x for x in r]) for r in only]) )
+    reportfile.write("</table></body>")
 
     for node,breadcrumbs in traverse_by_depth(merged,2):
         diff = list(adapt_for_js(lambda (c): key_for_diff(year1,field1,year2,field2,income,c),extract_by_depth(node,1)))

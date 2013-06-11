@@ -297,7 +297,7 @@ class BubbleChart extends Backbone.View
                 that = this
 
                 $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
-                $("div[data-id='#{@id}'] .breadcrumbs").append("<span>"+"תקציב "+(@model.get 'breadcrumbs')+"</span>")
+                $("div[data-id='#{@id}'] .breadcrumbs").append("<span>"+(@model.get 'breadcrumbs')+"</span>")
                         
                 search = $("div[data-id='#{@id}'] .mysearch")
                 $("div[data-id='#{@id}'] .mysearch-open").click( ->
@@ -494,7 +494,7 @@ class BubbleChart extends Backbone.View
                                         )
                         .start()
                 await setTimeout((defer _),100)
-                window.FB.XFBML.parse()
+                window.FB?.XFBML?.parse()
                                 
 
 state = { querys: [], selectedStory: null }
@@ -521,7 +521,7 @@ handleNewState = () ->
                 el = $("div[data-id='#{id}'] .chart")
                 if el.size() == 0
                         L "creating chart "+id
-                        title = state.selectedStory?.title or "שינויי תכנון תקציב 2012 מול 2011"
+                        title = state.selectedStory?.title or "השווה את התקציב"
                         subtitle = state.selectedStory?.subtitle or ""
                         template = _.template( $("#chart-template").html(),{ id: id, title:title, subtitle:subtitle } )
                         $("#charts").append template
@@ -632,6 +632,8 @@ window.handleStories = (data) ->
                 state.selectedStory = stories[query]
                 query = state.selectedStory.code
                 L "Selected story ("+state.selectedStory.code+")! "+state.selectedStory.title+", "+state.selectedStory.subtitle
+        else
+                state.selectedStory = null
         state.querys = query.split("/")
         L "Q",state.querys
         if state.querys.length == 1
@@ -641,6 +643,10 @@ window.handleStories = (data) ->
                                 state.querys.unshift up
                         else
                                 break
+        firstquery = state.querys[0]
+        if !state.selectedStory
+                state.selectedStory = { 'title':budget_array_data[firstquery].t, 'subtitle':'כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו'}
+        
         _state = History.getState()
         L "getState: ",_state
         if _state.data?.querys and _state.data.querys.length> 0

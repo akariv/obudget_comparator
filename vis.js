@@ -468,7 +468,7 @@
       ___iced_passed_deferral = iced.findDeferral(arguments);
       that = this;
       $("div[data-id='" + this.id + "'] .btnDownload").attr("href", "/images/large/" + (this.model.get('field')) + ".jpg");
-      $("div[data-id='" + this.id + "'] .breadcrumbs").append("<span>" + "תקציב " + (this.model.get('breadcrumbs')) + "</span>");
+      $("div[data-id='" + this.id + "'] .breadcrumbs").append("<span>" + (this.model.get('breadcrumbs')) + "</span>");
       search = $("div[data-id='" + this.id + "'] .mysearch");
       $("div[data-id='" + this.id + "'] .mysearch-open").click(function() {
         search.select2("open");
@@ -667,7 +667,8 @@
         })), 100);
         __iced_deferrals._fulfill();
       })(function() {
-        return window.FB.XFBML.parse();
+        var _ref2, _ref3;
+        return (_ref2 = window.FB) != null ? (_ref3 = _ref2.XFBML) != null ? _ref3.parse() : void 0 : void 0;
       });
     };
 
@@ -708,7 +709,7 @@
       el = $("div[data-id='" + id + "'] .chart");
       if (el.size() === 0) {
         L("creating chart " + id);
-        title = ((_ref3 = state.selectedStory) != null ? _ref3.title : void 0) || "שינויי תכנון תקציב 2012 מול 2011";
+        title = ((_ref3 = state.selectedStory) != null ? _ref3.title : void 0) || "השווה את התקציב";
         subtitle = ((_ref4 = state.selectedStory) != null ? _ref4.subtitle : void 0) || "";
         template = _.template($("#chart-template").html(), {
           id: id,
@@ -812,7 +813,7 @@
   stories = {};
 
   window.handleStories = function(data) {
-    var chartid, code, entry, query, range, ret_query, row, subtitle, title, up, _i, _len, _ref2, _ref3, _state;
+    var chartid, code, entry, firstquery, query, range, ret_query, row, subtitle, title, up, _i, _len, _ref2, _ref3, _state;
     row = 1;
     code = null;
     title = null;
@@ -863,6 +864,8 @@
       state.selectedStory = stories[query];
       query = state.selectedStory.code;
       L("Selected story (" + state.selectedStory.code + ")! " + state.selectedStory.title + ", " + state.selectedStory.subtitle);
+    } else {
+      state.selectedStory = null;
     }
     state.querys = query.split("/");
     L("Q", state.querys);
@@ -875,6 +878,13 @@
           break;
         }
       }
+    }
+    firstquery = state.querys[0];
+    if (!state.selectedStory) {
+      state.selectedStory = {
+        'title': budget_array_data[firstquery].t,
+        'subtitle': 'כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו'
+      };
     }
     _state = History.getState();
     L("getState: ", _state);
