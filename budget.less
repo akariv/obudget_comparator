@@ -119,6 +119,9 @@ body, form, input {
 		line-height: 1.2em;
 		font-size: 16px;
 		font-weight: normal;
+		min-height: 38px;
+		span {
+		}
 		a.active{
 			display: block;
 		}
@@ -166,20 +169,17 @@ body, form, input {
 	    width:100px;
 	    height:20px;
 	    bottom:15px;
-	    left: 15px;
+	    left: 50px;
 
-	    .fb-like {
+	    & iframe  {
 		display:none;
 	    }
 
-	    &:hover .fb-like {
+	    &:hover iframe {
 		display:inline-block;
-
-		iframe {
-		    position:absolute;
-		    bottom:0px;
-		    left:0px;
-		}
+		position:absolute;
+		bottom:0px;
+		left:0px;
 	    }
 	}
 

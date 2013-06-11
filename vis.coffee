@@ -297,8 +297,8 @@ class BubbleChart extends Backbone.View
                 that = this
 
                 $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
-                $("div[data-id='#{@id}'] .breadcrumbs").append("תקציב "+(@model.get 'breadcrumbs')+"<br/>&nbsp;")
-
+                $("div[data-id='#{@id}'] .breadcrumbs").append("<span>"+"תקציב "+(@model.get 'breadcrumbs')+"</span>")
+                        
                 search = $("div[data-id='#{@id}'] .mysearch")
                 $("div[data-id='#{@id}'] .mysearch-open").click( ->
                         search.select2("open")
@@ -432,7 +432,7 @@ class BubbleChart extends Backbone.View
                                 d3.select("#tooltip .name").html(d.name)
                                 d3.select("#tooltip .department").text(d.group)
                                 d3.select("#tooltip .explanation").text(getExplanation(d.code,2012))
-                                d3.select("#tooltip .history").text("Hello there")
+                                #d3.select("#tooltip .history").text("Hello there")
                                 d3.select("#tooltip .value").html(formatNumber(d.value*1000)+" \u20aa")
                                 d3.selectAll("#tooltip .arrow").style("right",tail+"px")
                                 if d?.changestr
@@ -464,6 +464,10 @@ class BubbleChart extends Backbone.View
 
                 if @force != null
                         @force.stop()
+                fb_iframe = '<fb:like href="http://compare.open-budget.org.il/p/'+(@model.get 'field')+'.html" send="false" layout="button_count" width="200" show_faces="false"></fb:like>'
+                #fb_iframe = '<iframe src="http://www.facebook.com/plugins/like.php?locale=he_IL&href=http%3A%2F%2Fcompare.open-budget.org.il%2Fp%2F'+(@model.get 'field')+'.html&amp;send=false&amp;layout=button_count&amp;width=200&amp;show_faces=false&amp;font&amp;colorscheme=light&amp;action=like&amp;height=21&amp;appId=469139063167385" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:200px; height:21px;" allowTransparency="true"></iframe>'
+                #$("div[data-id='#{@id}'] .btnShareContainer").append("<div class='fb-like' data-href='http://compare.open-budget.org.il/p/#{@model.get 'field'}.html' data-send='false' data-layout='button_count' data-width='200' data-show-faces='false'></div>")
+                #$("div[data-id='#{@id}'] .btnShareContainer").append(fb_iframe)
                 @force = d3.layout
                                 .force()
                                 .nodes(@nodes)
@@ -488,7 +492,10 @@ class BubbleChart extends Backbone.View
                                                 .attr("cx", (d) -> d.x - avgx )
                                                 .attr("cy", (d) -> d.y )
                                         )
-                		.start()
+                        .start()
+                await setTimeout((defer _),100)
+                window.FB.XFBML.parse()
+                                
 
 state = { querys: [], selectedStory: null }
 charts = []
@@ -608,7 +615,7 @@ window.handleStories = (data) ->
         L stories
 
         History.Adapter.bind window, 'statechange', handleNewState
-        query = "plpsq1"
+        query = "klxlq126"
         ret_query = window.location.search.slice(1)
         if ret_query.length == 0
                 ret_query = window.location.hash

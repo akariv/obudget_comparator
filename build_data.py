@@ -1,3 +1,4 @@
+#!/usr/bin/python
 #encoding: utf8
 
 import json
@@ -84,6 +85,7 @@ def merge_trees(root1, root2):
     other_codes = [ codeset - shared_codes for codeset in codesets ]
     group = ""
     parent_value = None
+    report = { 'only':[[],[]] }
     for code in shared_codes:
         child_nodes = [ root['children'][code] for root in roots ]
         titles = [ node['title'] for node in child_nodes ]
@@ -91,10 +93,17 @@ def merge_trees(root1, root2):
         if lratio < 0.5:
             for codes in other_codes: codes.add(code)
             continue
-        new_node['children'][code] = merge_trees(*child_nodes)
+        new_node['children'][code], _report = merge_trees(*child_nodes)
         group = child_nodes[1]['group']
         parent_value = child_nodes[1].get('parent_value')
+        for i in range(2):
+            print "%s: got report%d for %s%s: %r" % (root1['code'], i, root1['code'],code,_report)
+            report['only'][i].extend(_report['only'][i])
 
+    for i in range(2):
+        print "%s: othercodes%d: children(%r) -> %r" % (root1['code'], i, roots[i]['children'].keys(), list(root1['code']+x for x in other_codes[i]))
+        report['only'][i].extend(root1['code']+x for x in other_codes[i])
+    
     if sum([len(x) for x in other_codes]) > 0:
         others_node = { 'code' : root1['code']+'**',
                         'title' : u'סעיפים שונים',
@@ -105,7 +114,7 @@ def merge_trees(root1, root2):
     
         new_node['children']['**'] = others_node
 
-    return new_node
+    return new_node, report
 
 def build_tree( data, year, field, income=False ):
     def item_filter(item):
@@ -177,7 +186,6 @@ def key_for_diff(year1,field1,year2,field2,income,divein):
     def year(y):  return ' pkxw'[y%10]
     def field(f): return f.split('_')[1][1]
     key = "%s%s%s%s%s%s" % ( year(year1), field(field1), year(year2), field(field2), "v" if income else "q", get_string_id(divein) )
-    print key
     return key
 
 def adapt_for_js(drilldown, items):
@@ -204,7 +212,10 @@ def describe(year,field):
 def get_items_for(year1,field1,year2,field2,income):
     tree1 = build_tree(budget_file(), year1, field1, income)
     tree2 = build_tree(budget_file(), year2, field2, income)
-    merged = merge_trees(tree1, tree2)
+    merged, report = merge_trees(tree1, tree2)
+
+    print "REPORT"
+    pprint.pprint(report)
 
     merged = filter_tree(merged, lambda node: node['value'][0] > 0)
     merged = filter_tree(merged, lambda node: sum([ (node['value'][i] > 0) and
@@ -258,20 +269,20 @@ document.addEventListener('DOMContentLoaded', function() {
     file("p/%s.html" % key,"w").write(html.encode('utf8'))
 
 if __name__=="__main__":
-    generated_diffs = [ (2011, "net_allocated", 2011, "net_used", False),
-                         (2012, "net_allocated", 2012, "net_used", False),
-                        (2011, "net_allocated", 2011, "net_used", True),
+    generated_diffs = [ #(2011, "net_allocated", 2011, "net_used", False),
+                        (2012, "net_allocated", 2012, "net_used", False),
+                        #(2011, "net_allocated", 2011, "net_used", True),
                         (2012, "net_allocated", 2012, "net_used", True),
-                        (2011, "net_used",      2012, "net_used", False),
-                        (2011, "net_used",      2012, "net_used", True),
-                        (2011, "net_allocated", 2012, "net_allocated", False),
+                        #(2011, "net_used",      2012, "net_used", False),
+                        #(2011, "net_used",      2012, "net_used", True),
+                        #(2011, "net_allocated", 2012, "net_allocated", False),
                         (2012, "net_allocated", 2013, "net_allocated", False),
                         (2012, "net_allocated", 2014, "net_allocated", False),
                         (2013, "net_allocated", 2014, "net_allocated", False), 
                         # (2011, "net_allocated", 2012, "net_allocated", True),
-                        # (2012, "net_allocated", 2013, "net_allocated", True),
-                        # (2012, "net_allocated", 2014, "net_allocated", True),
-                        #(2013, "net_allocated", 2014, "net_allocated", True), 
+                        (2012, "net_allocated", 2013, "net_allocated", True),
+                        (2012, "net_allocated", 2014, "net_allocated", True),
+                        (2013, "net_allocated", 2014, "net_allocated", True), 
                         ]
     diffs = itertools.chain( *( get_items_for(*diff) for diff in generated_diffs ) )
     diffsDict = {}
@@ -301,6 +312,6 @@ if __name__=="__main__":
     while len(commands) > 0:
         towrite = commands[:8]
         commands = commands[8:]
-        imagesScript.write( "".join([ "sleep 2.5 ; for x in `pgrep phantomjs | sed '1,8d' | head -n1` ; do wait $x ; done ; %s &\n" % (cmd,) for i, cmd in enumerate(towrite)]) )
+        imagesScript.write( "".join([ "sleep 3 ; for x in `pgrep phantomjs | sed '1,8d' | head -n1` ; do wait $x ; done ; %s &\n" % (cmd,) for i, cmd in enumerate(towrite)]) )
                             
     

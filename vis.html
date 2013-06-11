@@ -1,9 +1,15 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<html xmlns:fb="http://ogp.me/ns/fb#">
   <head>
     <meta charset="utf-8">
     <title>השווה את התקציב</title>
     <meta property="fb:admins" content="100000025217694" />
+    <meta property="og:type" content="cause" />
+    <meta property="og:url" content="http://compare.open-budget.org.il/p/klxlq1.html" />
+    <meta property="og:description" content="" />
+    <meta property="og:image" content="http://compare.open-budget.org.il/images/large/klxlq1.jpg" />
+    <meta property="og:image:width" content="959" />
+    <meta property="og:image:height" content="800" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="libs/bootstrap-combined.min.css" rel="stylesheet">
     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
@@ -70,7 +76,7 @@
 	    <div class="chartButtons">
 	      <a href="#" class="btnShare" ><i class="icon-facebook"></i></a>
 	      <div class="btnShareContainer">
-		<div class="fb-like" data-href="http://compare.open-budget.org.il/p/plpsq1.html" data-send="false" data-layout="button_count" data-width="200" data-show-faces="false"></div>
+		<fb:like href="http://compare.open-budget.org.il/p/abcdef.html" send="false" layout="button_count" width="200" show_faces="false"></fb:like>
 	      </div>
               <a href="#" class="btnDownload" download target="_new"><i class="icon-download-alt"></i></a>
               <div class="color-index"></div>
@@ -88,13 +94,26 @@
       ga('create', 'UA-10203855-6', 'open-budget.org.il');
       ga('send', 'pageview');
     </script>
-    <div id="fb-root"></div>
-    <script>(function(d, s, id) {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s); js.id = id;
-      js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=469139063167385";
-      fjs.parentNode.insertBefore(js, fjs);
-      }(document, 'script', 'facebook-jssdk'));
-    </script>
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    // init the FB JS SDK
+    FB.init({
+      appId      : '469139063167385',                        // App ID from the app dashboard
+      channelUrl : '//compare.open-budget.org.il/channel.html', // Channel file for x-domain comms
+      status     : true,                                 // Check Facebook Login status
+      xfbml      : true                                  // Look for social plugins on the page
+    });
+    // Additional initialization code such as adding Event Listeners goes here
+  };
+
+  // Load the SDK asynchronously
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "http://connect.facebook.net/he_IL/all.js#xfbml=1&appId=579584555404012"";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
 </body>

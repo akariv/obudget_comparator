@@ -105,6 +105,7 @@ input {
   line-height: 1.2em;
   font-size: 16px;
   font-weight: normal;
+  min-height: 38px;
 }
 .chartContainer h2 a.active {
   display: block;
@@ -150,15 +151,13 @@ input {
   width: 100px;
   height: 20px;
   bottom: 15px;
-  left: 15px;
+  left: 50px;
 }
-.chartButtons div.btnShareContainer .fb-like {
+.chartButtons div.btnShareContainer iframe {
   display: none;
 }
-.chartButtons div.btnShareContainer:hover .fb-like {
+.chartButtons div.btnShareContainer:hover iframe {
   display: inline-block;
-}
-.chartButtons div.btnShareContainer:hover .fb-like iframe {
   position: absolute;
   bottom: 0px;
   left: 0px;
