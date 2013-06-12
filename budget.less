@@ -128,15 +128,16 @@ a{
 		line-height: 1.2em;
 		font-size: 16px;
 		font-weight: normal;
-		min-height: 38px;
+		min-height: 40px;
 		border-bottom: 1px solid #D4D4D4;
 
 		a{
 			color: #777;
 
 			&.btnBack{
-				float: left;
-				padding: 10px 10px 8px 8px;
+				left: 15px;
+				top: 15px;
+			    position: absolute;
 				display: block;
 				color: lighten(@textColor,30%);
 				font-size: 1.2em;
@@ -148,10 +149,10 @@ a{
 
 			&.active,
 			&.breadcrumbsLink{
-				padding: 10px;
+				padding: 10px 10px 10px 40px;
 				display: inline-block;
 				@media all and (max-width: 500px){
-					padding: 0;
+					padding: 0 0 0 40px;
 				}
 				//color: @linkColor;
 				&:after{
