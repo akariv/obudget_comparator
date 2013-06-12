@@ -5,7 +5,7 @@ input {
   font-family: Alef Hebrew, Arial, sans-serif;
 }
 a {
-  color: #009ac8;
+  color: #007395;
 }
 .frame {
   position: absolute;
@@ -144,7 +144,7 @@ a {
   font-family: FontAwesome;
 }
 .chartContainer h2.breadcrumbs:hover a {
-  color: #009ac8;
+  color: #007395;
 }
 .chartButtons {
   background: none;
@@ -575,7 +575,7 @@ Version: @@ver@@ Timestamp: @@timestamp@@
 .select2-search input {
   width: 100%;
   height: auto !important;
-  min-height: 26px;
+  min-height: 34px;
   padding: 4px 35px 4px 5px;
   margin: 0;
   line-height: 26px;
