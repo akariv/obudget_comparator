@@ -5,6 +5,8 @@
 //
 
 
+@import url(http://fonts.googleapis.com/earlyaccess/alefhebrew.css);
+
 // variables:
 
 @frame: 4px solid #3B3B3B;
@@ -13,10 +15,10 @@
 @growColor:		#3e48b5;
 @shrinkColor:	#c09100;
 @alef: Alef Hebrew, Arial, sans-serif;
+@iconFont: FontAwesome;
 @textColor: #444;
 @linkColor: #009AC8;
 
-@import url(http://fonts.googleapis.com/earlyaccess/alefhebrew.css);
 
 body, form, input { 
 	font-family: @alef;
@@ -125,6 +127,7 @@ a{
 		font-size: 16px;
 		font-weight: normal;
 		min-height: 38px;
+		border-bottom: 1px solid #D4D4D4;
 		span {
 		}
 		a.active{
@@ -132,7 +135,7 @@ a{
 		}
 		a.btnBack{
 			float: left;
-			padding: 8px 10px 8px 10px;
+			padding: 10px 10px 8px 8px;
 			display: block;
 			color: lighten(@textColor,30%);
 			font-size: 1.2em;
@@ -142,8 +145,16 @@ a{
 			}
 		}
 		a{color: #999}
+		a.active{
+			color: @linkColor;
+			&:after{
+				content:" ";
+				font-size: 0.7em;
+				font-family: @iconFont;
+			}
+		}
 		&:hover a{
-			color: lighten(#0088cc, 10%);
+			color: @linkColor;
 		}
 	}   
 }
@@ -164,11 +175,11 @@ a{
 		    left:15px;
 		}
 		&.btnDownload{
-	    	bottom:35px;
+	    	bottom:40px;
 		    right: 15px;
 		}
 		&.btnShare {	
-	    	bottom:35px;
+	    	bottom:40px;
 		    left: 15px;
 		}		      
 	}
@@ -177,7 +188,7 @@ a{
 	    position: absolute;
 	    width:100px;
 	    height:20px;
-	    bottom:35px;
+	    bottom:40px;
 	    left: 50px;
 
 	    & iframe  {
@@ -193,11 +204,11 @@ a{
 	}
 
 	div.color-index{
-		background: url(color-index.png);
-		width: 24px;
-		height: 245px;
+		background: url(images/color-index.png);
+		width: 31px;
+		height: 328px;
 		position: absolute;
-		margin-top: -122px;
+		margin-top: -164px;
 		left: 4px;
 		top: 50%;
 	}
