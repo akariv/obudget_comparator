@@ -486,7 +486,7 @@
           linkCode = dd.code;
         }
         $("div[data-id='" + _this.id + "'] .breadcrumbsLink").remove();
-        $("div[data-id='" + _this.id + "'] .breadcrumbs").append('<a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#' + linkCode + ',2013,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">' + bc + '</a>');
+        $("div[data-id='" + _this.id + "'] .breadcrumbs").append('<a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#' + linkCode + ',2013,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" data-placement="bottom" title="מידע היסטורי אודות הסעיף הנוכחי">' + bc + '</a>');
         return $("div[data-id='" + _this.id + "'] .breadcrumbsLink").tooltip();
       };
       setBreadcrumbs();
