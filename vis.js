@@ -116,13 +116,13 @@
         field = this.get('field');
         data = budget_array_data[field];
         if (data) {
-          L('setting field ' + field + " title: " + data.t);
+          console.log('setting field ' + field + " title: " + data.t);
           this.set('code', data.c);
           this.set('title', data.t);
           this.set('breadcrumbs', data.b);
           return this.set('data', data.d);
         } else {
-          return L('field ' + field + ' is ' + data);
+          return console.log('field ' + field + ' is ' + data);
         }
       });
     };
@@ -255,7 +255,7 @@
       this.height = 550;
       this.id = this.options.id;
       this.overlayShown = false;
-      L("BubbleChart:initialize", this.id);
+      console.log("BubbleChart:initialize", this.id);
       this.defaultGravity = 0.1;
       this.force = this.svg = this.circle = null;
       this.changeTickValues = [-0.25, -0.15, -0.05, 0.05, 0.15, 0.25];
@@ -270,7 +270,7 @@
         removeState();
         return false;
       });
-      return L("init done", this.id);
+      return console.log("init done", this.id);
     };
 
     BubbleChart.prototype.collectTitles = function(titles, field, prefix, state) {
@@ -315,7 +315,7 @@
         sum += x.b1;
       }
       this.totalValue = sum != null ? sum : 400000000;
-      L("Totalvalue: " + this.totalValue);
+      console.log("Totalvalue: " + this.totalValue);
       if (typeof this !== "undefined" && this !== null ? this.nodes : void 0) {
         _ref2 = this.nodes;
         for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
@@ -428,7 +428,7 @@
         return;
       }
       scale = this.height / node.radius / 3;
-      L("showOverlay: ", node.radius, this.height, scale);
+      console.log("showOverlay: ", node.radius, this.height, scale);
       origin = "translate(" + this.centerX + "," + this.centerY + ")rotate(0)translate(1,1)scale(1)";
       target = "translate(" + this.centerX + "," + this.centerY + ")rotate(120)translate(" + (-node.x * scale) + "," + (-node.y * scale) + ")scale(" + scale + ")";
       if (this.transitiontime === 0) {
@@ -437,7 +437,7 @@
         this.svg.selectAll("circle").transition().duration(this.transitiontime).attrTween("transform", function() {
           return d3.interpolateString(origin, target);
         });
-        L("TRANSITION " + origin + " -> " + target);
+        console.log("TRANSITION " + origin + " -> " + target);
       }
       return $("#tooltip").hide();
     };
@@ -511,7 +511,7 @@
         return that.selectItem(e.choice.id);
       }).on("change", function(e) {
         var x, _i, _len, _ref2;
-        L("changed:", e);
+        console.log("changed:", e);
         if (e.added) {
           that.selectItem(e.added.id);
           _ref2 = e.added.state;
@@ -542,7 +542,7 @@
       overlay = $("div[data-id='" + this.id + "'] .overlay");
       frame = $("div[data-id='" + this.id + "'] .frame");
       resizeFrame = function() {
-        L("frame resize");
+        console.log("frame resize");
         _this.width = $(window).width() - 8;
         if (_this.width > 900) {
           _this.width = 900;
@@ -727,14 +727,14 @@
     var el, i, id, max, nextquery, overlaid, query, subtitle, template, title, _i, _j, _ref2, _ref3, _ref4, _ref5;
     state = History.getState();
     state = state.data;
-    L("state changed: ", state);
+    console.log("state changed: ", state);
     for (i = _i = 0, _ref2 = state.querys.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
       query = state.querys[i];
       nextquery = state.querys[i + 1];
       id = "id" + i;
       el = $("div[data-id='" + id + "'] .chart");
       if (el.size() === 0) {
-        L("creating chart " + id);
+        console.log("creating chart " + id);
         title = ((_ref3 = state.selectedStory) != null ? _ref3.title : void 0) || "השווה את התקציב";
         subtitle = ((_ref4 = state.selectedStory) != null ? _ref4.subtitle : void 0) || "";
         template = _.template($("#chart-template").html(), {
@@ -744,7 +744,7 @@
         });
         $("#charts").append(template);
         el = $("div[data-id='" + id + "'] .chart");
-        L("creating BubbleChart " + id);
+        console.log("creating BubbleChart " + id);
         charts[i] = new BubbleChart({
           el: el,
           model: new CompareData,
@@ -753,11 +753,11 @@
       }
     }
     max = state.querys.length > charts.length ? state.querys.length : charts.length;
-    L("max: " + max);
+    console.log("max: " + max);
     for (i = _j = _ref5 = max - 1; _ref5 <= 0 ? _j <= 0 : _j >= 0; i = _ref5 <= 0 ? ++_j : --_j) {
-      L("setting field for " + i);
+      console.log("setting field for " + i);
       if (i >= state.querys.length) {
-        L("removing chart #" + i);
+        console.log("removing chart #" + i);
         charts[i].updateData([]);
         charts.pop();
         continue;
@@ -775,7 +775,7 @@
     }
     if (max > state.querys.length) {
       if (charts.length > 0) {
-        L("chart " + (charts.length - 1) + ": overlay removed");
+        console.log("chart " + (charts.length - 1) + ": overlay removed");
         charts[charts.length - 1].overlayRemoved();
       }
     }
@@ -788,7 +788,7 @@
   getExplanation = function(code, year) {
     var explanation, years;
     years = explanations[code];
-    L("got years ", years);
+    console.log("got years ", years);
     if (years) {
       year = parseInt(year);
       explanation = years[year];
@@ -833,7 +833,7 @@
         code = explanation = null;
       }
     }
-    return L(explanations);
+    return console.log(explanations);
   };
 
   stories = {};
@@ -868,33 +868,33 @@
         code = title = subtitle = chartid = null;
       }
     }
-    L(stories);
+    console.log(stories);
     History.Adapter.bind(window, 'statechange', handleNewState);
     query = "klxlq126";
     ret_query = window.location.search.slice(1);
     if (ret_query.length === 0) {
       ret_query = window.location.hash;
-      L("using hash: " + ret_query);
+      console.log("using hash: " + ret_query);
       if (ret_query.length > 0) {
         ret_query = query.split("?");
         if (ret_query.length > 1) {
           query = ret_query[1];
-          L("got state (hash): " + query);
+          console.log("got state (hash): " + query);
         }
       }
     } else {
       query = ret_query;
-      L("got state (search): " + query);
+      console.log("got state (search): " + query);
     }
     if (stories[query]) {
       state.selectedStory = stories[query];
       query = state.selectedStory.code;
-      L("Selected story (" + state.selectedStory.code + ")! " + state.selectedStory.title + ", " + state.selectedStory.subtitle);
+      console.log("Selected story (" + state.selectedStory.code + ")! " + state.selectedStory.title + ", " + state.selectedStory.subtitle);
     } else {
       state.selectedStory = null;
     }
     state.querys = query.split("/");
-    L("Q", state.querys);
+    console.log("Q", state.querys);
     if (state.querys.length === 1) {
       while (budget_array_data[state.querys[0]]) {
         up = budget_array_data[state.querys[0]].u;
@@ -913,13 +913,13 @@
       };
     }
     _state = History.getState();
-    L("getState: ", _state);
+    console.log("getState: ", _state);
     if (((_ref3 = _state.data) != null ? _ref3.querys : void 0) && _state.data.querys.length > 0) {
       handleNewState();
     } else {
-      L("xxx", _state.data);
+      console.log("xxx", _state.data);
       History.replaceState(state, null, "?" + state.querys.join("/"));
-      L("pushed ", state);
+      console.log("pushed ", state);
     }
     $(document).keyup(function(e) {
       if (e.keyCode === 27) {
@@ -936,7 +936,7 @@
 
   if ((document.createElementNS != null) && (document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect != null)) {
     $(function() {
-      return $("body").append('<script type="text/javascript" src="http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script&callback=window.handleStories"></script>');
+      return $.get("http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script", window.handleStories, "jsonp");
     });
   } else {
     $("#charts").hide();

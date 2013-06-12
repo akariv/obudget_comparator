@@ -47,13 +47,13 @@ class CompareData extends Backbone.Model
                         field = @get 'field'
                         data = budget_array_data[field]
                         if data
-                                L('setting field ' + field + " title: " + data.t)
+                                console.log('setting field ' + field + " title: " + data.t)
                                 @set 'code', data.c
                                 @set 'title', data.t
                                 @set 'breadcrumbs', data.b
                                 @set 'data', data.d
                         else
-                                L('field '+field+' is '+data)
+                                console.log('field '+field+' is '+data)
 
 globalSelectedItem = null
 class BubbleChart extends Backbone.View
@@ -126,7 +126,7 @@ class BubbleChart extends Backbone.View
                 @id = @options.id
                 @overlayShown = false
 
-                L "BubbleChart:initialize", @id
+                console.log "BubbleChart:initialize", @id
 
         	# d3 settings
                 @defaultGravity = 0.1
@@ -150,7 +150,7 @@ class BubbleChart extends Backbone.View
                         false
                 )
 
-                L "init done", @id
+                console.log "init done", @id
 
         collectTitles: (titles, field, prefix = '', state = []) ->
                 if not field then return
@@ -170,7 +170,7 @@ class BubbleChart extends Backbone.View
                 for x in data
                         sum += x.b1
                 @totalValue = sum ? 400000000
-                L "Totalvalue: "+@totalValue
+                console.log "Totalvalue: "+@totalValue
                 if @?.nodes
                         for node in @nodes
                                 oldNodes.push(node)
@@ -256,7 +256,7 @@ class BubbleChart extends Backbone.View
                 if node == null
                         return
                 scale = @height / node.radius / 3
-                L "showOverlay: ", node.radius, @height, scale
+                console.log "showOverlay: ", node.radius, @height, scale
                 origin = "translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)"
                 target = "translate(#{@centerX},#{@centerY})rotate(120)translate(#{-node.x*scale},#{-node.y*scale})scale(#{scale})"
 
@@ -270,7 +270,7 @@ class BubbleChart extends Backbone.View
                                                    -> d3.interpolateString( origin, target )
                                                 )
                 
-                                L("TRANSITION "+origin+" -> "+target)
+                                console.log("TRANSITION "+origin+" -> "+target)
                 $("#tooltip").hide()
 
         overlayRemoved: ->
@@ -354,7 +354,7 @@ class BubbleChart extends Backbone.View
                                 that.selectItem(e.choice.id)
                 ).on("change",
                         (e) ->
-                                L "changed:",e
+                                console.log "changed:",e
                                 if e.added
                                         that.selectItem(e.added.id)
                                         for x in e.added.state
@@ -381,7 +381,7 @@ class BubbleChart extends Backbone.View
                 frame = $("div[data-id='#{@id}'] .frame")
 
                 resizeFrame = () =>
-                        L "frame resize"
+                        console.log "frame resize"
                         @width = $(window).width() - 8
                         if @width > 900 then @width = 900
                         @centerX = @width/2 +4
@@ -538,31 +538,31 @@ removeState = ->
 handleNewState = () ->
         state = History.getState()
         state = state.data
-        L "state changed: ",state
+        console.log "state changed: ",state
         for i in [0...state.querys.length]
                 query = state.querys[i]
                 nextquery = state.querys[i+1]
                 id = "id"+i
                 el = $("div[data-id='#{id}'] .chart")
                 if el.size() == 0
-                        L "creating chart "+id
+                        console.log "creating chart "+id
                         title = state.selectedStory?.title or "השווה את התקציב"
                         subtitle = state.selectedStory?.subtitle or ""
                         template = _.template( $("#chart-template").html(),{ id: id, title:title, subtitle:subtitle } )
                         $("#charts").append template
                         el =$("div[data-id='#{id}'] .chart")                       
-                        L "creating BubbleChart "+id
+                        console.log "creating BubbleChart "+id
                         charts[i] = new BubbleChart
                                 el: el
                                 model: new CompareData
                                 id: id
 
         max = if state.querys.length > charts.length then state.querys.length else charts.length
-        L "max: "+max
+        console.log "max: "+max
         for i in [max-1..0]
-                L "setting field for "+i
+                console.log "setting field for "+i
                 if i >= state.querys.length
-                        L "removing chart #"+i
+                        console.log "removing chart #"+i
                         charts[i].updateData([])
                         charts.pop()
                         continue
@@ -577,7 +577,7 @@ handleNewState = () ->
                         charts[i].showOverlay(state.querys[i+1])                       
         if max > state.querys.length
                 if charts.length > 0
-                        L "chart "+(charts.length-1)+": overlay removed"
+                        console.log "chart "+(charts.length-1)+": overlay removed"
                         charts[charts.length-1].overlayRemoved()
         first_time = false
         $(".btnBack:first").css("display","none")
@@ -585,7 +585,7 @@ handleNewState = () ->
 explanations = {}
 getExplanation = (code,year) ->
         years = explanations[code]
-        L "got years ",years
+        console.log "got years ",years
         if years
                 year = parseInt(year)
                 explanation = years[year]
@@ -616,7 +616,7 @@ window.handleExplanations = (data) ->
                                                 explanations[code] = {}
                                         explanations[code][year] = explanation
                         code = explanation = null
-        L explanations
+        console.log explanations
 
 stories = {}
 window.handleStories = (data) ->
@@ -637,30 +637,30 @@ window.handleStories = (data) ->
                         chartid = entry.content.$t
                         stories[chartid] = { code:code, title:title, subtitle:subtitle }
                         code = title = subtitle = chartid = null
-        L stories
+        console.log stories
 
         History.Adapter.bind window, 'statechange', handleNewState
         query = "klxlq126"
         ret_query = window.location.search.slice(1)
         if ret_query.length == 0
                 ret_query = window.location.hash
-                L "using hash: "+ret_query
+                console.log "using hash: "+ret_query
                 if ret_query.length > 0
                         ret_query = query.split("?")
                         if ret_query.length > 1
                                 query = ret_query[1]
-                                L "got state (hash): "+query
+                                console.log "got state (hash): "+query
         else
                 query = ret_query
-                L "got state (search): "+query
+                console.log "got state (search): "+query
         if stories[query]
                 state.selectedStory = stories[query]
                 query = state.selectedStory.code
-                L "Selected story ("+state.selectedStory.code+")! "+state.selectedStory.title+", "+state.selectedStory.subtitle
+                console.log "Selected story ("+state.selectedStory.code+")! "+state.selectedStory.title+", "+state.selectedStory.subtitle
         else
                 state.selectedStory = null
         state.querys = query.split("/")
-        L "Q",state.querys
+        console.log "Q",state.querys
         if state.querys.length == 1
                 while budget_array_data[state.querys[0]]
                         up = budget_array_data[state.querys[0]].u
@@ -673,13 +673,13 @@ window.handleStories = (data) ->
                 state.selectedStory = { 'title':budget_array_data[firstquery].t, 'subtitle':'כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו'}
         
         _state = History.getState()
-        L "getState: ",_state
+        console.log "getState: ",_state
         if _state.data?.querys and _state.data.querys.length> 0
                 handleNewState()
         else
-                L "xxx",_state.data
+                console.log "xxx",_state.data
                 History.replaceState(state,null,"?"+state.querys.join("/"))
-                L "pushed ",state
+                console.log "pushed ",state
         $(document).keyup (e) ->
                 if e.keyCode == 27
                         removeState()
@@ -688,12 +688,13 @@ window.handleStories = (data) ->
                 removeState()
                 false
         )
-
         $("body").append('<script type="text/javascript" src="http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/od6/public/basic?alt=json-in-script&callback=window.handleExplanations"></script>')
      
 if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
         $( ->
-                $("body").append('<script type="text/javascript" src="http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script&callback=window.handleStories"></script>')
+                $.get("http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script",
+                        window.handleStories,
+                        "jsonp")
                 )
 else
         $("#charts").hide()
