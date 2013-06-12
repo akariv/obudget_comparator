@@ -165,24 +165,20 @@ a {
 }
 .chartButtons a.btnDownload {
   bottom: 40px;
-  right: 15px;
+  left: 120px;
 }
 .chartButtons a.btnShare {
   bottom: 40px;
-  left: 15px;
+  left: 50px;
 }
 .chartButtons div.btnShareContainer {
   position: absolute;
   width: 100px;
   height: 20px;
   bottom: 40px;
-  left: 50px;
+  left: 5px;
 }
 .chartButtons div.btnShareContainer iframe {
-  display: none;
-}
-.chartButtons div.btnShareContainer:hover iframe {
-  display: inline-block;
   position: absolute;
   bottom: 0px;
   left: 0px;
@@ -338,6 +334,14 @@ a {
   text-align: center;
   margin: 3px;
   line-height: 1.3em;
+}
+#asterisk {
+  padding: 10px 10px 10px 140px;
+  color: #919191;
+}
+#asterisk strong {
+  font-size: 1.3em;
+  line-height: 0.8em;
 }
 #footer {
   background: #ddd;

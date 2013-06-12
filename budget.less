@@ -184,11 +184,11 @@ a{
 		}
 		&.btnDownload{
 	    	bottom:40px;
-		    right: 15px;
+		    left: 120px;
 		}
 		&.btnShare {	
 	    	bottom:40px;
-		    left: 15px;
+		    left: 50px;
 		}		      
 	}
 
@@ -197,17 +197,12 @@ a{
 	    width:100px;
 	    height:20px;
 	    bottom:40px;
-	    left: 50px;
+	    left: 5px;
 
 	    & iframe  {
-		display:none;
-	    }
-
-	    &:hover iframe {
-		display:inline-block;
-		position:absolute;
-		bottom:0px;
-		left:0px;
+			position:absolute;
+			bottom:0px;
+			left:0px;
 	    }
 	}
 
@@ -369,6 +364,15 @@ a{
 		text-align: center;
 		margin: 3px;
 		line-height: 1.3em;
+	}
+}
+
+#asterisk{
+	padding: 10px 10px 10px 140px;
+	color: lighten(@textColor, 30%);
+	strong{
+		font-size: 1.3em;
+		line-height: 0.8em;
 	}
 }
 

@@ -52,7 +52,7 @@
     <div class="overlay"></div>
   </div>
   <div class="active item frame">
-    <h1 class="header"><%= title %></h1>
+    <h1 class="header"><%= title %>*</h1>
     <div class="description">
       <!--p> תקציב המדינה הדו-שנתי 2011/2012 הועבר בכנסת בסוף דצמבר 2010. <span class="grow20">העיגולים הסגולים</span> מציגים סעיפים שגדלו ב2012 ביחס לתיקצובם ב2011 ו<span class="shrink20">הצהובים</span> את אלה שקטנו. <%= subtitle %></p-->
       <p><%= subtitle %></p>
@@ -69,15 +69,17 @@
       </h2>
       <div class="chart"></div>
       <div class="chartButtons">
-        <a href="#" class="btnShare" data-placement="right" data-toggle="tooltip" title="החברים שלכם צריכים לראות את זהּ…"><i class="icon-facebook"></i></a>
           <div class="btnShareContainer">
-        <fb:like href="http://compare.open-budget.org.il/p/abcdef.html" send="false" layout="button_count" width="200" show_faces="false"></fb:like>
+            <fb:like href="http://compare.open-budget.org.il/p/abcdef.html" send="false" layout="button_count" width="200" show_faces="false"></fb:like>
           </div>
-              <a href="#" class="btnDownload" target="_new" data-placement="left" data-toggle="tooltip" title="שתפו את החיתוך הנוכחי כקובץ תמונה"><i class="icon-picture"></i></a>
+              <a href="#" class="btnDownload" target="_new" data-placement="right" data-toggle="tooltip" title="שתפו את החיתוך הנוכחי כקובץ תמונה"><i class="icon-picture"></i></a>
               <div class="color-index" data-toggle="tooltip" data-placement="right" title="עיגולים גדולים מסמלים תקציבים גדולים. תקציבים שגדלו יופיעו בסגול, תקציבים שקטנו יופיעו בצהוב."></div>
         </div>
+        <div id="asterisk">
+          <strong>*</strong>תכנון הוצאות לשנת 2013 מול תכנון ההוצאות מ2012
+        </div>
       <div id="footer">
-              <a href="http://hasadna.org.il/" target="top" title="הסדנא לידע ציבורי" target="_new" ><img src="images/hasadna-icon.png" alt="הסדנא לידע ציבורי"></a>
+              <a href="http://hasadna.org.il/" target="top" data-toggle="tooltip" data-placement="top" title="עוד מבית הסדנא לידע ציבורי: כנסת פתוחה, מעקב: דו\"ח טרכטנברג, ויוזמות נוספות לשקיפות ממשל ומעורבות אזרחית" target="_new" ><img src="images/hasadna-icon.png" alt="הסדנא לידע ציבורי"></a>
               <a href="http://calcalist.co.il/" target="top" title="כלכליסט" target="_new" ><img src="images/calcalist-icon.png" alt="כלכליסט"></a>
               מבית <a href="http://hasadna.org.il/"  target="_new" >הסדנא לידע ציבורי</a> בשיתוף <a href="http://calcalist.co.il/"  target="_new" >כלכליסט</a>
               <a href="#" target="_new" class="more"><span>חיתוכים וניתוחים נוספים באתר הפרויקט </span>&#10235;</a>
