@@ -5,7 +5,7 @@ input {
   font-family: Alef Hebrew, Arial, sans-serif;
 }
 a {
-  color: #009ac8;
+  color: #007395;
 }
 .frame {
   position: absolute;
@@ -14,6 +14,7 @@ a {
   background: none;
   border: 4px solid #3b3b3b;
   max-width: 900px;
+  min-width: 460px;
   direction: rtl;
 }
 .frame h1 {
@@ -101,43 +102,50 @@ a {
   -o-transition: height ease-in-out 1s;
   -ms-transition: height ease-in-out 1s;
 }
-.chartContainer h2 {
+.chartContainer h2.breadcrumbs {
   background: #f9f9f9;
   padding: 5px 10px;
   margin: 1px 0 0 0;
   line-height: 1.2em;
   font-size: 16px;
   font-weight: normal;
-  min-height: 38px;
+  min-height: 40px;
   border-bottom: 1px solid #D4D4D4;
 }
-.chartContainer h2 a.active {
-  display: block;
+.chartContainer h2.breadcrumbs a {
+  color: #777;
 }
-.chartContainer h2 a.btnBack {
-  float: left;
-  padding: 10px 10px 8px 8px;
+.chartContainer h2.breadcrumbs a.btnBack {
+  left: 15px;
+  top: 15px;
+  position: absolute;
   display: block;
   color: #919191;
   font-size: 1.2em;
 }
-.chartContainer h2 a.btnBack:hover {
+.chartContainer h2.breadcrumbs a.btnBack:hover {
   text-decoration: none;
   color: #444444;
 }
-.chartContainer h2 a {
-  color: #999999;
+.chartContainer h2.breadcrumbs a.active,
+.chartContainer h2.breadcrumbs a.breadcrumbsLink {
+  padding: 10px 10px 10px 40px;
+  display: inline-block;
 }
-.chartContainer h2 a.active {
-  color: #009ac8;
+@media all and (max-width: 500px) {
+  .chartContainer h2.breadcrumbs a.active,
+  .chartContainer h2.breadcrumbs a.breadcrumbsLink {
+    padding: 0 0 0 40px;
+  }
 }
-.chartContainer h2 a.active:after {
+.chartContainer h2.breadcrumbs a.active:after,
+.chartContainer h2.breadcrumbs a.breadcrumbsLink:after {
   content: " ";
   font-size: 0.7em;
   font-family: FontAwesome;
 }
-.chartContainer h2:hover a {
-  color: #009ac8;
+.chartContainer h2.breadcrumbs:hover a {
+  color: #007395;
 }
 .chartButtons {
   background: none;
@@ -157,19 +165,19 @@ a {
   left: 15px;
 }
 .chartButtons a.btnDownload {
-  bottom: 40px;
-  right: 15px;
+  bottom: 38px;
+  left: 115px;
 }
 .chartButtons a.btnShare {
   bottom: 40px;
-  left: 15px;
+  left: 50px;
 }
 .chartButtons div.btnShareContainer {
   position: absolute;
   width: 100px;
   height: 20px;
   bottom: 40px;
-  left: 50px;
+  left: 5px;
 }
 .chartButtons div.color-index {
   background: url(images/color-index.png);
@@ -217,6 +225,22 @@ div.btnShareContainer fb:like {
   height: 100%;
   opacity: 0.0;
   background: #fff;
+}
+.tooltip-inner {
+  background: rgba(0, 0, 0, 0.7);
+  font-size: 1.2em;
+}
+.tooltip.top .tooltip-arrow {
+  border-top-color: rgba(0, 0, 0, 0.7);
+}
+.tooltip.right .tooltip-arrow {
+  border-right-color: rgba(0, 0, 0, 0.7);
+}
+.tooltip.bottom .tooltip-arrow {
+  border-bottom-color: rgba(0, 0, 0, 0.7);
+}
+.tooltip.left .tooltip-arrow {
+  border-left-color: rgba(0, 0, 0, 0.7);
 }
 #tooltipContainer {
   position: absolute;
@@ -318,6 +342,14 @@ div.btnShareContainer fb:like {
   text-align: center;
   margin: 3px;
   line-height: 1.3em;
+}
+#asterisk {
+  padding: 10px 10px 10px 140px;
+  color: #919191;
+}
+#asterisk strong {
+  font-size: 1.3em;
+  line-height: 0.8em;
 }
 #footer {
   background: #ddd;
@@ -555,7 +587,7 @@ Version: @@ver@@ Timestamp: @@timestamp@@
 .select2-search input {
   width: 100%;
   height: auto !important;
-  min-height: 26px;
+  min-height: 34px;
   padding: 4px 35px 4px 5px;
   margin: 0;
   line-height: 26px;
