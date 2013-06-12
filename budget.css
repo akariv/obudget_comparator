@@ -102,7 +102,7 @@ a {
   -o-transition: height ease-in-out 1s;
   -ms-transition: height ease-in-out 1s;
 }
-.chartContainer h2 {
+.chartContainer h2.breadcrumbs {
   background: #f9f9f9;
   padding: 5px 10px;
   margin: 1px 0 0 0;
@@ -112,32 +112,38 @@ a {
   min-height: 38px;
   border-bottom: 1px solid #D4D4D4;
 }
-.chartContainer h2 a.active {
-  display: block;
+.chartContainer h2.breadcrumbs a {
+  color: #777;
 }
-.chartContainer h2 a.btnBack {
+.chartContainer h2.breadcrumbs a.btnBack {
   float: left;
   padding: 10px 10px 8px 8px;
   display: block;
   color: #919191;
   font-size: 1.2em;
 }
-.chartContainer h2 a.btnBack:hover {
+.chartContainer h2.breadcrumbs a.btnBack:hover {
   text-decoration: none;
   color: #444444;
 }
-.chartContainer h2 a {
-  color: #999999;
+.chartContainer h2.breadcrumbs a.active,
+.chartContainer h2.breadcrumbs a.breadcrumbsLink {
+  padding: 10px;
+  display: block;
 }
-.chartContainer h2 a.active {
-  color: #009ac8;
+@media all and (max-width: 500px) {
+  .chartContainer h2.breadcrumbs a.active,
+  .chartContainer h2.breadcrumbs a.breadcrumbsLink {
+    padding: 0;
+  }
 }
-.chartContainer h2 a.active:after {
+.chartContainer h2.breadcrumbs a.active:after,
+.chartContainer h2.breadcrumbs a.breadcrumbsLink:after {
   content: " ";
   font-size: 0.7em;
   font-family: FontAwesome;
 }
-.chartContainer h2:hover a {
+.chartContainer h2.breadcrumbs:hover a {
   color: #009ac8;
 }
 .chartButtons {

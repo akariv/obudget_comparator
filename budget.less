@@ -120,7 +120,7 @@ a{
 	-ms-transition: height ease-in-out 1s;  
 	//position: relative;   
 
-	h2{
+	h2.breadcrumbs{
 		//text-align: center;
 		background: #f9f9f9;
 		padding: 5px 10px;
@@ -130,29 +130,35 @@ a{
 		font-weight: normal;
 		min-height: 38px;
 		border-bottom: 1px solid #D4D4D4;
-		span {
-		}
-		a.active{
-			display: block;
-		}
-		a.btnBack{
-			float: left;
-			padding: 10px 10px 8px 8px;
-			display: block;
-			color: lighten(@textColor,30%);
-			font-size: 1.2em;
-			&:hover{
-				text-decoration: none;
-				color: @textColor;
+
+		a{
+			color: #777;
+
+			&.btnBack{
+				float: left;
+				padding: 10px 10px 8px 8px;
+				display: block;
+				color: lighten(@textColor,30%);
+				font-size: 1.2em;
+				&:hover{
+					text-decoration: none;
+					color: @textColor;
+				}
 			}
-		}
-		a{color: #999}
-		a.active{
-			color: @linkColor;
-			&:after{
-				content:" ";
-				font-size: 0.7em;
-				font-family: @iconFont;
+
+			&.active,
+			&.breadcrumbsLink{
+				padding: 10px;
+				display: block;
+				@media all and (max-width: 500px){
+					padding: 0;
+				}
+				//color: @linkColor;
+				&:after{
+					content:" ";
+					font-size: 0.7em;
+					font-family: @iconFont;
+				}
 			}
 		}
 		&:hover a{
