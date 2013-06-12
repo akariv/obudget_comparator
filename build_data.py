@@ -28,8 +28,8 @@ INFLATION = {1992: 2.338071159424868,
  2010: 1.0384046275616676,
  2011: 1.0163461588107117,
  2012: 1.0,
- 2013: 1.017,
- 2014: 1.017*1.023,
+ 2013: 1.0/1.017,
+ 2014: 1.0/(1.017*1.023),
 }
 
 strings = []
@@ -125,7 +125,7 @@ def build_tree( data, year, field, income=False ):
     filtered_items = ( item for item in data if item_filter(item) )
     filtered_items = ( { 'code':item['code'][4 if income else 2:], 
                          'title':item['title'], 
-                         'value':int(item[field]*INFLATION[year]) } 
+                         'value':int(item[field]) } 
                        for item in filtered_items )
     filtered_items = [ item for item in filtered_items if len(item['code'])<=6 ]
     filtered_items.sort( key=lambda item: item['code'] )
@@ -189,7 +189,7 @@ def key_for_diff(year1,field1,year2,field2,income,divein):
     key = "%s%s%s%s%s%s" % ( year(year1), field(field1), year(year2), field(field2), "v" if income else "q", get_string_id(divein) )
     return key
 
-def adapt_for_js(drilldown, items):
+def adapt_for_js(drilldown, items, inflation):
     for item in items:
         if item['value'] != [0,0]:
             ret= { 'b0'  : item['value'][0],
@@ -198,7 +198,7 @@ def adapt_for_js(drilldown, items):
                     'p'   : get_string_id(item['group']),
                     'pv'  : item.get('parent_value'),
                     'id'  : get_string_id(item['code']),
-                    'c'   : int(100*item['value'][1] / item['value'][0] - 100) if item['value'][0] > 0 else 99999,
+                    'c'   : int(100*inflation*item['value'][1] / item['value'][0] - 100) if item['value'][0] > 0 else 99999,
                 }
             if item.get('nchildren',0) > 0:
                 ret['d'] = drilldown(item['code'])
@@ -218,6 +218,8 @@ def get_items_for(year1,field1,year2,field2,income):
     tree2 = build_tree(budget_file(), year2, field2, income)
     titles = [ get_titles(budget_file(), year1, income), get_titles(budget_file(), year2, income) ]
     merged, report = merge_trees(tree1, tree2) 
+
+    inflation = INFLATION[year2] / INFLATION[year1]
 
     merged = filter_tree(merged, lambda node: node['value'][0] > 0)
     merged = filter_tree(merged, lambda node: sum([ (node['value'][i] > 0) and
@@ -241,14 +243,14 @@ def get_items_for(year1,field1,year2,field2,income):
     reportfile.write("</table></body>")
 
     for node,breadcrumbs in traverse_by_depth(merged,2):
-        diff = list(adapt_for_js(lambda (c): key_for_diff(year1,field1,year2,field2,income,c),extract_by_depth(node,1)))
+        diff = list(adapt_for_js(lambda (c): key_for_diff(year1,field1,year2,field2,income,c),extract_by_depth(node,1),inflation))
         if len(diff) > 1:
             up = None
             title = u"%s - %s" % (title_prefix, node['title'],  )
             if len(node['code']) > 0:
                 up = key_for_diff(year1,field1,year2,field2,income,node['code'][:-2])
                 title += " (%s)" % node['code']
-            yield key_for_diff(year1,field1,year2,field2,income,node['code']), up, diff, title, ' | '.join(breadcrumbs)
+            yield key_for_diff(year1,field1,year2,field2,income,node['code']), up, diff, node['code'], title, ' | '.join(breadcrumbs)
 
 #    for part in merged['children'].keys():
 #        key = key_for_diff(year1,field1,year2,field2,income,merged['code']+part)
@@ -301,8 +303,8 @@ if __name__=="__main__":
     diffs = itertools.chain( *( get_items_for(*diff) for diff in generated_diffs ) )
     diffsDict = {}
     urls = []
-    for key,up,diff,title,breadcrumbs in diffs:
-        diffsDict[key] = { 't': title, 'd' : diff, 'u' : up, 'b' : breadcrumbs }
+    for key,up,diff,code,title,breadcrumbs in diffs:
+        diffsDict[key] = { 't': title, 'd' : diff, 'u' : up, 'b' : breadcrumbs, 'c' : code }
         urls.append((key,title))
     out = file('data.js','w')
     out.write('budget_array_data = %s;\n' % json.dumps(diffsDict))

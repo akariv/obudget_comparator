@@ -48,6 +48,7 @@ class CompareData extends Backbone.Model
                         data = budget_array_data[field]
                         if data
                                 L('setting field ' + field + " title: " + data.t)
+                                @set 'code', data.c
                                 @set 'title', data.t
                                 @set 'breadcrumbs', data.b
                                 @set 'data', data.d
@@ -297,7 +298,29 @@ class BubbleChart extends Backbone.View
                 that = this
 
                 $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
-                $("div[data-id='#{@id}'] .breadcrumbs").append("<span>"+(@model.get 'breadcrumbs')+"</span>")
+
+                setBreadcrumbs = (dd = null) =>
+
+                        bc = @model.get 'breadcrumbs'
+                        if not dd
+                                linkCode = "00"
+                                if @model.get 'code'
+                                        bc += " (#{@model.get 'code'})"
+                                        linkCode += @model.get 'code' 
+                        else
+                                bc += " | " + dd.name + " (#{dd.code})"
+                                linkCode = dd.code
+                                
+                        $("div[data-id='#{@id}'] .breadcrumbsLink").remove()
+                        $("div[data-id='#{@id}'] .breadcrumbs").append('<a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+linkCode+
+                                ',2013,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">'+bc+
+                                '</a>')
+                        $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
+
+                setBreadcrumbs()
+                $("div[data-id='#{@id}'] .btnBack").tooltip()
+                $("div[data-id='#{@id}'] .btnDownload").tooltip()
+                $("div[data-id='#{@id}'] .color-index").tooltip()
                         
                 search = $("div[data-id='#{@id}'] .mysearch")
                 $("div[data-id='#{@id}'] .mysearch-open").click( ->
@@ -395,6 +418,8 @@ class BubbleChart extends Backbone.View
                         .on("click", (d,i) ->
                                 if budget_array_data[d.drilldown]
                                         addState(d.drilldown)
+                                else
+                                        setBreadcrumbs(d)
                                 d3.event.stopPropagation()
                                 false
                                 )

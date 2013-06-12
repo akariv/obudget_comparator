@@ -117,6 +117,7 @@
         data = budget_array_data[field];
         if (data) {
           L('setting field ' + field + " title: " + data.t);
+          this.set('code', data.c);
           this.set('title', data.t);
           this.set('breadcrumbs', data.b);
           return this.set('data', data.d);
@@ -325,7 +326,7 @@
       this.nodes = [];
       this.titles = [];
       this.collectTitles(this.titles, this.model.get('field'));
-      rScale = d3.scale.pow().exponent(0.5).domain([0, this.totalValue]).range([10, 180]);
+      rScale = d3.scale.pow().exponent(0.5).domain([0, this.totalValue]).range([7, 165]);
       radiusScale = function(n) {
         return rScale(Math.abs(n));
       };
@@ -462,13 +463,36 @@
     };
 
     BubbleChart.prototype.render = function() {
-      var container, fb_iframe, frame, overlay, resizeFrame, search, tagClicked, tags, that, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+      var container, fb_iframe, frame, overlay, resizeFrame, search, setBreadcrumbs, tagClicked, tags, that, ___iced_passed_deferral, __iced_deferrals, __iced_k,
         _this = this;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
       that = this;
       $("div[data-id='" + this.id + "'] .btnDownload").attr("href", "/images/large/" + (this.model.get('field')) + ".jpg");
-      $("div[data-id='" + this.id + "'] .breadcrumbs").append("<span>" + (this.model.get('breadcrumbs')) + "</span>");
+      setBreadcrumbs = function(dd) {
+        var bc, linkCode;
+        if (dd == null) {
+          dd = null;
+        }
+        bc = _this.model.get('breadcrumbs');
+        if (!dd) {
+          linkCode = "00";
+          if (_this.model.get('code')) {
+            bc += " (" + (_this.model.get('code')) + ")";
+            linkCode += _this.model.get('code');
+          }
+        } else {
+          bc += " | " + dd.name + (" (" + dd.code + ")");
+          linkCode = dd.code;
+        }
+        $("div[data-id='" + _this.id + "'] .breadcrumbsLink").remove();
+        $("div[data-id='" + _this.id + "'] .breadcrumbs").append('<a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#' + linkCode + ',2013,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">' + bc + '</a>');
+        return $("div[data-id='" + _this.id + "'] .breadcrumbsLink").tooltip();
+      };
+      setBreadcrumbs();
+      $("div[data-id='" + this.id + "'] .btnBack").tooltip();
+      $("div[data-id='" + this.id + "'] .btnDownload").tooltip();
+      $("div[data-id='" + this.id + "'] .color-index").tooltip();
       search = $("div[data-id='" + this.id + "'] .mysearch");
       $("div[data-id='" + this.id + "'] .mysearch-open").click(function() {
         search.select2("open");
@@ -555,6 +579,8 @@
       }).on("click", function(d, i) {
         if (budget_array_data[d.drilldown]) {
           addState(d.drilldown);
+        } else {
+          setBreadcrumbs(d);
         }
         d3.event.stopPropagation();
         return false;
@@ -663,7 +689,7 @@
               return __iced_deferrals.ret = arguments[0];
             };
           })(),
-          lineno: 495
+          lineno: 520
         })), 100);
         __iced_deferrals._fulfill();
       })(function() {
