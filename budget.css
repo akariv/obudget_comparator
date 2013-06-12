@@ -129,7 +129,7 @@ a {
 .chartContainer h2.breadcrumbs a.active,
 .chartContainer h2.breadcrumbs a.breadcrumbsLink {
   padding: 10px;
-  display: block;
+  display: inline-block;
 }
 @media all and (max-width: 500px) {
   .chartContainer h2.breadcrumbs a.active,
