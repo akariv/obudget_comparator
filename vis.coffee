@@ -61,12 +61,12 @@ class BubbleChart extends Backbone.View
 
         # Colors
         getFillColor: (d) -> 
-                fillColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range (["#dbae00", "#eac865","#f5dd9c","#AAA","#bfc3dc", "#9ea5c8", "#7b82c2"])
+                fillColor = d3.scale.ordinal().domain([-4,-3,-2,-1,0,1,2,3,4]).range (["#9F7E01", "#dbae00", "#eac865","#f5dd9c","#AAA","#bfc3dc", "#9ea5c8", "#7b82c2", "#464FA1"])
                 if (d.isNegative) then "#fff" else fillColor(d.changeCategory)
 
         getStrokeColor: (d) ->
                 if d.name == globalSelectedItem then return "#FF0"
-                strokeColor = d3.scale.ordinal().domain([-3,-2,-1,0,1,2,3]).range(["#c09100", "#e7bd53","#d9c292","#999","#a7aed3", "#7f8ab8", "#4f5fb0"])
+                strokeColor = d3.scale.ordinal().domain([-4,-3,-2,-1,0,1,2,3,4]).range(["#796001", "#c09100", "#e7bd53","#d9c292","#999","#a7aed3", "#7f8ab8", "#4f5fb0","#1A2055"])
                 strokeColor(d.changeCategory);
 
         strokeWidth: (d) ->
@@ -101,13 +101,15 @@ class BubbleChart extends Backbone.View
         # Data handling
         categorizeChange: (c) ->
                 if isNaN(c)     then return 0
+                if c < -0.5    then return -4
                 if c < -0.25    then return -3
                 if c < -0.05    then return -2
                 if c < -0.001   then return -1
                 if c <= 0.001   then return 0
                 if c <= 0.05    then return 1
                 if c <= 0.25    then return 2
-                return 3
+                if c <= 0.5    then return 3
+                return 4
          
         # Chart stuff
         setOverlayed: (overlayed) ->
@@ -132,7 +134,6 @@ class BubbleChart extends Backbone.View
                 @defaultGravity = 0.1
                                
                 @force = @svg = @circle = null
-                @changeTickValues = [-0.25, -0.15, -0.05, 0.05, 0.15, 0.25]
                 
                 # chart settings
                 @centerX = @width / 2
@@ -157,8 +158,8 @@ class BubbleChart extends Backbone.View
                 data = budget_array_data[field]
                 if data
                         for n in data.d
-                                code = strings[n.id]
-                                name = strings[n.n]
+                                code = n.id
+                                name = n.n
                                 if name and code
                                         titles.push( id:name, text:prefix + name, code:code, state:state )
                                 @collectTitles( titles, n.d, prefix + name + ' | ', state.concat([n.d]) )
@@ -198,14 +199,12 @@ class BubbleChart extends Backbone.View
                                         y               : -150+Math.random() * 300
 
                         out.sid = n.id
-                        out.code = strings[n.id]
+                        out.code = n.jc
                         out.radius = radiusScale(n[currentYearDataColumn])
-                        out.group = strings[n.p]
-                        out.groupvalue = n.pv
                         out.change = n.c/100.0
                         out.changeCategory = @categorizeChange(n.c/100.0)
                         out.value = n[currentYearDataColumn]
-                        out.name = strings[n.n]
+                        out.name = n.n
                         out.isNegative = (n[currentYearDataColumn] < 0)
                         out.positions = n.positions
                         out.drilldown = n.d
@@ -218,13 +217,13 @@ class BubbleChart extends Backbone.View
 
                         if ((n[currentYearDataColumn] > 0) && (n[previousYearDataColumn] < 0))
                                 out.changestr = "הפך מהכנסה להוצאה"
-                                out.changeCategory = 3
+                                out.changeCategory = 4
                         if ((n[currentYearDataColumn] < 0) && (n[previousYearDataColumn] > 0))
                                 out.changestr = "הפך מהוצאה להכנסה"
-                                out.changeCategory = 3
+                                out.changeCategory = -4
                         if (n.c==99999)
                                 out.changestr = "תוקצב מחדש"
-                                out.changeCategory = 3
+                                out.changeCategory = 4
                                 
 
                         @nodes.push(out)
@@ -235,6 +234,7 @@ class BubbleChart extends Backbone.View
                 if data.length > 0
                         @render()
                 else
+                        @setBreadcrumbs(null)
                         container = $("div[data-id='#{@id}']")
                         if @transitiontime > 0
                                 @circle.transition().duration(@transitiontime)
@@ -299,25 +299,25 @@ class BubbleChart extends Backbone.View
 
                 $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
 
-                setBreadcrumbs = (dd = null) =>
+                @setBreadcrumbs = (dd = null) =>
 
                         bc = @model.get 'breadcrumbs'
                         if not dd
-                                linkCode = "00"
+                                linkCode = ""
                                 if @model.get 'code'
                                         bc += " (#{@model.get 'code'})"
                                         linkCode += @model.get 'code' 
                         else
-                                bc += " | " + dd.name + " (#{dd.code})"
-                                linkCode = dd.code
+                                bc += " / " + dd.name + " (#{dd.code})"
+                                linkCode = dd.id
                                 
                         $("div[data-id='#{@id}'] .breadcrumbsLink").remove()
                         $("div[data-id='#{@id}'] .breadcrumbs").append('<a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+linkCode+
-                                ',2013,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">'+bc+
+                                ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">'+bc+
                                 '</a>')
                         $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
 
-                setBreadcrumbs()
+                @setBreadcrumbs()
                 $("div[data-id='#{@id}'] .btnBack").tooltip()
                 $("div[data-id='#{@id}'] .btnDownload").tooltip()
                 $("div[data-id='#{@id}'] .color-index").tooltip()
@@ -419,7 +419,7 @@ class BubbleChart extends Backbone.View
                                 if budget_array_data[d.drilldown]
                                         addState(d.drilldown)
                                 else
-                                        setBreadcrumbs(d)
+                                        that.setBreadcrumbs(d)
                                 d3.event.stopPropagation()
                                 false
                                 )
@@ -455,8 +455,8 @@ class BubbleChart extends Backbone.View
                                         .classed('plus', (d.changeCategory > 0))
                                         .classed('minus', (d.changeCategory < 0))
                                 d3.select("#tooltip .name").html(d.name)
-                                d3.select("#tooltip .department").text(d.group)
-                                d3.select("#tooltip .explanation").text(getExplanation(d.code,2012))
+                                d3.select("#tooltip .department").text("#"+d.code)
+                                d3.select("#tooltip .explanation").text(getExplanation(d.id,2014))
                                 #d3.select("#tooltip .history").text("Hello there")
                                 d3.select("#tooltip .value").html(formatNumber(d.value*1000)+" \u20aa")
                                 d3.selectAll("#tooltip .arrow").style("right",tail+"px")
@@ -489,7 +489,6 @@ class BubbleChart extends Backbone.View
 
                 if @force != null
                         @force.stop()
-                fb_iframe = '<fb:like href="http://compare.open-budget.org.il/p/'+(@model.get 'field')+'.html" send="false" layout="button_count" width="200" show_faces="false"></fb:like>'
                 #fb_iframe = '<iframe src="http://www.facebook.com/plugins/like.php?locale=he_IL&href=http%3A%2F%2Fcompare.open-budget.org.il%2Fp%2F'+(@model.get 'field')+'.html&amp;send=false&amp;layout=button_count&amp;width=200&amp;show_faces=false&amp;font&amp;colorscheme=light&amp;action=like&amp;height=21&amp;appId=469139063167385" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:200px; height:21px;" allowTransparency="true"></iframe>'
                 #$("div[data-id='#{@id}'] .btnShareContainer").append("<div class='fb-like' data-href='http://compare.open-budget.org.il/p/#{@model.get 'field'}.html' data-send='false' data-layout='button_count' data-width='200' data-show-faces='false'></div>")
                 #$("div[data-id='#{@id}'] .btnShareContainer").append(fb_iframe)
@@ -518,8 +517,6 @@ class BubbleChart extends Backbone.View
                                                 .attr("cy", (d) -> d.y )
                                         )
                         .start()
-                await setTimeout((defer _),100)
-                window.FB?.XFBML?.parse()
                                 
 
 state = { querys: [], selectedStory: null }
@@ -640,7 +637,7 @@ window.handleStories = (data) ->
         console.log stories
 
         History.Adapter.bind window, 'statechange', handleNewState
-        query = "klxlq126"
+        query = "00"#klxlq126"
         ret_query = window.location.search.slice(1)
         if ret_query.length == 0
                 ret_query = window.location.hash
@@ -670,7 +667,8 @@ window.handleStories = (data) ->
                                 break
         firstquery = state.querys[0]
         if !state.selectedStory
-                state.selectedStory = { 'title':budget_array_data[firstquery].t, 'subtitle':'כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו'}
+                state.selectedStory = { 'title':"תקציב המדינה 2014 מול 2012",
+                'subtitle':'כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו'}
         
         _state = History.getState()
         console.log "getState: ",_state

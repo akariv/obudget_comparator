@@ -171,15 +171,6 @@ a {
   bottom: 40px;
   left: 50px;
 }
-.chartButtons div.btnShareContainer iframe {
-  display: none;
-}
-.chartButtons div.btnShareContainer:hover iframe {
-  display: inline-block;
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-}
 .chartButtons div.color-index {
   background: url(images/color-index.png);
   width: 31px;
@@ -188,6 +179,18 @@ a {
   margin-top: -164px;
   left: 4px;
   top: 50%;
+}
+div.btnShareContainer {
+  position: absolute;
+  width: 200px;
+  height: 20px;
+  top: 6px;
+  left: 6px;
+}
+div.btnShareContainer fb:like {
+  position: absolute;
+  bottom: 30px;
+  left: 50px;
 }
 .chart {
   width: 100%;

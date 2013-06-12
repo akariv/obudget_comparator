@@ -191,16 +191,6 @@ a{
 	    bottom:40px;
 	    left: 50px;
 
-	    & iframe  {
-		display:none;
-	    }
-
-	    &:hover iframe {
-		display:inline-block;
-		position:absolute;
-		bottom:0px;
-		left:0px;
-	    }
 	}
 
 	div.color-index{
@@ -212,6 +202,21 @@ a{
 		left: 4px;
 		top: 50%;
 	}
+}
+
+div.btnShareContainer {
+    position: absolute;
+    width:200px;
+    height:20px;
+    top:6px;
+    left: 6px;
+    fb:like {
+	position:absolute;
+	bottom:30px;
+	left:50px;
+	iframe {
+	}
+    }
 }
 
 .chart {
