@@ -598,7 +598,7 @@
           tail -= xpos - (that.width - 125);
           xpos = that.width - 125;
         }
-        xpos += svgPos.left;
+        xpos += 4;
         ypos = Number(el.attr('cy'));
         if (ypos > 0) {
           ypos = ypos - d.radius - 10 + svgPos.top + that.centerY;

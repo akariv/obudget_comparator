@@ -434,7 +434,7 @@ class BubbleChart extends Backbone.View
                                 if xpos > (that.width - 125)
                                         tail -= xpos - (that.width - 125)
                                         xpos = (that.width - 125)
-                                xpos += svgPos.left
+                                xpos += 4 # instead of left
                                 ypos = Number(el.attr('cy'))
                                 if ypos > 0
                                         ypos = ypos - d.radius - 10 +svgPos.top+that.centerY
