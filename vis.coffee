@@ -177,7 +177,7 @@ class BubbleChart extends Backbone.View
                 @titles = []
                 @collectTitles( @titles, @model.get 'field' )
                 
-                rScale = d3.scale.pow().exponent(0.5).domain([0,@totalValue]).range([10,180])
+                rScale = d3.scale.pow().exponent(0.5).domain([0,@totalValue]).range([7,165])
                 radiusScale = (n) -> rScale( Math.abs(n) )
                 @boundingRadius = radiusScale(@totalValue)
 
