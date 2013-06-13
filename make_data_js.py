@@ -33,11 +33,14 @@ allowed_changes = ["0016","0014","0011","0036","0019","0027","0067",
                    "0025","0053","0052","0068","0001","0040","0041",
                    "0030","0079","0076","0078","0038","0045"]
 
-dive_in = ["0084", "0045", "0020", "0012", "0007", "0079" ]
+dive_in = ["0084", "0045", "0020", "0012", "0007", "0079", "9001", "9014", "9083" ]
 
 maincodes = {}
 subsums = {}
 totals = [0,0]
+
+incomes = False
+relative = True
 
 if __name__=="__main__":
     
@@ -50,8 +53,11 @@ if __name__=="__main__":
     for j in file("master.json"):
         j = json.loads(j)
         code = j['code']
+        if not incomes and  code.startswith("0000"): continue
+        if incomes:
+            code = code[2:]
+            code = "9" + code[1:]
         maincode = code[:4]
-        if code.startswith("0000"): continue
         for i in range(2):
             if j['year'] == years[i]:
                 if len(code) == 2:
@@ -60,21 +66,32 @@ if __name__=="__main__":
                 elif (len(code) == 4 or
                       (len(code) == 6 and maincode in dive_in)):
                     subsums.setdefault(maincode,{})
-                    sc = subsums[maincode].get(code,{'id':int(code)})
+                    if code in dive_in:
+                        sc = maincodes.get(code)
+                    else:
+                        sc = subsums[maincode].get(code)
+                    if sc == None:
+                        sc = {'id':int(code)}
                     sc.setdefault('titles',[u'X',u'X'])
-                    if j.get(fields[i],0) <= 0: continue
-                    sc['budget_%s' % i] = j[fields[i]]*INFLATION[years[i]]
+                    if j.get(fields[i],-1) < 0: continue
+                    if j.get('title','') == '': continue
+                    sc['budget_%s' % i] = j[fields[i]]*INFLATION[years[i]]+0.0001
                     sc['titles'][i] = j['title']
                     if code == maincode:
                         maincodes[code] = sc
                     if code not in dive_in:
                         subsums[maincode][code] = sc
-# ratio = 1.0*totals[0]/totals[1] (for comparing the relative part in the budget)
-ratio = 1.0
-print ratio
+
 out = []
 for maincode,maincode_budgets in subsums.iteritems():
-    for code,budgets in maincode_budgets.iteritems():
+    maincode_budgets = dict([(k,v) for k,v in maincode_budgets.iteritems() if 'X' not in v['titles']])
+    if maincode_budgets:
+        toiter = maincode_budgets.iteritems()  
+    elif maincode in maincodes:
+        toiter = [(maincode,maincodes[maincode])]
+    else:
+        toiter = []
+    for code,budgets in toiter:
         if budgets['titles'][0] != budgets['titles'][1]:
             print "???",code,budgets['titles'][0]
             print "???",code,budgets['titles'][1]
@@ -94,7 +111,10 @@ for maincode,maincode_budgets in subsums.iteritems():
         budgets['name']=budgets['titles'][1] + (" (%s)" % code)
         budgets['department']=maincodes[maincode]['titles'][1] + (" %s" % maincode if maincode!=code else "")
         del budgets['titles']
-        budgets['change'] = ratio*budgets['budget_1']/budgets['budget_0'] - 1
+        if relative:
+            budgets['change'] = budgets['budget_1']/totals[1] - budgets['budget_0']/totals[0]
+        else:
+            budgets['change'] = budgets['budget_1']/budgets['budget_0'] - 1
         out.append(budgets)
 
 file('data.js','w').write('budget_array_data = %s;\n' % json.dumps(out))
