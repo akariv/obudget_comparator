@@ -297,9 +297,19 @@ class BubbleChart extends Backbone.View
 
                 # super hack to make like appear only once and be positioned correctly on all layers
                 $('.btnShareContainer').css({top: $('.chartButtons').offset().top + 9, left: $('.chartButtons').offset().left + 12})
-                # code for changin like href dynamically should go here :
-                # TODO
-                # TODO
+                # code for changin like href dynamically goes here
+                #
+                # likeref = $(document.getElementsByTagName('fb:like')).attr('href')
+                # likeurlparts = likeref.split('/')
+                # likeurlparts.splice(-1)
+                # lasturlpart = location.href.split('/').splice(-1)[0]
+                # likeurlparts.push(lasturlpart + '.html');
+                # likeurlparts.push('xxx.html') #REPLACE THIS WITH THE PREVIOUS LINE WHEN HTMLZ AND IMAGES
+                # newlikeref = likeurlparts.join('/')
+                # console.log('new like url', newlikeref)
+                # $(document.getElementsByTagName('fb:like')).attr('href', newlikeref)
+                # FB.XFBML.parse()
+                #
 
 
                 that = this
