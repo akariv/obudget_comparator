@@ -547,6 +547,10 @@
         } else {
           return "default";
         }
+      }).classed('newitem', function(d) {
+        return d.newitem;
+      }).classed('disappeared', function(d) {
+        return d.disappeared;
       }).on("click", function(d, i) {
         if (budget_array_data[d.drilldown]) {
           addState(d.drilldown);
