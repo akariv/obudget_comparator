@@ -221,10 +221,17 @@ class BubbleChart extends Backbone.View
                         if ((n[currentYearDataColumn] < 0) && (n[previousYearDataColumn] > 0))
                                 out.changestr = "הפך מהוצאה להכנסה"
                                 out.changeCategory = -4
+                        out.newitem = false
+                        out.disappeared = false
                         if (n.c==99999)
                                 out.changestr = "תוקצב מחדש"
                                 out.changeCategory = 4
-                                
+                                out.newitem = true
+                        if (out.value == 0)
+                                out.disappeared = true
+                                out.value = n[previousYearDataColumn]
+                                out.radius = radiusScale(n[previousYearDataColumn])
+
 
                         @nodes.push(out)
 
@@ -454,9 +461,11 @@ class BubbleChart extends Backbone.View
                                         .style('display','block')
                                         .classed('plus', (d.changeCategory > 0))
                                         .classed('minus', (d.changeCategory < 0))
+                                        .classed('newitem', d.newitem)
+                                        .classed('disappeared', d.disappeared)
                                 d3.select("#tooltip .name").html(d.name)
                                 d3.select("#tooltip .department").text("#"+d.code)
-                                d3.select("#tooltip .explanation").text(getExplanation(d.id,2014))
+                                d3.select("#tooltip .explanation").text(getExplanation(d.sid,2014))
                                 #d3.select("#tooltip .history").text("Hello there")
                                 d3.select("#tooltip .value").html(formatNumber(d.value*1000)+" \u20aa")
                                 d3.selectAll("#tooltip .arrow").style("right",tail+"px")
@@ -582,7 +591,7 @@ handleNewState = () ->
 explanations = {}
 getExplanation = (code,year) ->
         years = explanations[code]
-        console.log "got years ",years
+        console.log "got years ",years,"for",code
         if years
                 year = parseInt(year)
                 explanation = years[year]
@@ -599,7 +608,7 @@ window.handleExplanations = (data) ->
         for entry in data.feed.entry
                 title = entry.title.$t
                 if title.search( /B[0-9]+/ ) == 0
-                        code = entry.content.$t
+                        code = "00"+entry.content.$t
                 if title.search( /D[0-9]+/ ) == 0
                         explanation = entry.content.$t
                 if title.search( /F[0-9]+/ ) == 0
@@ -612,6 +621,7 @@ window.handleExplanations = (data) ->
                                         if not curCodeExpl
                                                 explanations[code] = {}
                                         explanations[code][year] = explanation
+                                        console.log "EXP", code, year
                         code = explanation = null
         console.log explanations
 

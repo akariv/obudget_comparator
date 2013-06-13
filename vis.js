@@ -339,9 +339,17 @@
           out.changestr = "הפך מהוצאה להכנסה";
           out.changeCategory = -4;
         }
+        out.newitem = false;
+        out.disappeared = false;
         if (n.c === 99999) {
           out.changestr = "תוקצב מחדש";
           out.changeCategory = 4;
+          out.newitem = true;
+        }
+        if (out.value === 0) {
+          out.disappeared = true;
+          out.value = n[previousYearDataColumn];
+          out.radius = radiusScale(n[previousYearDataColumn]);
         }
         this.nodes.push(out);
       }
@@ -577,10 +585,10 @@
         if (d.drilldown) {
           el.style("stroke", "#000").style("stroke-width", 3);
         }
-        d3.select("#tooltip").style('top', ypos + "px").style('left', xpos + "px").style('display', 'block').classed('plus', d.changeCategory > 0).classed('minus', d.changeCategory < 0);
+        d3.select("#tooltip").style('top', ypos + "px").style('left', xpos + "px").style('display', 'block').classed('plus', d.changeCategory > 0).classed('minus', d.changeCategory < 0).classed('newitem', d.newitem).classed('disappeared', d.disappeared);
         d3.select("#tooltip .name").html(d.name);
         d3.select("#tooltip .department").text("#" + d.code);
-        d3.select("#tooltip .explanation").text(getExplanation(d.id, 2014));
+        d3.select("#tooltip .explanation").text(getExplanation(d.sid, 2014));
         d3.select("#tooltip .value").html(formatNumber(d.value * 1000) + " \u20aa");
         d3.selectAll("#tooltip .arrow").style("right", tail + "px");
         if (d != null ? d.changestr : void 0) {
@@ -731,7 +739,7 @@
   getExplanation = function(code, year) {
     var explanation, years;
     years = explanations[code];
-    console.log("got years ", years);
+    console.log("got years ", years, "for", code);
     if (years) {
       year = parseInt(year);
       explanation = years[year];
@@ -754,7 +762,7 @@
       entry = _ref2[_i];
       title = entry.title.$t;
       if (title.search(/B[0-9]+/) === 0) {
-        code = entry.content.$t;
+        code = "00" + entry.content.$t;
       }
       if (title.search(/D[0-9]+/) === 0) {
         explanation = entry.content.$t;
@@ -771,6 +779,7 @@
               explanations[code] = {};
             }
             explanations[code][year] = explanation;
+            console.log("EXP", code, year);
           }
         }
         code = explanation = null;
@@ -874,7 +883,7 @@
       removeState();
       return false;
     });
-    return $("body").append('<script type="text/javascript" src="http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/od6/public/basic?alt=json-in-script&callback=window.handleExplanations"></script>');
+    return $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/2/public/basic?alt=json-in-script", window.handleExplanations, "jsonp");
   };
 
   if ((document.createElementNS != null) && (document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect != null)) {
