@@ -467,7 +467,7 @@ class BubbleChart extends Backbone.View
                                         .classed('newitem', d.newitem)
                                         .classed('disappeared', d.disappeared)
                                 d3.select("#tooltip .name").html(d.name)
-                                d3.select("#tooltip .department").text("#"+d.code)
+                                d3.select("#tooltip .itemNumber").text("#"+d.code)
                                 d3.select("#tooltip .explanation").text(getExplanation(d.sid,2014))
                                 #d3.select("#tooltip .history").text("Hello there")
                                 d3.select("#tooltip .value").html(formatNumber(d.value*1000)+" \u20aa")
