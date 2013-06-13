@@ -19,7 +19,7 @@ formatNumber = (n,decimals) ->
         else if n >= 1000000
                 suffix = " מיליון"
                 n = n / 1000000
-                decimals = 1	   
+                decimals = 1
         prefix = ""
         if decimals > 0
                 if (n<1)
@@ -30,7 +30,7 @@ formatNumber = (n,decimals) ->
                     num = "";
                 else
                     remainder = s.substr(s.length-(decimals),decimals)
-                    num = s.substr(0,s.length - decimals)               
+                    num = s.substr(0,s.length - decimals)
                 return negativePrefix + prefix + num.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,") + "." + remainder + suffix + negativeSuffix
         else
                 s = String(Math.round(n))
@@ -60,7 +60,7 @@ class BubbleChart extends Backbone.View
 
 
         # Colors
-        getFillColor: (d) -> 
+        getFillColor: (d) ->
                 fillColor = d3.scale.ordinal().domain([-4,-3,-2,-1,0,1,2,3,4]).range (["#9F7E01", "#dbae00", "#eac865","#f5dd9c","#AAA","#bfc3dc", "#9ea5c8", "#7b82c2", "#464FA1"])
                 if (d.isNegative) then "#fff" else fillColor(d.changeCategory)
 
@@ -79,7 +79,7 @@ class BubbleChart extends Backbone.View
 
         # Force Layout
         defaultCharge:
-                (d) -> if (d.value < 0) then 0 else -Math.pow(d.radius,2.0)/8  
+                (d) -> if (d.value < 0) then 0 else -Math.pow(d.radius,2.0)/8
 
         totalSort: (alpha) ->
                 return (d) =>
@@ -88,11 +88,11 @@ class BubbleChart extends Backbone.View
                         if d.isNegative
                                 if d.changeCategory > 0
                                         d.x = -200
-                                else 
+                                else
                                         d.x = 1100
                         d.y = d.y + (targetY - d.y) * (@defaultGravity + 0.02) * alpha
                         d.x = d.x + (targetX - d.x) * (@defaultGravity + 0.02) * alpha
-                        
+
         buoyancy: (alpha) ->
                 return (d) =>
                         targetY = - (d.changeCategory / 3) * @boundingRadius
@@ -110,19 +110,19 @@ class BubbleChart extends Backbone.View
                 if c <= 0.25    then return 2
                 if c <= 0.5    then return 3
                 return 4
-         
+
         # Chart stuff
         setOverlayed: (overlayed) ->
                 overlayed = if overlayed then true else false
                 if overlayed
                         @transitiontime = 0
                 else
-                        @transitiontime = 1000               
+                        @transitiontime = 1000
 
         initialize: (@options) ->
                 _.bindAll @
 
-                
+
                 @width = 970
                 @height = 550
                 @id = @options.id
@@ -132,9 +132,9 @@ class BubbleChart extends Backbone.View
 
         	# d3 settings
                 @defaultGravity = 0.1
-                               
+
                 @force = @svg = @circle = null
-                
+
                 # chart settings
                 @centerX = @width / 2
                 @centerY = @height / 2
@@ -163,7 +163,7 @@ class BubbleChart extends Backbone.View
                                 if name and code
                                         titles.push( id:name, text:prefix + name, code:code, state:state )
                                 @collectTitles( titles, n.d, prefix + name + ' | ', state.concat([n.d]) )
-        
+
         updateData: (data) ->
                 oldNodes = []
 
@@ -178,7 +178,7 @@ class BubbleChart extends Backbone.View
                 @nodes = []
                 @titles = []
                 @collectTitles( @titles, @model.get 'field' )
-                
+
                 rScale = d3.scale.pow().exponent(0.5).domain([0,@totalValue]).range([7,165])
                 radiusScale = (n) -> rScale( Math.abs(n) )
                 @boundingRadius = radiusScale(@totalValue)
@@ -210,7 +210,7 @@ class BubbleChart extends Backbone.View
                         out.drilldown = n.d
 
                         ###
-                        #  if (n.positions.total) 
+                        #  if (n.positions.total)
         	    	#     out.x = n.positions.total.x + (n.positions.total.x - (@width / 2)) * 0.5
         	    	#     out.y = n.positions.total.y + (n.positions.total.y - (150)) * 0.5
         	    	###
@@ -224,13 +224,13 @@ class BubbleChart extends Backbone.View
                         if (n.c==99999)
                                 out.changestr = "תוקצב מחדש"
                                 out.changeCategory = 4
-                                
+
 
                         @nodes.push(out)
 
                 @nodes.sort( (a,b) -> Math.abs(b.value) - Math.abs(a.value) )
                 @titles.sort( (a,b) -> if a.code > b.code then 1 else -1 )
-                        
+
                 if data.length > 0
                         @render()
                 else
@@ -244,7 +244,7 @@ class BubbleChart extends Backbone.View
                                         .animate({opacity:0},@transitiontime, -> container.remove())
                         else
                                 container.remove()
-                                
+
 
         showOverlay: (id) ->
                 if @overlayShown then return
@@ -269,14 +269,14 @@ class BubbleChart extends Backbone.View
                                         .attrTween("transform",
                                                    -> d3.interpolateString( origin, target )
                                                 )
-                
+
                                 console.log("TRANSITION "+origin+" -> "+target)
                 $("#tooltip").hide()
 
         overlayRemoved: ->
                 @setOverlayed(false)
                 @overlayShown = false
-                
+
                 origin = @svg.select("circle").attr("transform")
                 target = "translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)"
 
@@ -295,6 +295,23 @@ class BubbleChart extends Backbone.View
 
         render: () ->
 
+                # super hack to make like appear only once and be positioned correctly on all layers
+                $('.btnShareContainer').css({top: $('.chartButtons').offset().top + 9, left: $('.chartButtons').offset().left + 12})
+                # code for changin like href dynamically goes here
+                #
+                # likeref = $(document.getElementsByTagName('fb:like')).attr('href')
+                # likeurlparts = likeref.split('/')
+                # likeurlparts.splice(-1)
+                # lasturlpart = location.href.split('/').splice(-1)[0]
+                # likeurlparts.push(lasturlpart + '.html');
+                # likeurlparts.push('xxx.html') #REPLACE THIS WITH THE PREVIOUS LINE WHEN HTMLZ AND IMAGES
+                # newlikeref = likeurlparts.join('/')
+                # console.log('new like url', newlikeref)
+                # $(document.getElementsByTagName('fb:like')).attr('href', newlikeref)
+                # FB.XFBML.parse()
+                #
+
+
                 that = this
 
                 $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
@@ -306,11 +323,11 @@ class BubbleChart extends Backbone.View
                                 linkCode = ""
                                 if @model.get 'code'
                                         bc += " (#{@model.get 'code'})"
-                                        linkCode += @model.get 'code' 
+                                        linkCode += @model.get 'code'
                         else
                                 bc += " / " + dd.name + " (#{dd.code})"
                                 linkCode = dd.id
-                                
+
                         $("div[data-id='#{@id}'] .breadcrumbsLink").remove()
                         $("div[data-id='#{@id}'] .breadcrumbs").append('<a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+linkCode+
                                 ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">'+bc+
@@ -321,7 +338,7 @@ class BubbleChart extends Backbone.View
                 $("div[data-id='#{@id}'] .btnBack").tooltip()
                 $("div[data-id='#{@id}'] .btnDownload").tooltip()
                 $("div[data-id='#{@id}'] .color-index").tooltip()
-                        
+
                 search = $("div[data-id='#{@id}'] .mysearch")
                 $("div[data-id='#{@id}'] .mysearch-open").click( ->
                         search.select2("open")
@@ -363,7 +380,7 @@ class BubbleChart extends Backbone.View
                                 else
                                         that.selectItem(null)
                 )
-                        
+
                 tags = $("div[data-id='#{@id}'] .tag")
                 tagClicked = false
                 tags.mouseenter( () ->
@@ -392,9 +409,9 @@ class BubbleChart extends Backbone.View
                         overlay.css("height",(frame.height()+8)+"px")
 
                 $(window).resize resizeFrame
-                                
+
                 resizeFrame()
-                
+
                 if @transitiontime > 0
                         overlay
                                 .css("opacity",0)
@@ -405,7 +422,7 @@ class BubbleChart extends Backbone.View
 
                 @circle = @svg.selectAll("circle")
                               .data(@nodes, (d) -> d.sid );
-                        
+
                 that = @
                 @circle.enter()
                         .append("svg:circle")
@@ -517,7 +534,7 @@ class BubbleChart extends Backbone.View
                                                 .attr("cy", (d) -> d.y )
                                         )
                         .start()
-                                
+
 
 state = { querys: [], selectedStory: null }
 charts = []
@@ -547,7 +564,7 @@ handleNewState = () ->
                         subtitle = state.selectedStory?.subtitle or ""
                         template = _.template( $("#chart-template").html(),{ id: id, title:title, subtitle:subtitle } )
                         $("#charts").append template
-                        el =$("div[data-id='#{id}'] .chart")                       
+                        el =$("div[data-id='#{id}'] .chart")
                         console.log "creating BubbleChart "+id
                         charts[i] = new BubbleChart
                                 el: el
@@ -571,7 +588,7 @@ handleNewState = () ->
                 charts[i].setOverlayed( overlaid )
                 charts[i].model.set "field", query
                 if i < state.querys.length - 1
-                        charts[i].showOverlay(state.querys[i+1])                       
+                        charts[i].showOverlay(state.querys[i+1])
         if max > state.querys.length
                 if charts.length > 0
                         console.log "chart "+(charts.length-1)+": overlay removed"
@@ -590,7 +607,7 @@ getExplanation = (code,year) ->
                         explanation = years[Object.keys(years)[0]]
                 return explanation
         return null
-                
+
 window.handleExplanations = (data) ->
         row = 1
         code = null
@@ -669,7 +686,7 @@ window.handleStories = (data) ->
         if !state.selectedStory
                 state.selectedStory = { 'title':"תקציב המדינה 2014 מול 2012",
                 'subtitle':'כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו'}
-        
+
         _state = History.getState()
         console.log "getState: ",_state
         if _state.data?.querys and _state.data.querys.length> 0
@@ -687,7 +704,7 @@ window.handleStories = (data) ->
                 false
         )
         $("body").append('<script type="text/javascript" src="http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/od6/public/basic?alt=json-in-script&callback=window.handleExplanations"></script>')
-     
+
 if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
         $( ->
                 $.get("http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script",
