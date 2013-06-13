@@ -165,12 +165,13 @@ a {
   left: 15px;
 }
 .chartButtons a.btnDownload {
-  bottom: 38px;
-  left: 115px;
+  bottom: 40px;
+  left: 50px;
 }
 .chartButtons a.btnShare {
   bottom: 40px;
-  left: 50px;
+  left: 15px;
+  color: #3B5998;
 }
 .chartButtons div.btnShareContainer {
   position: absolute;
