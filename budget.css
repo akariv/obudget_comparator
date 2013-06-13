@@ -209,6 +209,11 @@ div.btnShareContainer fb:like {
   height: 550px;
   overflow: hidden;
 }
+.chart svg .disappeared {
+  stroke-width: 2px !important;
+  fill: rgba(0, 0, 0, 0) !important;
+  stroke-dasharray: 2px !important;
+}
 .overlayContainer {
   position: absolute;
   left: 0;
