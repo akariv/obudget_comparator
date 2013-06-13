@@ -476,13 +476,14 @@
     };
 
     BubbleChart.prototype.render = function() {
-      var container, frame, overlay, resizeFrame, search, tagClicked, tags, that,
+      var container, frame, overlay, resizeFrame, search, sharer, tagClicked, tags, that,
         _this = this;
       that = this;
       $("div[data-id='" + this.id + "'] .btnDownload").attr("href", "/images/large/" + (this.model.get('field')) + ".jpg");
-      $('.btnShareContainer').css({
-        top: $('.chartButtons').offset().top + 9,
-        left: $('.chartButtons').offset().left + 12
+      sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/%3f" + (this.model.get('field'));
+      $("div[data-id='" + this.id + "'] .btnShare").click(function() {
+        window.open(sharer, 'sharer', 'width=626,height=436');
+        return false;
       });
       this.setBreadcrumbs = function(dd) {
         var bc, linkCode;
@@ -804,7 +805,7 @@
             return __iced_deferrals.ret = arguments[0];
           };
         })(),
-        lineno: 602
+        lineno: 609
       })), 50);
       __iced_deferrals._fulfill();
     })(function() {

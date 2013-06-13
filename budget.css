@@ -174,8 +174,6 @@ a {
 }
 .chartButtons div.btnShareContainer {
   position: absolute;
-  width: 100px;
-  height: 20px;
   bottom: 40px;
   left: 5px;
 }

@@ -306,7 +306,14 @@ class BubbleChart extends Backbone.View
                 that = this
 
                 $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
-                $('.btnShareContainer').css({top: $('.chartButtons').offset().top + 9, left: $('.chartButtons').offset().left + 12})
+
+                sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/%3f"+(@model.get 'field');
+                $("div[data-id='#{@id}'] .btnShare").click( ->
+                        window.open(sharer, 'sharer', 'width=626,height=436')
+                        false
+                )
+
+                #$('.btnShareContainer').css({top: $('.chartButtons').offset().top + 9, left: $('.chartButtons').offset().left + 12})
 
                 @setBreadcrumbs = (dd = null) =>
 
@@ -713,6 +720,7 @@ window.handleStories = (data) ->
                 removeState()
                 false
         )
+
         $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/2/public/basic?alt=json-in-script",
                 window.handleExplanations,
                 "jsonp")
