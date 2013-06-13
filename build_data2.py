@@ -397,6 +397,7 @@ if __name__=="__main__":
     for x in translations.values():
         ignoreitems.extend(x)
 
+    urls=[]
     out_groups = []
     for c,t,u,bc,group in groups:
         print c
@@ -419,13 +420,18 @@ if __name__=="__main__":
             if 'children' in item:
                 out_group[-1]['d'] = out_group[-1]['id']
         out_groups.append((c,{'c':c,'t':t,'d':out_group,'u':u,'b':bc}))
+        urls.append(c)
 
     pprint.pprint(out_groups)
     diffs = dict(out_groups)
 
-
-
     out = file('data.js','w')
     out.write('budget_array_data = %s;\n' % json.dumps(diffs))
-    
+   
 
+    imagesScript = file('load_images.sh','w')
+    imagesScript.write("#!/bin/bash\n")
+    commands = []
+    for key in urls:
+        cmd = "phantomjs images/rasterize.js http://localhost:8000/vis.html?%(url)s l images/large/%(url)s.jpg" % { 'url' : key }
+        imagesScript.write("sleep 3 ; for x in `pgrep phantomjs | sed '1,8d' | head -n1` ; do wait $x ; done ; %s &\n" % (cmd,) )
