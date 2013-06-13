@@ -366,15 +366,17 @@ def get_groups(items):
     return [ (x['code'],x['title'],x['code'][:-2]," / ".join(x['bc']),x['children'].values()) for x in items if 'children' in x ]
 
 if __name__=="__main__":
-    items2014 = [ x for x in budget_file() if x['year'] == 2014 and not x['code'].startswith('0000') and len(x['code'])<=8 ]
-    items2012 = [ x for x in budget_file() if x['year'] == 2012 and not x['code'].startswith('0000') and len(x['code'])<=8 ]
+    toremove_prefixes = [ "0089", "0095", "0098", "0000" ]
+    items2014 = [ x for x in budget_file() if x['year'] == 2014 and x['code'][:4] not in toremove_prefixes and len(x['code'])<=8 ]
+    items2012 = [ x for x in budget_file() if x['year'] == 2012 and x['code'][:4] not in toremove_prefixes and len(x['code'])<=8 ]
 
     tree2014 = tree_from_items(items2014)
     tree2012 = tree_from_items(items2012)
 
     #                -->
     tojoin = { "0067" : "0024",
-               "0060" : "0020" }
+               "0060" : "0020",
+               "0079" : "0040" }
     join_items(items2014,tojoin)
     join_items(items2012,tojoin)
 

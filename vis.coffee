@@ -305,6 +305,7 @@ class BubbleChart extends Backbone.View
                 that = this
 
                 $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
+                $('.btnShareContainer').css({top: $('.chartButtons').offset().top + 9, left: $('.chartButtons').offset().left + 12})
 
                 @setBreadcrumbs = (dd = null) =>
 
@@ -547,6 +548,7 @@ handleNewState = () ->
         state = History.getState()
         state = state.data
         console.log "state changed: ",state
+        query = "00"
         for i in [0...state.querys.length]
                 query = state.querys[i]
                 nextquery = state.querys[i+1]
@@ -564,6 +566,10 @@ handleNewState = () ->
                                 el: el
                                 model: new CompareData
                                 id: id
+
+        fblike = $(document.getElementsByTagName('fb:like'))
+        fblike.attr("href","http://compare.open-budget.org.il/?"+state.querys[state.querys.length-1])
+        console.log "FBFB", fblike.attr("href")
 
         max = if state.querys.length > charts.length then state.querys.length else charts.length
         console.log "max: "+max
@@ -589,6 +595,10 @@ handleNewState = () ->
                         charts[charts.length-1].overlayRemoved()
         first_time = false
         $(".btnBack:first").css("display","none")
+        await setTimeout((defer _),50)
+        window.FB?.XFBML.parse()
+
+
 
 explanations = {}
 getExplanation = (code,year) ->
