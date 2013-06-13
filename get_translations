@@ -1,0 +1,1 @@
+curl "https://docs.google.com/spreadsheet/pub?key=0AurnydTPSIgUdGpxd3JiLTFReWY4ZjlVSlBBNlcxTHc&single=true&gid=0&output=csv" -o translations.csv

@@ -364,6 +364,7 @@
         out.isNegative = n[currentYearDataColumn] < 0;
         out.positions = n.positions;
         out.drilldown = n.d;
+        out.history = n.pp;
         /*
         #  if (n.positions.total) 
                 	    	#     out.x = n.positions.total.x + (n.positions.total.x - (@width / 2)) * 0.5
@@ -634,8 +635,13 @@
         }
         d3.select("#tooltip").style('top', ypos + "px").style('left', xpos + "px").style('display', 'block').classed('plus', d.changeCategory > 0).classed('minus', d.changeCategory < 0).classed('newitem', d.newitem).classed('disappeared', d.disappeared);
         d3.select("#tooltip .name").html(d.name);
-        d3.select("#tooltip .department").text("#" + d.code);
+        d3.select("#tooltip .itemNumber").text("#" + d.code);
         d3.select("#tooltip .explanation").text(getExplanation(d.sid, 2014));
+        if (d.history > 0) {
+          d3.select("#tooltip .history").text("בחמש השנים האחרונות הביצוע היה גבוה ב-" + d.history + "% מהתכנון");
+        } else if (d.history < 0) {
+          d3.select("#tooltip .history").text("בחמש השנים האחרונות הביצוע היה נמוך ב-" + (-d.history) + "% מהתכנון");
+        }
         d3.select("#tooltip .value").html(formatNumber(d.value * 1000) + " \u20aa");
         d3.selectAll("#tooltip .arrow").style("right", tail + "px");
         if (d != null ? d.changestr : void 0) {
@@ -798,7 +804,7 @@
             return __iced_deferrals.ret = arguments[0];
           };
         })(),
-        lineno: 597
+        lineno: 602
       })), 50);
       __iced_deferrals._fulfill();
     })(function() {

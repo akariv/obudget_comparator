@@ -274,7 +274,7 @@ div.btnShareContainer fb:like {
 #tooltip .arrow.top {
   top: -18px;
 }
-#tooltip .department {
+#tooltip .itemNumber {
   text-transform: uppercase;
   text-align: right;
   font-size: 12px;

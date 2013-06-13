@@ -365,7 +365,33 @@ def join_items(items,tojoin):
 def get_groups(items):
     return [ (x['code'],x['title'],x['code'][:-2]," / ".join(x['bc']),x['children'].values()) for x in items if 'children' in x ]
 
+performance_aid = dict([("%s/%s" % (x['year'],x['code']),x) for x in budget_file()])
+
+def past_performance(items):
+    performance = []
+    for year in range(2008,2013):
+        used = 0
+        allocated = 0
+        num = 0
+        for item in items:
+            key = "%s/%s" % (year,item['code'])
+            past = performance_aid.get(key)
+            if not past: continue
+            _used = past.get('net_used')
+            _allocated = past.get('net_allocated')
+            if _allocated is None or _used is None or _allocated <= 0 or _used < 0: continue
+            used += _used
+            allocated += _allocated
+            num += 1
+        if num > 0:
+            performance.append(int((100.0 * used) / allocated - 100))
+    if len(performance) > 0:
+        return sum(performance) / len(performance)
+    else:
+        return None
+
 if __name__=="__main__":
+
     toremove_prefixes = [ "0089", "0095", "0098", "0000", "0094" ]
     items2014 = [ x for x in budget_file() if x['year'] == 2014 and x['code'][:4] not in toremove_prefixes and len(x['code'])<=8 ]
     items2012 = [ x for x in budget_file() if x['year'] == 2012 and x['code'][:4] not in toremove_prefixes and len(x['code'])<=8 ]
@@ -393,7 +419,6 @@ if __name__=="__main__":
         except:
             pass
     translations = dict(translations)
-    pprint.pprint(translations)
 
     ignoreitems = []
     for x in translations.values():
@@ -402,7 +427,6 @@ if __name__=="__main__":
     urls=[]
     out_groups = []
     for c,t,u,bc,group in groups:
-        print c
         out_group = []
         for item in group:
             if item['code'] in ignoreitems: continue
@@ -418,13 +442,13 @@ if __name__=="__main__":
                                 'n':item['title'],
                                 'b1':item['net_allocated'],
                                 'b0':prev_value,
+                                'pp':past_performance(candidates),
                                 'c':change, } )
             if 'children' in item:
                 out_group[-1]['d'] = out_group[-1]['id']
         out_groups.append((c,{'c':c,'t':t,'d':out_group,'u':u,'b':bc}))
         urls.append(c)
 
-    pprint.pprint(out_groups)
     diffs = dict(out_groups)
 
     out = file('data.js','w')
