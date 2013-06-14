@@ -264,11 +264,10 @@ def writeProxyHtml( key, title, description="" ):
 <html lang="he">
 <head>
 <meta charset="utf-8">
-<title>התקציב הפתוח - {{r.title}}</title>
+<title>תקציב המדינה 2014 מול 2012 - %(title)s</tic vtle>
 <meta property="og:title" content="%(title)s" />
 <meta property="og:type" content="cause" />
-<meta property="og:url" content="http://compare.open-budget.org.il/?%(key)s" />
-<meta property="og:description" content="%(description)s" />
+<meta property="og:description" content="כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו" />
 <meta property="og:image" content="http://compare.open-budget.org.il/images/large/%(key)s.jpg" />
 <meta property="og:image:width" content="959" />
 <meta property="og:image:height" content="800" />
@@ -369,7 +368,7 @@ performance_aid = dict([("%s/%s" % (x['year'],x['code']),x) for x in budget_file
 
 def past_performance(items):
     performance = []
-    for year in range(2008,2013):
+    for year in range(2009,2013):
         used = 0
         allocated = 0
         num = 0
@@ -447,7 +446,7 @@ if __name__=="__main__":
             if 'children' in item:
                 out_group[-1]['d'] = out_group[-1]['id']
         out_groups.append((c,{'c':c,'t':t,'d':out_group,'u':u,'b':bc}))
-        urls.append(c)
+        urls.append((c,t))
 
     diffs = dict(out_groups)
 
@@ -458,6 +457,12 @@ if __name__=="__main__":
     imagesScript = file('load_images.sh','w')
     imagesScript.write("#!/bin/bash\n")
     commands = []
-    for key in urls:
+    for key, title in urls:
+        fn = "images/large/%(url)s.jpg" % { 'url' : key }
         cmd = "phantomjs images/rasterize.js http://localhost:8000/vis.html?%(url)s l images/large/%(url)s.jpg" % { 'url' : key }
-        imagesScript.write("sleep 3 ; for x in `pgrep phantomjs | sed '1,8d' | head -n1` ; do wait $x ; done ; %s &\n" % (cmd,) )
+        imagesScript.write("if [ ! -f %(fn) ]; then sleep 3 ; for x in `pgrep phantomjs | sed '1,8d' | head -n1` ; do wait $x ; done ; %(cmd)s ; fi &\n" % {'cmd': cmd,'fn':fn} )
+        writeProxyHtml( key, title ) 
+
+if [ ! -f /tmp/foo.txt ]; then
+    echo "File not found!"
+fi

@@ -153,7 +153,7 @@ class BubbleChart extends Backbone.View
 
                 console.log "init done", @id
 
-        collectTitles: (titles, field, prefix = '', state = []) ->
+        collectTitles: (titles, field, prefix = '', _state = []) ->
                 if not field then return
                 data = budget_array_data[field]
                 if data
@@ -161,8 +161,8 @@ class BubbleChart extends Backbone.View
                                 code = n.id
                                 name = n.n
                                 if name and code
-                                        titles.push( id:name, text:prefix + name, code:code, state:state )
-                                @collectTitles( titles, n.d, prefix + name + ' | ', state.concat([n.d]) )
+                                        titles.push( id:name, text:prefix + name, code:code, state:_state )
+                                @collectTitles( titles, n.d, prefix + name + ' | ', _state.concat([n.d]) )
         
         updateData: (data) ->
                 oldNodes = []
@@ -306,17 +306,12 @@ class BubbleChart extends Backbone.View
                 that = this
 
                 $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
-
-                sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/%3f"+(@model.get 'field');
-                $("div[data-id='#{@id}'] .btnShare").click( ->
+                sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/p/"+(@model.get 'field')+".html";
+                $("div[data-id='#{@id}'] .btnShare").click( () ->
                         window.open(sharer, 'sharer', 'width=626,height=436')
                         false
                 )
-
-                #$('.btnShareContainer').css({top: $('.chartButtons').offset().top + 9, left: $('.chartButtons').offset().left + 12})
-
                 @setBreadcrumbs = (dd = null) =>
-
                         bc = @model.get 'breadcrumbs'
                         if not dd
                                 linkCode = ""
@@ -325,7 +320,7 @@ class BubbleChart extends Backbone.View
                                         linkCode += @model.get 'code' 
                         else
                                 bc += " / " + dd.name + " (#{dd.code})"
-                                linkCode = dd.id
+                                linkCode = dd.sid
                                 
                         $("div[data-id='#{@id}'] .breadcrumbsLink").remove()
                         $("div[data-id='#{@id}'] .breadcrumbs").append('<a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+linkCode+
@@ -336,6 +331,7 @@ class BubbleChart extends Backbone.View
                 @setBreadcrumbs()
                 $("div[data-id='#{@id}'] .btnBack").tooltip()
                 $("div[data-id='#{@id}'] .btnDownload").tooltip()
+                $("div[data-id='#{@id}'] .btnShare").tooltip()
                 $("div[data-id='#{@id}'] .color-index").tooltip()
                         
                 search = $("div[data-id='#{@id}'] .mysearch")
@@ -548,6 +544,9 @@ charts = []
 first_time = true
 
 addState = (toAdd) ->
+        if not state?.querys
+                state.querys = []
+        console.log "addState: toAdd="+toAdd+", state=",state
         state.querys.push(toAdd)
         History.pushState(state,null,"?" + state.querys.join("/") )
 
@@ -561,6 +560,11 @@ handleNewState = () ->
         state = state.data
         console.log "state changed: ",state
         query = "00"
+        if not state.querys or state.querys.length == 0
+                state.querys = ["00"]
+        if not state.selectedStory
+                state.selectedStory = { 'title':"תקציב המדינה 2014 מול 2012",
+                'subtitle':'כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו'}
         for i in [0...state.querys.length]
                 query = state.querys[i]
                 nextquery = state.querys[i+1]
@@ -578,10 +582,6 @@ handleNewState = () ->
                                 el: el
                                 model: new CompareData
                                 id: id
-
-        fblike = $(document.getElementsByTagName('fb:like'))
-        fblike.attr("href","http://compare.open-budget.org.il/?"+state.querys[state.querys.length-1])
-        console.log "FBFB", fblike.attr("href")
 
         max = if state.querys.length > charts.length then state.querys.length else charts.length
         console.log "max: "+max
@@ -607,10 +607,10 @@ handleNewState = () ->
                         charts[charts.length-1].overlayRemoved()
         first_time = false
         $(".btnBack:first").css("display","none")
-        await setTimeout((defer _),50)
-        window.FB?.XFBML.parse()
-
-
+        #await setTimeout((defer _),50)
+        window.ga('send', 'pageview', state.querys.join("/"))
+        #window.FB?.XFBML.parse()
+        
 
 explanations = {}
 getExplanation = (code,year) ->
@@ -671,7 +671,7 @@ window.handleStories = (data) ->
         console.log stories
 
         History.Adapter.bind window, 'statechange', handleNewState
-        query = "00"#klxlq126"
+        query = "00"
         ret_query = window.location.search.slice(1)
         if ret_query.length == 0
                 ret_query = window.location.hash
@@ -699,6 +699,7 @@ window.handleStories = (data) ->
                                 state.querys.unshift up
                         else
                                 break
+        console.log "Q2",state.querys
         firstquery = state.querys[0]
         if !state.selectedStory
                 state.selectedStory = { 'title':"תקציב המדינה 2014 מול 2012",
@@ -710,7 +711,7 @@ window.handleStories = (data) ->
                 handleNewState()
         else
                 console.log "xxx",_state.data
-                History.replaceState(state,null,"?"+state.querys.join("/"))
+                History.pushState(state,null,"?"+state.querys.join("/"))
                 console.log "pushed ",state
         $(document).keyup (e) ->
                 if e.keyCode == 27

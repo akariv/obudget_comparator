@@ -1,5 +1,5 @@
 #!/bin/bash
-for x in `cat sync_files` ; do s3cmd sync -P $x s3://compare.open-budget.org.il/$x ; done
+for x in `cat sync_files` ; do s3cmd sync --guess-mime-type -P $x s3://compare.open-budget.org.il/$x ; done
 s3cmd --acl-public --no-preserve --add-header="Content-Encoding:gzip" --mime-type="text/javascript; charset=utf-8"  put budget.min.js.gz s3://compare.open-budget.org.il/budget.min.js
 s3cmd --acl-public --no-preserve --add-header="Content-Encoding:gzip" --mime-type="text/css; charset=utf-8"  put budget.css.gz s3://compare.open-budget.org.il/budget.css
 echo STOP NOW?
@@ -7,4 +7,4 @@ sleep 4
 echo PROXY
 for x in `ls -1 p/*.html` ; do s3cmd sync -P  $x s3://compare.open-budget.org.il/$x && mv $x{,.synced} ; done
 echo IMAGES
-for x in `ls -1 images/*/*.jpg` ; do s3cmd sync -P  $x s3://compare.open-budget.org.il/$x && mv $x{,.synced} ; done
+for x in `ls -1 images/l*/*.jpg` ; do s3cmd sync -P  $x s3://compare.open-budget.org.il/$x && mv $x{,.synced} ; done
