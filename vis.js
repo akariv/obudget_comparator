@@ -585,9 +585,11 @@
       }).on("mouseover", function(d, i) {
         var anim, bcodes, el, itemNumber, pctchngout, svgPos, tail, xpos, ypos;
         el = d3.select(this);
-        anim = that.svg.insert("svg:circle", ":first-child").attr("cx", el.attr("cx")).attr("cy", el.attr("cy")).attr("transform", el.attr("transform")).attr("r", el.attr("r")).style("stroke", el.style("stroke")).style("fill", el.style("fill")).classed("tooltiphelper-" + d.sid, true);
-        anim.transition().duration(500).attr("r", d.projectedRadius).style("fill", that.getProjFillColor(d));
-        el.style("stroke-dasharray", "5,5").style("fill", "rgba(255,255,255,0)");
+        if (!d.newitem && !d.disappeared) {
+          anim = that.svg.insert("svg:circle", ":first-child").attr("cx", el.attr("cx")).attr("cy", el.attr("cy")).attr("transform", el.attr("transform")).attr("r", el.attr("r")).style("stroke", el.style("stroke")).style("fill", el.style("fill")).classed("tooltiphelper-" + d.sid, true);
+          anim.transition().duration(500).attr("r", d.projectedRadius).style("fill", that.getProjFillColor(d));
+          el.style("stroke-dasharray", "5,5").style("fill", "rgba(255,255,255,0)");
+        }
         svgPos = $(that.el).find("svg").offset();
         xpos = Number(el.attr('cx')) + that.centerX;
         tail = 100;
