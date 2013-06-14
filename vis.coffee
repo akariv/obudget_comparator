@@ -60,14 +60,23 @@ class BubbleChart extends Backbone.View
 
 
         # Colors
-        getFillColor: (d) -> 
-                fillColor = d3.scale.ordinal().domain([-4,-3,-2,-1,0,1,2,3,4]).range (["#9F7E01", "#dbae00", "#eac865","#f5dd9c","#AAA","#bfc3dc", "#9ea5c8", "#7b82c2", "#464FA1"])
-                if (d.isNegative) then "#fff" else fillColor(d.changeCategory)
+        fillColor: (changeCategory) -> 
+                _fillColor = d3.scale.ordinal().domain([-4,-3,-2,-1,0,1,2,3,4]).range (["#9F7E01", "#dbae00", "#eac865","#f5dd9c","#AAA","#bfc3dc", "#9ea5c8", "#7b82c2", "#464FA1"])
+                _fillColor(changeCategory)
 
-        getStrokeColor: (d) ->
-                if d.name == globalSelectedItem then return "#FF0"
-                strokeColor = d3.scale.ordinal().domain([-4,-3,-2,-1,0,1,2,3,4]).range(["#796001", "#c09100", "#e7bd53","#d9c292","#999","#a7aed3", "#7f8ab8", "#4f5fb0","#1A2055"])
-                strokeColor(d.changeCategory);
+        strokeColor: (name, changeCategory) ->
+                if name == globalSelectedItem then return "#FF0"
+                _strokeColor = d3.scale.ordinal().domain([-4,-3,-2,-1,0,1,2,3,4]).range(["#796001", "#c09100", "#e7bd53","#d9c292","#999","#a7aed3", "#7f8ab8", "#4f5fb0","#1A2055"])
+                _strokeColor(changeCategory);
+
+        getFillColor: (d) -> @fillColor(d.changeCategory)
+
+        getStrokeColor: (d) -> @strokeColor(d.name, d.changeCategory)
+
+        getProjFillColor: (d) -> @fillColor(d.projectedChangeCategory)
+
+        getProjStrokeColor: (d) -> @strokeColor(null, d.projectedChangeCategory)
+
 
         strokeWidth: (d) ->
                 if d.name == globalSelectedItem then 5 else 1
@@ -209,6 +218,9 @@ class BubbleChart extends Backbone.View
                         out.positions = n.positions
                         out.drilldown = n.d
                         out.history = n.pp
+                        out.projectedValue = out.value*(out.history+100)/100.0
+                        out.projectedRadius = radiusScale(out.projectedValue)
+                        out.projectedChangeCategory = @categorizeChange(((n.c+100)*(n.pp+100)-10000)/10000.0)
 
                         ###
                         #  if (n.positions.total) 
@@ -306,7 +318,7 @@ class BubbleChart extends Backbone.View
                 that = this
 
                 $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
-                sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/p/"+(@model.get 'field')+".html";
+                sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/"+(@model.get 'field')+".html";
                 $("div[data-id='#{@id}'] .btnShare").click( () ->
                         window.open(sharer, 'sharer', 'width=626,height=436')
                         false
@@ -323,9 +335,9 @@ class BubbleChart extends Backbone.View
                                 linkCode = dd.sid
                                 
                         $("div[data-id='#{@id}'] .breadcrumbsLink").remove()
-                        $("div[data-id='#{@id}'] .breadcrumbs").append('<a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+linkCode+
-                                ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">'+bc+
-                                '</a>')
+                        $("div[data-id='#{@id}'] .breadcrumbs").append(bc+'<a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+linkCode+
+                                ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">'+
+                                '<i class="icon-bar-chart icon"></i></a><!--i class="icon-book icon-flip-horizontal icon"></i-->')
                         $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
 
                 @setBreadcrumbs()
@@ -415,7 +427,7 @@ class BubbleChart extends Backbone.View
                         overlay
                                 .css("opacity",0.9)
 
-                @circle = @svg.selectAll("circle")
+                @circle = @svg.selectAll("circle.regular")
                               .data(@nodes, (d) -> d.sid );
                         
                 that = @
@@ -427,6 +439,7 @@ class BubbleChart extends Backbone.View
                         .style("fill", @getFillColor )
                         .style("stroke", @getStrokeColor )
                         .style("cursor",(d) => if budget_array_data[d.drilldown] then "pointer" else "default")
+                        .classed('regular',true)
                         .classed('newitem', (d) -> d.newitem)
                         .classed('disappeared', (d) -> d.disappeared)
                         .on("click", (d,i) ->
@@ -439,6 +452,19 @@ class BubbleChart extends Backbone.View
                                 )
                         .on("mouseover", (d,i) ->
                                 el = d3.select(@)
+                                anim = that.svg.insert("svg:circle",":first-child")
+                                        .attr("cx",el.attr("cx"))
+                                        .attr("cy",el.attr("cy"))
+                                        .attr("transform",el.attr("transform"))
+                                        .attr("r",el.attr("r"))
+                                        .style("stroke",el.style("stroke"))
+                                        .style("fill",el.style("fill"))
+                                        .classed("tooltiphelper-"+d.sid,true)
+                                anim.transition().duration(500)
+                                        .attr("r", d.projectedRadius )
+                                        .style("fill", that.getProjFillColor(d) )
+                                el.style("stroke-dasharray","5,5")
+                                  .style("fill","rgba(255,255,255,0)")
                                 svgPos = $(that.el).find("svg").offset()
                                 xpos = Number(el.attr('cx'))+that.centerX
                                 tail = 100
@@ -488,9 +514,13 @@ class BubbleChart extends Backbone.View
                                 d3.select("#tooltip .change").html( pctchngout)
                                 )
                         .on("mouseout", (d,i) ->
+                                d3.selectAll("circle.tooltiphelper-"+d.sid).remove()
                                 d3.select(@)
+                                        .attr("r", d.radius )
                                         .style("stroke-width", that.strokeWidth )
-                                        .style("stroke", (d) -> that.getStrokeColor(d) )
+                                        .style("stroke", that.getStrokeColor(d) )
+                                        .style("stroke-dasharray",null)
+                                        .style("fill", that.getFillColor(d) )
                                 d3.select("#tooltip").style('display','none')
                                 )
                 if @transitiontime > 0
@@ -726,11 +756,10 @@ window.handleStories = (data) ->
                 window.handleExplanations,
                 "jsonp")
      
-if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
-        $( ->
+$( ->
+        $("body").iealert()
+        if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
                 $.get("http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script",
                         window.handleStories,
                         "jsonp")
                 )
-else
-        $("#charts").hide()

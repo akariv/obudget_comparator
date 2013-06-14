@@ -264,10 +264,10 @@ def writeProxyHtml( key, title, description="" ):
 <html lang="he">
 <head>
 <meta charset="utf-8">
-<title>תקציב המדינה 2014 מול 2012 - %(title)s</tic vtle>
+<title>תקציב המדינה 2014 מול 2012 - %(title)s</title>
 <meta property="og:title" content="%(title)s" />
 <meta property="og:type" content="cause" />
-<meta property="og:description" content="כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו" />
+    <meta property="og:description" content="הסדנא לידע ציבורי וכלכליסט מציגים: כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו" />
 <meta property="og:image" content="http://compare.open-budget.org.il/images/large/%(key)s.jpg" />
 <meta property="og:image:width" content="959" />
 <meta property="og:image:height" content="800" />
@@ -275,14 +275,14 @@ def writeProxyHtml( key, title, description="" ):
 <meta property="fb:admins" content="100000025217694" />
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    window.location = "http://compare.open-budget.org.il/?%(key)s";
+    window.setTimeout( function () { window.location = "http://compare.open-budget.org.il/?%(key)s"; }, 1000 );
 });
 </script>
 </head>
 <body>
 </body>
 </html>""" % { 'key': key, 'title' : title, 'description': description }
-    file("p/%s.html" % key,"w").write(html.encode('utf8'))
+    file("of/%s.html" % key,"w").write(html.encode('utf8'))
 
 if __name__=="__main__" and False:
     generated_diffs = [ #(2011, "net_allocated", 2011, "net_used", False),
@@ -407,16 +407,20 @@ if __name__=="__main__":
 
     groups = get_groups(items2014)
 
-    translations_csv = csv.reader(file("translations.csv"))
+    trasnslations_source = [ ("translations.csv", 6, 10), ("translations2.csv", 5, 8) ]
     translations = []
-    for row in translations_csv:
-        try:
-            fromcodes = [x.strip() for x in row[10].replace('"','').split(',') if x.strip() != '' ]
-            tocode = row[6].replace('"','').strip()
-            if tocode != '' and len(fromcodes)>0:
-                translations.append((tocode,fromcodes))
-        except:
-            pass
+    digitsre = re.compile("[0-9]+")
+    for src in trasnslations_source:
+        translations_csv = csv.reader(file(src[0]))
+        for row in translations_csv:
+            try:
+                fromcodes = [x.strip() for x in row[src[2]].replace('"','').split(',') if x.strip() != '' ]
+                fromcodes = [ x for x in fromcodes if digitsre.match(x) != None ]
+                tocode = row[src[1]].replace('"','').strip()
+                if tocode != '' and len(fromcodes)>0:
+                    translations.append((tocode,fromcodes))
+            except:
+                pass
     translations = dict(translations)
 
     ignoreitems = []
@@ -428,13 +432,13 @@ if __name__=="__main__":
     for c,t,u,bc,group in groups:
         out_group = []
         for item in group:
-            if item['code'] in ignoreitems: continue
             translation = translations.get(item['code'],[item['code']])
             candidates = []
             for code in translation:
                 candidates.extend([x for x in items2012 if x['code'] == code])
             prev_value = sum([x['net_allocated'] for x in candidates])
             if prev_value <= 0 and item['net_allocated'] <= 0: continue
+            if item['code'] in ignoreitems and item['net_allocated'] <= 0: continue
             change = (100*item['net_allocated'])/prev_value - 100 if prev_value > 0 else 99999
             out_group.append( { 'id':item['code'],
                                 'jc':item.get('joincode',item['code']),
@@ -445,7 +449,10 @@ if __name__=="__main__":
                                 'c':change, } )
             if 'children' in item:
                 out_group[-1]['d'] = out_group[-1]['id']
-        out_groups.append((c,{'c':c,'t':t,'d':out_group,'u':u,'b':bc}))
+        if len(out_group)>0:
+            out_groups.append((c,{'c':c,'t':t,'d':out_group,'u':u,'b':bc}))
+        else:
+            print "WARN group %s is empty!" % c
         urls.append((c,t))
 
     diffs = dict(out_groups)
@@ -460,9 +467,6 @@ if __name__=="__main__":
     for key, title in urls:
         fn = "images/large/%(url)s.jpg" % { 'url' : key }
         cmd = "phantomjs images/rasterize.js http://localhost:8000/vis.html?%(url)s l images/large/%(url)s.jpg" % { 'url' : key }
-        imagesScript.write("if [ ! -f %(fn) ]; then sleep 3 ; for x in `pgrep phantomjs | sed '1,8d' | head -n1` ; do wait $x ; done ; %(cmd)s ; fi &\n" % {'cmd': cmd,'fn':fn} )
+        imagesScript.write("if [ ! -f %(fn)s ]; then sleep 3 ; for x in `pgrep phantomjs | sed '1,8d' | head -n1` ; do wait $x ; done ; %(cmd)s ; fi &\n" % {'cmd': cmd,'fn':fn} )
         writeProxyHtml( key, title ) 
 
-if [ ! -f /tmp/foo.txt ]; then
-    echo "File not found!"
-fi

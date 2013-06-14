@@ -138,11 +138,9 @@ a {
     padding: 0 0 0 40px;
   }
 }
-.chartContainer h2.breadcrumbs a.active:after,
-.chartContainer h2.breadcrumbs a.breadcrumbsLink:after {
-  content: " ";
-  font-size: 0.7em;
-  font-family: FontAwesome;
+.chartContainer h2.breadcrumbs a.active icon,
+.chartContainer h2.breadcrumbs a.breadcrumbsLink icon {
+  font-size: 1em;
 }
 .chartContainer h2.breadcrumbs:hover a {
   color: #007395;
