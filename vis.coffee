@@ -336,7 +336,7 @@ class BubbleChart extends Backbone.View
                                 linkCode = dd.sid
                                 
                         $("div[data-id='#{@id}'] .breadcrumbsLink").remove()
-                        $("div[data-id='#{@id}'] .breadcrumbs").append(bc+'<a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+linkCode+
+                        $("div[data-id='#{@id}'] .breadcrumbs").append('<span class="breadcrumbsLink">'+bc+'</span><a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+linkCode+
                                 ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">'+
                                 '<i class="icon-bar-chart icon"></i></a><!--i class="icon-book icon-flip-horizontal icon"></i-->')
                         $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
