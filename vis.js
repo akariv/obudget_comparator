@@ -338,6 +338,7 @@
         out.positions = n.positions;
         out.drilldown = n.d;
         out.history = n.pp;
+        out.bcodes = n.bc;
         out.projectedValue = out.value * (out.history + 100) / 100.0;
         out.projectedRadius = radiusScale(out.projectedValue);
         out.projectedChangeCategory = this.categorizeChange(((n.c + 100) * (n.pp + 100) - 10000) / 10000.0);
@@ -582,7 +583,7 @@
         d3.event.stopPropagation();
         return false;
       }).on("mouseover", function(d, i) {
-        var anim, el, pctchngout, svgPos, tail, xpos, ypos;
+        var anim, bcodes, el, itemNumber, pctchngout, svgPos, tail, xpos, ypos;
         el = d3.select(this);
         anim = that.svg.insert("svg:circle", ":first-child").attr("cx", el.attr("cx")).attr("cy", el.attr("cy")).attr("transform", el.attr("transform")).attr("r", el.attr("r")).style("stroke", el.style("stroke")).style("fill", el.style("fill")).classed("tooltiphelper-" + d.sid, true);
         anim.transition().duration(500).attr("r", d.projectedRadius).style("fill", that.getProjFillColor(d));
@@ -616,12 +617,22 @@
         }
         d3.select("#tooltip").style('top', ypos + "px").style('left', xpos + "px").style('display', 'block').classed('plus', d.changeCategory > 0).classed('minus', d.changeCategory < 0).classed('newitem', d.newitem).classed('disappeared', d.disappeared);
         d3.select("#tooltip .name").html(d.name);
-        d3.select("#tooltip .itemNumber").text("#" + d.code);
+        itemNumber = d.code;
+        if (d.bcodes.length > 0) {
+          bcodes = _.map(d.bcodes, (function(x) {
+            return x[0];
+          }));
+          console.log(bcodes.length, bcodes[0], d.code, bcodes[0] === d.code);
+          if ((bcodes.length !== 1) || (bcodes[0] !== d.code)) {
+            itemNumber += " (" + (bcodes.join(",")) + " ב-2012)";
+          }
+        }
+        d3.select("#tooltip .itemNumber").text(itemNumber);
         d3.select("#tooltip .explanation").text(getExplanation(d.sid, 2014));
         if (d.history > 0) {
-          d3.select("#tooltip .history").text("בחמש השנים האחרונות הביצוע היה גבוה ב-" + d.history + "% מהתכנון");
+          d3.select("#tooltip .history").text("בארבע השנים האחרונות הביצוע היה גבוה ב-" + d.history + "% מהתכנון");
         } else if (d.history < 0) {
-          d3.select("#tooltip .history").text("בחמש השנים האחרונות הביצוע היה נמוך ב-" + (-d.history) + "% מהתכנון");
+          d3.select("#tooltip .history").text("בארבע השנים האחרונות הביצוע היה נמוך ב-" + (-d.history) + "% מהתכנון");
         }
         d3.select("#tooltip .value").html(formatNumber(d.value * 1000) + " \u20aa");
         d3.selectAll("#tooltip .arrow").style("right", tail + "px");

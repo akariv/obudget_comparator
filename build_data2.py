@@ -445,6 +445,7 @@ if __name__=="__main__":
                                 'n':item['title'],
                                 'b1':item['net_allocated'],
                                 'b0':prev_value,
+                                'bc': [(x.get('joincode',x['code']),x['title']) for x in candidates],
                                 'pp':past_performance(candidates),
                                 'c':change, } )
             if 'children' in item:

@@ -218,6 +218,7 @@ class BubbleChart extends Backbone.View
                         out.positions = n.positions
                         out.drilldown = n.d
                         out.history = n.pp
+                        out.bcodes = n.bc
                         out.projectedValue = out.value*(out.history+100)/100.0
                         out.projectedRadius = radiusScale(out.projectedValue)
                         out.projectedChangeCategory = @categorizeChange(((n.c+100)*(n.pp+100)-10000)/10000.0)
@@ -497,12 +498,18 @@ class BubbleChart extends Backbone.View
                                         .classed('newitem', d.newitem)
                                         .classed('disappeared', d.disappeared)
                                 d3.select("#tooltip .name").html(d.name)
-                                d3.select("#tooltip .itemNumber").text("#"+d.code)
+                                itemNumber = d.code
+                                if d.bcodes.length > 0
+                                        bcodes = _.map(d.bcodes, ((x) -> x[0]))
+                                        console.log bcodes.length, bcodes[0], d.code, bcodes[0]==d.code
+                                        if (bcodes.length!=1) or (bcodes[0]!=d.code)
+                                                itemNumber += " ("+(bcodes.join(","))+" ב-2012)"
+                                d3.select("#tooltip .itemNumber").text(itemNumber)
                                 d3.select("#tooltip .explanation").text(getExplanation(d.sid,2014))
                                 if d.history > 0
-                                        d3.select("#tooltip .history").text("בחמש השנים האחרונות הביצוע היה גבוה ב-#{d.history}% מהתכנון")
+                                        d3.select("#tooltip .history").text("בארבע השנים האחרונות הביצוע היה גבוה ב-#{d.history}% מהתכנון")
                                 else if d.history < 0
-                                        d3.select("#tooltip .history").text("בחמש השנים האחרונות הביצוע היה נמוך ב-#{-d.history}% מהתכנון")
+                                        d3.select("#tooltip .history").text("בארבע השנים האחרונות הביצוע היה נמוך ב-#{-d.history}% מהתכנון")
                                 
                                 d3.select("#tooltip .value").html(formatNumber(d.value*1000)+" \u20aa")
                                 d3.selectAll("#tooltip .arrow").style("right",tail+"px")
