@@ -385,38 +385,66 @@ class BubbleChart extends Backbone.View
                 @circle.style("stroke-width",@strokeWidth)
                 @circle.style("stroke", @getStrokeColor)
 
-        render: () ->
-
+        init_popovers: (el,callback) ->
                 that = this
-
-                $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
-                share_popover = $("div[data-id='#{@id}'] .btnShare")
-                share_popover.popover({
+                el.popover({
                         html: true
                         placement: "top"
-                        content: "<input type='text' class='fb-select'/>"
-                })
-                share_popover.on("show", ->
+                        content: "<input type='text' class='item-select'/><pre class='xxx-result'></pre>"
+                        trigger: "manual"
+                }).click( ->
+                        el.popover("toggle")
+                )
+                popover = el.data("popover").tip()
+                console.log "PO", popover
+                item_select = null
+                el.on("show", ->
                         field = that.model.get('field')
                         titles = _.map(that.nodes,(d)->{id:d.sid,text:d.name,path:field+";"+d.sid})
-                        titles.unshift({id:field,text:"שיתוף התרשים כמות שהוא",path:field})
-                        console.log "CLICK!",titles
+                        titles.unshift({id:field,text:"בחירת התרשים כמות שהוא",path:field})
                         await setTimeout((defer _),100) # allow DOM to settle
-                        fb_select = $(".fb-select:last")
-                        fb_select.select2(
-                                placeholder: "בחירת סעיף לשיתוף"
+                        item_select = popover.find(".item-select")
+                        console.log "item-select",popover, el,item_select
+                        popover.find(".result").html("")
+                        item_select.select2(
+                                placeholder: "שיתוף סעיף בפייסבוק"
                                 allowClear: true
                                 data: titles
                         ).on("change", (e) ->
                                 if e.added
                                         path = e.added.path
-                                        console.log "got share btn!", path
-                                        fb_select.select2("close")
-                                        share_popover.popover("hide")
+                                        item_select.select2("close")
+                                        if callback(path,popover)
+                                                el.popover("hide")
+                        )
+                        item_select.select2("open")
+                ).on("hide", ->
+                        item_select.select2("close")
+                )
+
+        render: () ->
+
+                that = this
+
+                #$("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
+                @init_popovers($("div[data-id='#{@id}'] .btnShare"), (path) ->
+                                        console.log "got facebook share btn!", path
                                         sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/#{path}.html";
                                         window.open(sharer, 'sharer', 'width=626,height=436')
-                        )
-                ) 
+                                        true
+                )
+                @init_popovers($("div[data-id='#{@id}'] .btnDownload"), (path) ->
+                                        console.log "got img btn!", path
+                                        sharer = "http://compare.open-budget.org.il/images/large/#{path}.jpg";
+                                        window.open(sharer, 'sharer')
+                                        true
+                )
+                @init_popovers($("div[data-id='#{@id}'] .btnLink"), (path,popover) ->
+                                        console.log "got link btn!", path
+                                        sharer = "http://compare.open-budget.org.il/?#{path}";
+                                        popover.find(".result").html("<pre>#{sharer}</pre>")
+                                        false
+                )
                 @setBreadcrumbs = (dd = null) =>
                         bc = $("div[data-id='#{@id}'] .breadcrumbs")
                         bc.find(".breadpart").remove()
@@ -464,10 +492,10 @@ class BubbleChart extends Backbone.View
                         $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
                 @setBreadcrumbs()
                 $("div[data-id='#{@id}'] .btnBack").tooltip()
-                $("div[data-id='#{@id}'] .btnDownload").tooltip()
-                $("div[data-id='#{@id}'] .btnEmbed").tooltip()
-                $("div[data-id='#{@id}'] .btnLink").tooltip()
-                $("div[data-id='#{@id}'] .btnShare").tooltip()
+                #$("div[data-id='#{@id}'] .btnDownload").tooltip()
+                #$("div[data-id='#{@id}'] .btnEmbed").tooltip()
+                #$("div[data-id='#{@id}'] .btnLink").tooltip()
+                #$("div[data-id='#{@id}'] .btnShare").tooltip()
                 $("div[data-id='#{@id}'] .color-index").tooltip()
                         
                 search = $("div[data-id='#{@id}'] .mysearch")
@@ -499,7 +527,7 @@ class BubbleChart extends Backbone.View
                                 $("div[data-id='#{that.id}'] .breadcrumbs").css("visibility","visible")
                 ).on("select2-highlight",
                         (e) ->
-                                that.selectItem(e.choice.id)
+                                that.selectItem(code: e.choice.id)
                 ).on("change",
                         (e) ->
                                 console.log "changed:",e
@@ -653,9 +681,7 @@ class BubbleChart extends Backbone.View
                                                         if d.sid == globalTooltipItem
                                                                 showTooltip(d,d.x-avgx, d.y,that)
                                                 )
-                                        )
-                        .start()
-                                
+                                ).start()
 
 state = { querys: [], selectedStory: null }
 charts = []
@@ -759,24 +785,32 @@ window.handleExplanations = (data) ->
         code = null
         explanation = null
         years = null
+        row = null
+
+        handle_explanation = (code,explanation,years) ->
+                years = years.split(",")
+                for _year in years
+                        year = parseInt(_year)
+                        curCodeExpl = explanations[code]
+                        if not curCodeExpl
+                                explanations[code] = {}
+                                explanations[code][year] = explanation
+                                console.log "EXP", code, year
+        
         for entry in data.feed.entry
                 title = entry.title.$t
+                newrow = title.substring(1)
+                if newrow != row and code != null and explanation != null
+                        handle_explanation(code, explanation, years or "")
+                        code = explanation = years = null
                 if title.search( /B[0-9]+/ ) == 0
-                        code = "00"+entry.content.$t
+                        code = entry.content.$t
+                        code = if code.indexOf("00") == 0 then code else "00"+code
                 if title.search( /D[0-9]+/ ) == 0
                         explanation = entry.content.$t
                 if title.search( /F[0-9]+/ ) == 0
                         years = entry.content.$t
-                        years = years.split(",")
-                        if code != null and explanation != null
-                                for _year in years
-                                        year = parseInt(_year)
-                                        curCodeExpl = explanations[code]
-                                        if not curCodeExpl
-                                                explanations[code] = {}
-                                        explanations[code][year] = explanation
-                                        console.log "EXP", code, year
-                        code = explanation = null
+
         console.log explanations
         gotExplanations = true
         if gotStories and gotExplanations then init()
@@ -866,7 +900,7 @@ $( ->
                 $.get("http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script",
                         window.handleStories,
                         "jsonp")
-                $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/2/public/basic?alt=json-in-script",
+                $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/1/public/basic?alt=json-in-script",
                         window.handleExplanations,
                         "jsonp")
         )

@@ -569,19 +569,22 @@
       return this.circle.style("stroke", this.getStrokeColor);
     };
 
-    BubbleChart.prototype.render = function() {
-      var container, frame, overlay, resizeFrame, search, share_popover, tagClicked, tags, that,
-        _this = this;
+    BubbleChart.prototype.init_popovers = function(el, callback) {
+      var item_select, popover, that;
       that = this;
-      $("div[data-id='" + this.id + "'] .btnDownload").attr("href", "/images/large/" + (this.model.get('field')) + ".jpg");
-      share_popover = $("div[data-id='" + this.id + "'] .btnShare");
-      share_popover.popover({
+      el.popover({
         html: true,
         placement: "top",
-        content: "<input type='text' class='fb-select'/>"
+        content: "<input type='text' class='item-select'/><pre class='xxx-result'></pre>",
+        trigger: "manual"
+      }).click(function() {
+        return el.popover("toggle");
       });
-      share_popover.on("show", function() {
-        var fb_select, field, titles, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+      popover = el.data("popover").tip();
+      console.log("PO", popover);
+      item_select = null;
+      return el.on("show", function() {
+        var field, titles, ___iced_passed_deferral, __iced_deferrals, __iced_k,
           _this = this;
         __iced_k = __iced_k_noop;
         ___iced_passed_deferral = iced.findDeferral(arguments);
@@ -595,10 +598,9 @@
         });
         titles.unshift({
           id: field,
-          text: "שיתוף התרשים כמות שהוא",
+          text: "בחירת התרשים כמות שהוא",
           path: field
         });
-        console.log("CLICK!", titles);
         (function(__iced_k) {
           __iced_deferrals = new iced.Deferrals(__iced_k, {
             parent: ___iced_passed_deferral,
@@ -610,27 +612,58 @@
                 return __iced_deferrals.ret = arguments[0];
               };
             })(),
-            lineno: 403
+            lineno: 404
           })), 100);
           __iced_deferrals._fulfill();
         })(function() {
-          fb_select = $(".fb-select:last");
-          return fb_select.select2({
-            placeholder: "בחירת סעיף לשיתוף",
+          item_select = popover.find(".item-select");
+          console.log("item-select", popover, el, item_select);
+          popover.find(".result").html("");
+          item_select.select2({
+            placeholder: "שיתוף סעיף בפייסבוק",
             allowClear: true,
             data: titles
           }).on("change", function(e) {
-            var path, sharer;
+            var path;
             if (e.added) {
               path = e.added.path;
-              console.log("got share btn!", path);
-              fb_select.select2("close");
-              share_popover.popover("hide");
-              sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/" + path + ".html";
-              return window.open(sharer, 'sharer', 'width=626,height=436');
+              item_select.select2("close");
+              if (callback(path, popover)) {
+                return el.popover("hide");
+              }
             }
           });
+          return item_select.select2("open");
         });
+      }).on("hide", function() {
+        return item_select.select2("close");
+      });
+    };
+
+    BubbleChart.prototype.render = function() {
+      var container, frame, overlay, resizeFrame, search, tagClicked, tags, that,
+        _this = this;
+      that = this;
+      this.init_popovers($("div[data-id='" + this.id + "'] .btnShare"), function(path) {
+        var sharer;
+        console.log("got facebook share btn!", path);
+        sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/" + path + ".html";
+        window.open(sharer, 'sharer', 'width=626,height=436');
+        return true;
+      });
+      this.init_popovers($("div[data-id='" + this.id + "'] .btnDownload"), function(path) {
+        var sharer;
+        console.log("got img btn!", path);
+        sharer = "http://compare.open-budget.org.il/images/large/" + path + ".jpg";
+        window.open(sharer, 'sharer');
+        return true;
+      });
+      this.init_popovers($("div[data-id='" + this.id + "'] .btnLink"), function(path, popover) {
+        var sharer;
+        console.log("got link btn!", path);
+        sharer = "http://compare.open-budget.org.il/?" + path;
+        popover.find(".result").html("<pre>" + sharer + "</pre>");
+        return false;
       });
       this.setBreadcrumbs = function(dd) {
         var actual_querys, bc, depth, link, mshLinkCode, query, title, _i, _j, _len, _len1, _ref2;
@@ -676,18 +709,16 @@
           mshLinkCode = dd.sid;
         }
         if (mshLinkCode) {
-          bc.append('<span class="breadpart breadcrumbsMsh"><a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#' + mshLinkCode + ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">' + '<i class="icon-bar-chart icon"></i></a></span><!--i class="icon-book icon-flip-horizontal icon"></i-->');
+          bc.append('<span class="breadpart breadcrumbsMsh"><a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#' + mshLinkCode + ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" data-placement="bottom" title="מידע היסטורי אודות הסעיף הנוכחי">' + '<i class="icon-bar-chart icon"></i></a></span><!--i class="icon-book icon-flip-horizontal icon"></i-->');
         }
         link = _this.model.get('link');
         if (link) {
-          bc.append('<span class="breadpart breadcrumbsGov"><a class="breadcrumbsLink" target="_new" href="' + link + '" ' + 'class="active" target="top" data-toggle="tooltip" title="עיון בספר התקציב במשרד האוצר">' + '<i class="icon-book icon-flip-horizontal icon"></i></a></span>');
+          bc.append('<span class="breadpart breadcrumbsGov"><a class="breadcrumbsLink" target="_new" href="' + link + '" ' + 'class="active" target="top" data-toggle="tooltip" data-placement="bottom" title="עיון בספר התקציב במשרד האוצר">' + '<i class="icon-book icon-flip-horizontal icon"></i></a></span>');
         }
         return $("div[data-id='" + _this.id + "'] .breadcrumbsLink").tooltip();
       };
       this.setBreadcrumbs();
       $("div[data-id='" + this.id + "'] .btnBack").tooltip();
-      $("div[data-id='" + this.id + "'] .btnDownload").tooltip();
-      $("div[data-id='" + this.id + "'] .btnShare").tooltip();
       $("div[data-id='" + this.id + "'] .color-index").tooltip();
       search = $("div[data-id='" + this.id + "'] .mysearch");
       $("div[data-id='" + this.id + "'] .mysearch-open").click(function() {
@@ -704,7 +735,9 @@
       }).on("select2-close", function(e) {
         return $("div[data-id='" + that.id + "'] .breadcrumbs").css("visibility", "visible");
       }).on("select2-highlight", function(e) {
-        return that.selectItem(e.choice.id);
+        return that.selectItem({
+          code: e.choice.id
+        });
       }).on("change", function(e) {
         var x, _i, _len, _ref2;
         console.log("changed:", e);
@@ -992,37 +1025,48 @@
   gotExplanations = false;
 
   window.handleExplanations = function(data) {
-    var code, curCodeExpl, entry, explanation, row, title, year, years, _i, _j, _len, _len1, _ref2, _year;
+    var code, entry, explanation, handle_explanation, newrow, row, title, years, _i, _len, _ref2;
     row = 1;
     code = null;
     explanation = null;
     years = null;
+    row = null;
+    handle_explanation = function(code, explanation, years) {
+      var curCodeExpl, year, _i, _len, _results, _year;
+      years = years.split(",");
+      _results = [];
+      for (_i = 0, _len = years.length; _i < _len; _i++) {
+        _year = years[_i];
+        year = parseInt(_year);
+        curCodeExpl = explanations[code];
+        if (!curCodeExpl) {
+          explanations[code] = {};
+          explanations[code][year] = explanation;
+          _results.push(console.log("EXP", code, year));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
     _ref2 = data.feed.entry;
     for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
       entry = _ref2[_i];
       title = entry.title.$t;
+      newrow = title.substring(1);
+      if (newrow !== row && code !== null && explanation !== null) {
+        handle_explanation(code, explanation, years || "");
+        code = explanation = years = null;
+      }
       if (title.search(/B[0-9]+/) === 0) {
-        code = "00" + entry.content.$t;
+        code = entry.content.$t;
+        code = code.indexOf("00") === 0 ? code : "00" + code;
       }
       if (title.search(/D[0-9]+/) === 0) {
         explanation = entry.content.$t;
       }
       if (title.search(/F[0-9]+/) === 0) {
         years = entry.content.$t;
-        years = years.split(",");
-        if (code !== null && explanation !== null) {
-          for (_j = 0, _len1 = years.length; _j < _len1; _j++) {
-            _year = years[_j];
-            year = parseInt(_year);
-            curCodeExpl = explanations[code];
-            if (!curCodeExpl) {
-              explanations[code] = {};
-            }
-            explanations[code][year] = explanation;
-            console.log("EXP", code, year);
-          }
-        }
-        code = explanation = null;
       }
     }
     console.log(explanations);
@@ -1146,7 +1190,7 @@
   $(function() {
     if ((document.createElementNS != null) && (document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect != null)) {
       $.get("http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script", window.handleStories, "jsonp");
-      return $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/2/public/basic?alt=json-in-script", window.handleExplanations, "jsonp");
+      return $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/1/public/basic?alt=json-in-script", window.handleExplanations, "jsonp");
     }
   });
 

@@ -490,6 +490,6 @@ if __name__=="__main__":
     for key, title in urls:
         fn = 'images/large/%(url)s.jpg' % { 'url' : key }
         cmd = "phantomjs images/rasterize.js 'http://localhost:8000/vis.html?%(url)s' l 'images/large/%(url)s.jpg'" % { 'url' : key }
-        imagesScript.write("sleep 4 ; %(cmd)s &\n" % {'cmd': cmd,'fn':fn} )
+        imagesScript.write("if [ ! -f '%(fn)s.synced' ]; then sleep 4 ; %(cmd)s ; fi &\n" % {'cmd': cmd,'fn':fn} )
         writeProxyHtml( key, title ) 
 
