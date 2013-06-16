@@ -416,6 +416,22 @@ div.btnShareContainer fb:like {
     content: "עוד ";
   }
 }
+.modal {
+  text-align: right;
+}
+.modal ul.nav li {
+  float: right;
+}
+.modal img {
+  width: 260px;
+  margin: 10px 0;
+}
+.modal .item-select {
+  width: 100%;
+}
+#select2-drop {
+  float: right;
+}
 /*
 Version: @@ver@@ Timestamp: @@timestamp@@
 */

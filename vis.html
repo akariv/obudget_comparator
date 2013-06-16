@@ -59,40 +59,44 @@
     </div>
     
     <div class="modal hide fade">
-      <div class="modal-header">
+      <!--div class="modal-header">
       	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
       	<h3>שתפו את התרשים</h3>
-      </div>
-      <div class="modal-body">
-
-      <ul class="nav nav-tabs" id="myTab">
-        <li class="active"><a href="#shareLinkTab">שתפו קישור</a></li>
-        <li><a href="#shareFacebookTab">שתפו בפייסבוק</a></li>
-        <li><a href="#shareImgTab">הורידו כקובץ תמונה</a></li>
-        <li><a href="#shareEmbedTab">הטמיעו אצלכם באתר</a></li>
-      </ul>
-
-      <input class="item-select" type="text"/>
-      <img class="shareThumb" src="http://compare.open-budget.org.il/images/large/00.jpg" alt"name of the item">
-       
-      <div class="tab-content">
-        <div class="tab-pane active" id="shareLinkTab">
-          <label><i class="icon-link"></i>קישור ישיר לתרשים</label><span class="direct-link input-xlarge uneditable-input"></span>
-        </div>
-        <div class="tab-pane" id="shareFacebookTab">
-          <a class="btn facebook-share"><i class="icon-thumbs-up-alt"></i>לחצו לשיתוף בפייסבוק</a>
-        </div>
-        <div class="tab-pane" id="shareImgTab">
-          <a class="btn photo-download"><i class="icon-picture"></i>לחצו להורדת התרשים הנוכחי כקובץ תמונה</a>
-        </div>
-        <div class="tab-pane" id="shareEmbedTab">
-          <label><i class="icon-code"></i>קוד הטמעה</label><span class="embed-code input-xlarge uneditable-input"></span>
-        </div>
-      </div>
-      <!--div class="modal-footer">
-      	<a href="#" class="btn">Close</a>
-      	<a href="#" class="btn btn-primary">Save changes</a>
       </div-->
+
+      <div class="modal-body tabbable">
+
+        <ul class="nav nav-tabs" id="myTab">
+          <li class="active"><a href="#shareFacebookTab">שתפו בפייסבוק</a></li>
+          <li><a href="#shareLinkTab">שתפו קישור</a></li>
+          <li><a href="#shareEmbedTab">הטמיעו אצלכם באתר</a></li>
+          <li><a href="#shareImgTab">הורידו כקובץ תמונה</a></li>
+        </ul>
+        
+        <input class="item-select" type="text"/>
+        <img class="shareThumb" src="http://compare.open-budget.org.il/images/large/00.jpg" alt"name of the item">
+
+        <div class="tab-content">
+        
+          <div class="tab-pane" id="shareFacebookTab">
+            <a class="btn facebook-share"><i class="icon-thumbs-up-alt"></i>לחצו לשיתוף בפייסבוק</a>
+          </div>
+          <div class="tab-pane active" id="shareLinkTab">
+            <label><i class="icon-link"></i>קישור ישיר לתרשים</label><span class="direct-link input-xlarge uneditable-input"></span>
+          </div>
+          <div class="tab-pane" id="shareEmbedTab">
+            <label><i class="icon-code"></i>קוד הטמעה</label><span class="embed-code input-xlarge uneditable-input"></span>
+          </div>
+          <div class="tab-pane" id="shareImgTab">
+            <a class="btn photo-download"><i class="icon-picture"></i>לחצו להורדת התרשים הנוכחי כקובץ תמונה</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+      	<a href="#" class="btn">Close</a>
+      	<a href="#" class="btn btn-primary">Share</a>
+      </div>
     </div>
 
     <!-- Budget data -->
