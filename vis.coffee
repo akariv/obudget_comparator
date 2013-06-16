@@ -48,13 +48,10 @@ class CompareData extends Backbone.Model
                         field = @get 'field'
                         data = budget_array_data[field]
                         if data
-                                console.log('setting field ' + field + " title: " + data.t)
                                 @set 'code', data.c
                                 @set 'link', data.l
                                 @set 'title', data.t
                                 @set 'data', data.d
-                        else
-                                console.log('field '+field+' is '+data)
 
 globalSelectedItem = null
 globalTooltipItem = null
@@ -64,7 +61,7 @@ showTooltip = (d,xpos,ypos,that) ->
                 d3.select("#tooltip").style('display','none')
                 globalTooltipShown = false
                 return
-        svgPos = $("svg:last").offset()
+        svgPos = $("div.chart:last").offset()
         tail = 100
         xpos += that.centerX
         if xpos < 125
@@ -101,7 +98,6 @@ showTooltip = (d,xpos,ypos,that) ->
         itemNumber = d.code
         if d.bcodes.length > 0
                 bcodes = _.map(d.bcodes, ((x) -> x[0]))
-                console.log bcodes.length, bcodes[0], d.code, bcodes[0]==d.code
                 if (bcodes.length!=1) or (bcodes[0]!=d.code)
                         itemNumber += " ("+(bcodes.join(","))+" ב-2012)"
         d3.select("#tooltip .itemNumber").text(itemNumber)
@@ -142,7 +138,6 @@ class BubbleChart extends Backbone.View
                 _fillColor(changeCategory)
 
         strokeColor: (code, changeCategory) ->
-                console.log "CCC",code,globalSelectedItem
                 if code == globalSelectedItem then return "#FF0"
                 _strokeColor = d3.scale.ordinal().domain([-4,-3,-2,-1,0,1,2,3,4]).range(["#796001", "#c09100", "#e7bd53","#d9c292","#999","#a7aed3", "#7f8ab8", "#4f5fb0","#1A2055"])
                 _strokeColor(changeCategory);
@@ -215,8 +210,6 @@ class BubbleChart extends Backbone.View
                 @id = @options.id
                 @overlayShown = false
 
-                console.log "BubbleChart:initialize", @id
-
         	# d3 settings
                 @defaultGravity = 0.1
                                
@@ -238,8 +231,6 @@ class BubbleChart extends Backbone.View
                         false
                 )
 
-                console.log "init done", @id
-
         collectTitles: (titles, field, prefix = '', _state = []) ->
                 if not field then return
                 data = budget_array_data[field]
@@ -258,7 +249,6 @@ class BubbleChart extends Backbone.View
                 for x in data
                         sum += x.b1
                 @totalValue = sum ? 400000000
-                console.log "Totalvalue: "+@totalValue
                 if @?.nodes
                         for node in @nodes
                                 oldNodes.push(node)
@@ -297,12 +287,10 @@ class BubbleChart extends Backbone.View
                         out.drilldown = n.d
                         out.history = n.pp
                         out.bcodes = n.bc
-                        console.log "#{out.sid}: #{out.history}"
                         if out.history
                                 out.projectedValue = out.value*(out.history+100)/100.0
                                 out.projectedRadius = radiusScale(out.projectedValue)
                                 out.projectedChangeCategory = @categorizeChange(((n.c+100)*(n.pp+100)-10000)/10000.0)
-                                console.log "#{out.sid}: #{out.projectedChangeCategory}"
 
                         ###
                         #  if (n.positions.total) 
@@ -357,7 +345,6 @@ class BubbleChart extends Backbone.View
                 if node == null
                         return
                 scale = @height / node.radius / 3
-                console.log "showOverlay: ", node.radius, @height, scale
                 origin = "translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)"
                 target = "translate(#{@centerX},#{@centerY})rotate(120)translate(#{-node.x*scale},#{-node.y*scale})scale(#{scale})"
 
@@ -370,8 +357,6 @@ class BubbleChart extends Backbone.View
                                         .attrTween("transform",
                                                    -> d3.interpolateString( origin, target )
                                                 )
-                
-                                console.log("TRANSITION "+origin+" -> "+target)
                 $("#tooltip").hide()
 
         overlayRemoved: ->
@@ -405,7 +390,6 @@ class BubbleChart extends Backbone.View
                         el.popover("toggle")
                 )
                 popover = el.data("popover").tip()
-                console.log "PO", popover
                 item_select = null
                 el.on("show", ->
                         field = that.model.get('field')
@@ -413,7 +397,6 @@ class BubbleChart extends Backbone.View
                         titles.unshift({id:field,text:"בחירת התרשים כמות שהוא",path:field})
                         await setTimeout((defer _),100) # allow DOM to settle
                         item_select = popover.find(".item-select")
-                        console.log "item-select",popover, el,item_select
                         popover.find(".result").html("")
                         item_select.select2(
                                 placeholder: "שיתוף סעיף בפייסבוק"
@@ -437,19 +420,16 @@ class BubbleChart extends Backbone.View
 
                 #$("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
                 @init_popovers($("div[data-id='#{@id}'] .btnShare"), (path) ->
-                                        console.log "got facebook share btn!", path
                                         sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/#{path}.html";
                                         window.open(sharer, 'sharer', 'width=626,height=436')
                                         true
                 )
                 @init_popovers($("div[data-id='#{@id}'] .btnDownload"), (path) ->
-                                        console.log "got img btn!", path
                                         sharer = "http://compare.open-budget.org.il/images/large/#{path}.jpg";
                                         window.open(sharer, 'sharer')
                                         true
                 )
                 #@init_popovers($("div[data-id='#{@id}'] .btnLink"), (path,popover) ->
-                #                        console.log "got link btn!", path
                 #                        sharer = "http://compare.open-budget.org.il/?#{path}";
                 #                        popover.find(".result").html("<pre>#{sharer}</pre>")
                 #                        false
@@ -475,7 +455,6 @@ class BubbleChart extends Backbone.View
 
                         bc.find(".breadcrumbsParent").click( ->
                                 up_count = parseInt($(@).attr('data-up'))
-                                console.log "breadcrumbsParent click!",up_count
                                 removeState(up_count)
                                 false
                                 )
@@ -501,12 +480,8 @@ class BubbleChart extends Backbone.View
                         $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
                 @setBreadcrumbs()
                 $("div[data-id='#{@id}'] .btnBack").tooltip()
-                #$("div[data-id='#{@id}'] .btnDownload").tooltip()
-                #$("div[data-id='#{@id}'] .btnEmbed").tooltip()
-                #$("div[data-id='#{@id}'] .btnLink").tooltip()
-                #$("div[data-id='#{@id}'] .btnShare").tooltip()
+                $("div[data-id='#{@id}'] .share-button").tooltip()
                 $("div[data-id='#{@id}'] .color-index").tooltip()
-                        
                 search = $("div[data-id='#{@id}'] .mysearch")
                 $("div[data-id='#{@id}'] .mysearch-open").click( ->
                         search.select2("open")
@@ -539,7 +514,6 @@ class BubbleChart extends Backbone.View
                                 that.selectItem(code: e.choice.id)
                 ).on("change",
                         (e) ->
-                                console.log "changed:",e
                                 if e.added
                                         that.selectItem(code: e.added.id)
                                         for x in e.added.state
@@ -548,7 +522,7 @@ class BubbleChart extends Backbone.View
                                 else
                                         that.selectItem(null)
                 )
-
+                
                 if false
                         tags = $("div[data-id='#{@id}'] .tag")
                         tagClicked = false
@@ -568,7 +542,6 @@ class BubbleChart extends Backbone.View
                 frame = $("div[data-id='#{@id}'] .frame")
 
                 resizeFrame = () =>
-                        console.log "frame resize"
                         @width = $(window).width() - 8
                         if @width > 900 then @width = 900
                         @centerX = @width/2 +4
@@ -701,24 +674,20 @@ first_time = true
 addState = (toAdd) ->
         if not state?.querys
                 state.querys = []
-        console.log "addState: toAdd="+toAdd+", state=",state
         state.querys.push(toAdd)
         History.pushState(state,null,"?" + state.querys.join("/") )
 
 removeState = (amount = 1)->
-        console.log "removeState:",amount,state.querys
         globalTooltipItem = null
         showTooltip()
         if state.querys.length > amount
                 for i in [0...amount]
                         state.querys.pop()
-                console.log "removeState new querys:",state.querys
                 History.pushState(state,null,"?" + state.querys.join("/") )
 
 handleNewState = () ->
         state = History.getState()
         state = state.data
-        console.log "state changed: ",state
         query = "00"
         if not state.querys or state.querys.length == 0
                 state.querys = ["00"]
@@ -731,30 +700,23 @@ handleNewState = () ->
                 id = "id"+i
                 el = $("div[data-id='#{id}'] .chart")
                 if el.size() == 0
-                        console.log "creating chart "+id
                         title = state.selectedStory?.title or "התקציב הדו שנתי 2013-2014 לעומת תקציב 2012"
                         default_subtitle ='כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו'
                         explanation = getExplanation(query)
-                        console.log "ADAM1", explanation
                         if explanation != null
                                 default_subtitle = explanation
-                                console.log "ADAM2", default_subtitle, state.selectedStory.subtitle
                         subtitle = state.selectedStory.subtitle or default_subtitle
                         template = _.template( $("#chart-template").html(),{ id: id, title:title, subtitle:subtitle, code:query } )
                         $("#charts").append template
                         el =$("div[data-id='#{id}'] .chart")                       
-                        console.log "creating BubbleChart "+id
                         charts[i] = new BubbleChart
                                 el: el
                                 model: new CompareData
                                 id: id
 
         max = if state.querys.length > charts.length then state.querys.length else charts.length
-        console.log "max: "+max
         for i in [max-1..0]
-                console.log "setting field for "+i
                 if i >= state.querys.length
-                        console.log "removing chart #"+i
                         charts[i].updateData([])
                         charts.pop()
                         continue
@@ -769,7 +731,6 @@ handleNewState = () ->
                         charts[i].showOverlay(state.querys[i+1])                       
         if max > state.querys.length
                 if charts.length > 0
-                        console.log "chart "+(charts.length-1)+": overlay removed"
                         charts[charts.length-1].overlayRemoved()
         first_time = false
         $(".btnBack:first").css("display","none")
@@ -779,7 +740,6 @@ handleNewState = () ->
 explanations = {}
 getExplanation = (code,year,title) ->
         years = explanations[code]
-        console.log "got years ",years,"for",code
         explanation = null
         if years
                 year = parseInt(year)
@@ -810,7 +770,6 @@ window.handleExplanations = (data) ->
                         if not curCodeExpl
                                 explanations[code] = {}
                                 explanations[code][year] = explanation
-                                console.log "EXP", code, year
         
         for entry in data.feed.entry
                 title = entry.title.$t
@@ -825,8 +784,6 @@ window.handleExplanations = (data) ->
                         explanation = entry.content.$t
                 if title.search( /F[0-9]+/ ) == 0
                         years = entry.content.$t
-
-        console.log explanations
         gotExplanations = true
         if gotStories and gotExplanations then init()
         
@@ -849,7 +806,6 @@ window.handleStories = (data) ->
                         chartid = entry.content.$t
                         stories[chartid] = { code:code, title:title, subtitle:subtitle }
                         code = title = subtitle = chartid = null
-        console.log stories
         gotStories = true
         if gotStories and gotExplanations then init()
 
@@ -859,19 +815,15 @@ init = () ->
         ret_query = window.location.search.slice(1)
         if ret_query.length == 0
                 ret_query = window.location.hash
-                console.log "using hash: "+ret_query
                 if ret_query.length > 0
                         ret_query = query.split("?")
                         if ret_query.length > 1
                                 query = ret_query[1]
-                                console.log "got state (hash): "+query
         else
                 query = ret_query
-                console.log "got state (search): "+query
         if stories[query]
                 state.selectedStory = stories[query]
                 query = state.selectedStory.code
-                console.log "Selected story ("+state.selectedStory.code+")! "+state.selectedStory.title+", "+state.selectedStory.subtitle
         else
                 state.selectedStory = null
 
@@ -880,7 +832,6 @@ init = () ->
                 query = parse[0]
                 globalTooltipItem = globalSelectedItem = parse[1]
         state.querys = query.split("/")
-        console.log "Q",state.querys
         if state.querys.length == 1
                 while budget_array_data[state.querys[0]]
                         up = budget_array_data[state.querys[0]].u
@@ -888,19 +839,15 @@ init = () ->
                                 state.querys.unshift up
                         else
                                 break
-        console.log "Q2",state.querys
         firstquery = state.querys[0]
         if !state.selectedStory
                 state.selectedStory = { 'title':"התקציב הדו שנתי 2013-2014 לעומת תקציב 2012", 'subtitle':null }
         
         _state = History.getState()
-        console.log "getState: ",_state
         if _state.data?.querys and _state.data.querys.length> 0
                 handleNewState()
         else
-                console.log "xxx",_state.data
                 History.pushState(state,null,"?"+state.querys.join("/"))
-                console.log "pushed ",state
         $(document).keyup (e) ->
                 if e.keyCode == 27
                         removeState()
@@ -909,6 +856,7 @@ init = () ->
                 removeState()
                 false
         )
+        $(".modal").modal("show")
      
 $( ->
         if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?

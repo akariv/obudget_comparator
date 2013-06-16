@@ -117,13 +117,10 @@
         field = this.get('field');
         data = budget_array_data[field];
         if (data) {
-          console.log('setting field ' + field + " title: " + data.t);
           this.set('code', data.c);
           this.set('link', data.l);
           this.set('title', data.t);
           return this.set('data', data.d);
-        } else {
-          return console.log('field ' + field + ' is ' + data);
         }
       });
     };
@@ -145,7 +142,7 @@
       globalTooltipShown = false;
       return;
     }
-    svgPos = $("svg:last").offset();
+    svgPos = $("div.chart:last").offset();
     tail = 100;
     xpos += that.centerX;
     if (xpos < 125) {
@@ -179,7 +176,6 @@
       bcodes = _.map(d.bcodes, (function(x) {
         return x[0];
       }));
-      console.log(bcodes.length, bcodes[0], d.code, bcodes[0] === d.code);
       if ((bcodes.length !== 1) || (bcodes[0] !== d.code)) {
         itemNumber += " (" + (bcodes.join(",")) + " ב-2012)";
       }
@@ -223,7 +219,6 @@
 
     BubbleChart.prototype.strokeColor = function(code, changeCategory) {
       var _strokeColor;
-      console.log("CCC", code, globalSelectedItem);
       if (code === globalSelectedItem) {
         return "#FF0";
       }
@@ -348,7 +343,6 @@
       this.height = 550;
       this.id = this.options.id;
       this.overlayShown = false;
-      console.log("BubbleChart:initialize", this.id);
       this.defaultGravity = 0.1;
       this.force = this.svg = this.circle = null;
       this.centerX = this.width / 2;
@@ -358,11 +352,10 @@
       });
       d3.select(this.el).html("");
       this.svg = d3.select(this.el).append("svg:svg");
-      this.svg.on("click", function() {
+      return this.svg.on("click", function() {
         removeState();
         return false;
       });
-      return console.log("init done", this.id);
     };
 
     BubbleChart.prototype.collectTitles = function(titles, field, prefix, _state) {
@@ -408,7 +401,6 @@
         sum += x.b1;
       }
       this.totalValue = sum != null ? sum : 400000000;
-      console.log("Totalvalue: " + this.totalValue);
       if (typeof this !== "undefined" && this !== null ? this.nodes : void 0) {
         _ref2 = this.nodes;
         for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
@@ -454,12 +446,10 @@
         out.drilldown = n.d;
         out.history = n.pp;
         out.bcodes = n.bc;
-        console.log("" + out.sid + ": " + out.history);
         if (out.history) {
           out.projectedValue = out.value * (out.history + 100) / 100.0;
           out.projectedRadius = radiusScale(out.projectedValue);
           out.projectedChangeCategory = this.categorizeChange(((n.c + 100) * (n.pp + 100) - 10000) / 10000.0);
-          console.log("" + out.sid + ": " + out.projectedChangeCategory);
         }
         /*
         #  if (n.positions.total) 
@@ -536,7 +526,6 @@
         return;
       }
       scale = this.height / node.radius / 3;
-      console.log("showOverlay: ", node.radius, this.height, scale);
       origin = "translate(" + this.centerX + "," + this.centerY + ")rotate(0)translate(1,1)scale(1)";
       target = "translate(" + this.centerX + "," + this.centerY + ")rotate(120)translate(" + (-node.x * scale) + "," + (-node.y * scale) + ")scale(" + scale + ")";
       if (this.transitiontime === 0) {
@@ -545,7 +534,6 @@
         this.svg.selectAll("circle").transition().duration(this.transitiontime).attrTween("transform", function() {
           return d3.interpolateString(origin, target);
         });
-        console.log("TRANSITION " + origin + " -> " + target);
       }
       return $("#tooltip").hide();
     };
@@ -582,7 +570,6 @@
         return el.popover("toggle");
       });
       popover = el.data("popover").tip();
-      console.log("PO", popover);
       item_select = null;
       return el.on("show", function() {
         var field, titles, ___iced_passed_deferral, __iced_deferrals, __iced_k,
@@ -613,12 +600,11 @@
                 return __iced_deferrals.ret = arguments[0];
               };
             })(),
-            lineno: 413
+            lineno: 397
           })), 100);
           __iced_deferrals._fulfill();
         })(function() {
           item_select = popover.find(".item-select");
-          console.log("item-select", popover, el, item_select);
           popover.find(".result").html("");
           item_select.select2({
             placeholder: "שיתוף סעיף בפייסבוק",
@@ -647,14 +633,12 @@
       that = this;
       this.init_popovers($("div[data-id='" + this.id + "'] .btnShare"), function(path) {
         var sharer;
-        console.log("got facebook share btn!", path);
         sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/" + path + ".html";
         window.open(sharer, 'sharer', 'width=626,height=436');
         return true;
       });
       this.init_popovers($("div[data-id='" + this.id + "'] .btnDownload"), function(path) {
         var sharer;
-        console.log("got img btn!", path);
         sharer = "http://compare.open-budget.org.il/images/large/" + path + ".jpg";
         window.open(sharer, 'sharer');
         return true;
@@ -690,7 +674,6 @@
         bc.find(".breadcrumbsParent").click(function() {
           var up_count;
           up_count = parseInt($(this).attr('data-up'));
-          console.log("breadcrumbsParent click!", up_count);
           removeState(up_count);
           return false;
         });
@@ -713,6 +696,7 @@
       };
       this.setBreadcrumbs();
       $("div[data-id='" + this.id + "'] .btnBack").tooltip();
+      $("div[data-id='" + this.id + "'] .share-button").tooltip();
       $("div[data-id='" + this.id + "'] .color-index").tooltip();
       search = $("div[data-id='" + this.id + "'] .mysearch");
       $("div[data-id='" + this.id + "'] .mysearch-open").click(function() {
@@ -734,7 +718,6 @@
         });
       }).on("change", function(e) {
         var x, _i, _len, _ref2;
-        console.log("changed:", e);
         if (e.added) {
           that.selectItem({
             code: e.added.id
@@ -770,7 +753,6 @@
       overlay = $("div[data-id='" + this.id + "'] .overlay");
       frame = $("div[data-id='" + this.id + "'] .frame");
       resizeFrame = function() {
-        console.log("frame resize");
         _this.width = $(window).width() - 8;
         if (_this.width > 900) {
           _this.width = 900;
@@ -900,7 +882,6 @@
     if (!(state != null ? state.querys : void 0)) {
       state.querys = [];
     }
-    console.log("addState: toAdd=" + toAdd + ", state=", state);
     state.querys.push(toAdd);
     return History.pushState(state, null, "?" + state.querys.join("/"));
   };
@@ -910,14 +891,12 @@
     if (amount == null) {
       amount = 1;
     }
-    console.log("removeState:", amount, state.querys);
     globalTooltipItem = null;
     showTooltip();
     if (state.querys.length > amount) {
       for (i = _i = 0; 0 <= amount ? _i < amount : _i > amount; i = 0 <= amount ? ++_i : --_i) {
         state.querys.pop();
       }
-      console.log("removeState new querys:", state.querys);
       return History.pushState(state, null, "?" + state.querys.join("/"));
     }
   };
@@ -926,7 +905,6 @@
     var default_subtitle, el, explanation, i, id, max, nextquery, overlaid, query, subtitle, template, title, _i, _j, _ref2, _ref3, _ref4;
     state = History.getState();
     state = state.data;
-    console.log("state changed: ", state);
     query = "00";
     if (!state.querys || state.querys.length === 0) {
       state.querys = ["00"];
@@ -943,14 +921,11 @@
       id = "id" + i;
       el = $("div[data-id='" + id + "'] .chart");
       if (el.size() === 0) {
-        console.log("creating chart " + id);
         title = ((_ref3 = state.selectedStory) != null ? _ref3.title : void 0) || "התקציב הדו שנתי 2013-2014 לעומת תקציב 2012";
         default_subtitle = 'כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו';
         explanation = getExplanation(query);
-        console.log("ADAM1", explanation);
         if (explanation !== null) {
           default_subtitle = explanation;
-          console.log("ADAM2", default_subtitle, state.selectedStory.subtitle);
         }
         subtitle = state.selectedStory.subtitle || default_subtitle;
         template = _.template($("#chart-template").html(), {
@@ -961,7 +936,6 @@
         });
         $("#charts").append(template);
         el = $("div[data-id='" + id + "'] .chart");
-        console.log("creating BubbleChart " + id);
         charts[i] = new BubbleChart({
           el: el,
           model: new CompareData,
@@ -970,11 +944,8 @@
       }
     }
     max = state.querys.length > charts.length ? state.querys.length : charts.length;
-    console.log("max: " + max);
     for (i = _j = _ref4 = max - 1; _ref4 <= 0 ? _j <= 0 : _j >= 0; i = _ref4 <= 0 ? ++_j : --_j) {
-      console.log("setting field for " + i);
       if (i >= state.querys.length) {
-        console.log("removing chart #" + i);
         charts[i].updateData([]);
         charts.pop();
         continue;
@@ -992,7 +963,6 @@
     }
     if (max > state.querys.length) {
       if (charts.length > 0) {
-        console.log("chart " + (charts.length - 1) + ": overlay removed");
         charts[charts.length - 1].overlayRemoved();
       }
     }
@@ -1006,7 +976,6 @@
   getExplanation = function(code, year, title) {
     var explanation, years;
     years = explanations[code];
-    console.log("got years ", years, "for", code);
     explanation = null;
     if (years) {
       year = parseInt(year);
@@ -1045,8 +1014,7 @@
         curCodeExpl = explanations[code];
         if (!curCodeExpl) {
           explanations[code] = {};
-          explanations[code][year] = explanation;
-          _results.push(console.log("EXP", code, year));
+          _results.push(explanations[code][year] = explanation);
         } else {
           _results.push(void 0);
         }
@@ -1073,7 +1041,6 @@
         years = entry.content.$t;
       }
     }
-    console.log(explanations);
     gotExplanations = true;
     if (gotStories && gotExplanations) {
       return init();
@@ -1112,7 +1079,6 @@
         code = title = subtitle = chartid = null;
       }
     }
-    console.log(stories);
     gotStories = true;
     if (gotStories && gotExplanations) {
       return init();
@@ -1126,22 +1092,18 @@
     ret_query = window.location.search.slice(1);
     if (ret_query.length === 0) {
       ret_query = window.location.hash;
-      console.log("using hash: " + ret_query);
       if (ret_query.length > 0) {
         ret_query = query.split("?");
         if (ret_query.length > 1) {
           query = ret_query[1];
-          console.log("got state (hash): " + query);
         }
       }
     } else {
       query = ret_query;
-      console.log("got state (search): " + query);
     }
     if (stories[query]) {
       state.selectedStory = stories[query];
       query = state.selectedStory.code;
-      console.log("Selected story (" + state.selectedStory.code + ")! " + state.selectedStory.title + ", " + state.selectedStory.subtitle);
     } else {
       state.selectedStory = null;
     }
@@ -1151,7 +1113,6 @@
       globalTooltipItem = globalSelectedItem = parse[1];
     }
     state.querys = query.split("/");
-    console.log("Q", state.querys);
     if (state.querys.length === 1) {
       while (budget_array_data[state.querys[0]]) {
         up = budget_array_data[state.querys[0]].u;
@@ -1162,7 +1123,6 @@
         }
       }
     }
-    console.log("Q2", state.querys);
     firstquery = state.querys[0];
     if (!state.selectedStory) {
       state.selectedStory = {
@@ -1171,13 +1131,10 @@
       };
     }
     _state = History.getState();
-    console.log("getState: ", _state);
     if (((_ref2 = _state.data) != null ? _ref2.querys : void 0) && _state.data.querys.length > 0) {
       handleNewState();
     } else {
-      console.log("xxx", _state.data);
       History.pushState(state, null, "?" + state.querys.join("/"));
-      console.log("pushed ", state);
     }
     $(document).keyup(function(e) {
       if (e.keyCode === 27) {
@@ -1185,10 +1142,11 @@
       }
       return false;
     });
-    return $(".btnBack:last").live("click", function() {
+    $(".btnBack:last").live("click", function() {
       removeState();
       return false;
     });
+    return $(".modal").modal("show");
   };
 
   $(function() {
