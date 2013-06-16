@@ -188,9 +188,9 @@
     d3.select("#tooltip .explanation").text(getExplanation(d.sid, 2014));
     if (d.history) {
       if (d.history > 0) {
-        d3.select("#tooltip .history").text("בארבע השנים האחרונות הביצוע היה גבוה ב-" + d.history + "% מהתכנון").classed("plus", true).classed("minus", false).attr("data-categories", "" + d.changeCategory + ":" + d.projectedChangeCategory);
+        d3.select("#tooltip .history").text("מ-2009 ההוצאות חורגות ב" + d.history + "% בממוצע מהתכנון").classed("plus", true).classed("minus", false).attr("data-categories", "" + d.changeCategory + ":" + d.projectedChangeCategory);
       } else if (d.history < 0) {
-        d3.select("#tooltip .history").text("בארבע השנים האחרונות הביצוע היה נמוך ב-" + (-d.history) + "% מהתכנון").classed("plus", false).classed("minus", true).attr("data-categories", "" + d.changeCategory + ":" + d.projectedChangeCategory);
+        d3.select("#tooltip .history").text("מ-2009 רק " + (100 + d.history) + "% מהתקציב מנוצל בממוצע").classed("plus", false).classed("minus", true).attr("data-categories", "" + d.changeCategory + ":" + d.projectedChangeCategory);
       }
     } else {
       d3.select("#tooltip .history").text("");
@@ -612,7 +612,7 @@
                 return __iced_deferrals.ret = arguments[0];
               };
             })(),
-            lineno: 411
+            lineno: 412
           })), 100);
           __iced_deferrals._fulfill();
         })(function() {
@@ -657,13 +657,6 @@
         sharer = "http://compare.open-budget.org.il/images/large/" + path + ".jpg";
         window.open(sharer, 'sharer');
         return true;
-      });
-      this.init_popovers($("div[data-id='" + this.id + "'] .btnLink"), function(path, popover) {
-        var sharer;
-        console.log("got link btn!", path);
-        sharer = "http://compare.open-budget.org.il/?" + path;
-        popover.find(".result").html("<pre>" + sharer + "</pre>");
-        return false;
       });
       this.setBreadcrumbs = function(dd) {
         var actual_querys, bc, depth, link, mshLinkCode, query, title, _i, _j, _len, _len1, _ref2;

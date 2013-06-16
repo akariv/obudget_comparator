@@ -109,12 +109,13 @@ showTooltip = (d,xpos,ypos,that) ->
         if d.history
                 if d.history > 0
                         d3.select("#tooltip .history")
-                                .text("בארבע השנים האחרונות הביצוע היה גבוה ב-#{d.history}% מהתכנון")
+                                .text("מ-2009 ההוצאות חורגות ב#{d.history}% בממוצע מהתכנון")
                                 .classed("plus",true)
                                 .classed("minus",false)
                                 .attr("data-categories","#{d.changeCategory}:#{d.projectedChangeCategory}")
                 else if d.history < 0
-                        d3.select("#tooltip .history").text("בארבע השנים האחרונות הביצוע היה נמוך ב-#{-d.history}% מהתכנון")
+                        d3.select("#tooltip .history")
+                                .text("מ-2009 רק #{100 + d.history}% מהתקציב מנוצל בממוצע")
                                 .classed("plus",false)
                                 .classed("minus",true)
                                 .attr("data-categories","#{d.changeCategory}:#{d.projectedChangeCategory}")
@@ -446,12 +447,12 @@ class BubbleChart extends Backbone.View
                                         window.open(sharer, 'sharer')
                                         true
                 )
-                @init_popovers($("div[data-id='#{@id}'] .btnLink"), (path,popover) ->
-                                        console.log "got link btn!", path
-                                        sharer = "http://compare.open-budget.org.il/?#{path}";
-                                        popover.find(".result").html("<pre>#{sharer}</pre>")
-                                        false
-                )
+                #@init_popovers($("div[data-id='#{@id}'] .btnLink"), (path,popover) ->
+                #                        console.log "got link btn!", path
+                #                        sharer = "http://compare.open-budget.org.il/?#{path}";
+                #                        popover.find(".result").html("<pre>#{sharer}</pre>")
+                #                        false
+                #)
                 @setBreadcrumbs = (dd = null) =>
                         bc = $("div[data-id='#{@id}'] .breadcrumbs")
                         bc.find(".breadpart").remove()
