@@ -567,10 +567,6 @@
       $(".modal").remove();
       $(".modal-template").clone().appendTo('body');
       $(".modal-template:last").toggleClass("modal-template", false).toggleClass("modal", true);
-      $(".modal li").toggleClass("active", false);
-      $(".modal a[href='" + select + "']").parent().toggleClass("active", true);
-      $(".modal .tab-pane").toggleClass("active", false);
-      $(".modal " + select).toggleClass("active", true);
       field = that.model.get('field');
       titles = _.map(that.nodes, function(d) {
         return {
