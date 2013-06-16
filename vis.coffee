@@ -392,7 +392,15 @@ class BubbleChart extends Backbone.View
                 $(".modal a[href='#{select}']").parent().toggleClass("active",true)
                 $(".modal .tab-pane").toggleClass("active",false)
                 $(".modal #{select}").toggleClass("active",true)
-                
+
+                $('.modal .modal-footer .btn-primary').css("display","none")
+                $('.modal .modal-footer [data-rel="'+select+'"]').css("display","inherit")
+                $('.modal a[data-toggle="tab"]').on('shown', (e) ->
+                        _select = $(e.target).attr("href")
+                        $('.modal .modal-footer .btn-primary').css("display","none")
+                        $('.modal .modal-footer [data-rel="'+_select+'"]').css("display","inherit")
+                )
+                                                
                 field = that.model.get('field')
 
                 $(".modal .shareItemDetails h3").text(@model.get('title'))
