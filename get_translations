@@ -1,2 +1,3 @@
 curl "https://docs.google.com/spreadsheet/pub?key=0AurnydTPSIgUdGpxd3JiLTFReWY4ZjlVSlBBNlcxTHc&single=true&gid=0&output=csv" -o translations.csv
 curl "https://docs.google.com/spreadsheet/pub?key=0AurnydTPSIgUdDhsZXRrckM5c1ByMnVlZmprVFhKZ0E&single=true&gid=0&output=csv" -o translations2.csv
+curl "https://docs.google.com/spreadsheet/pub?key=0Ahv_cBzJeixMdGhkc1ZkUzVKZFJyN0d2RXZoUm1ZZlE&single=true&gid=0&output=csv" -o links.csv

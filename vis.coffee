@@ -42,6 +42,7 @@ class CompareData extends Backbone.Model
                 data: []
                 field: ""
                 title: "?"
+                link: null
         initialize: ->
                 @on 'change:field', () ->
                         field = @get 'field'
@@ -49,13 +50,81 @@ class CompareData extends Backbone.Model
                         if data
                                 console.log('setting field ' + field + " title: " + data.t)
                                 @set 'code', data.c
+                                @set 'link', data.l
                                 @set 'title', data.t
-                                @set 'breadcrumbs', data.b
                                 @set 'data', data.d
                         else
                                 console.log('field '+field+' is '+data)
 
 globalSelectedItem = null
+globalTooltipItem = null
+globalTooltipShown = false
+showTooltip = (d,xpos,ypos,that) ->
+        if not globalTooltipItem
+                d3.select("#tooltip").style('display','none')
+                globalTooltipShown = false
+                return
+        svgPos = $("svg:last").offset()
+        tail = 100
+        xpos += that.centerX
+        if xpos < 125
+                tail += 125 - xpos
+                xpos = 125
+        if xpos > (that.width - 125)
+                tail -= xpos - (that.width - 125)
+                xpos = (that.width - 125)
+        xpos += 4 # instead of left
+        if ypos > 0
+                ypos = ypos - d.radius - 10 +svgPos.top+that.centerY
+                $("#tooltipContainer").css("bottom",0)
+                d3.select("#tooltip .arrow.top").style("display","none")
+                d3.select("#tooltip .arrow.bottom").style("display","block")
+        else
+                ypos = ypos + d.radius + 10 +svgPos.top+that.centerY
+                $("#tooltipContainer").css("bottom","")
+                d3.select("#tooltip .arrow.top").style("display","block")
+                d3.select("#tooltip .arrow.bottom").style("display","none")
+        d3.select("#tooltip")
+                .style('top',ypos+"px")
+                .style('left',xpos+"px")
+                
+        if globalTooltipShown then return
+
+        d3.select("#tooltip")
+                .style('display','block')
+                .classed('plus', (d.changeCategory > 0))
+                .classed('minus', (d.changeCategory < 0))
+                .classed('newitem', d.newitem)
+                .classed('disappeared', d.disappeared)
+                
+        d3.select("#tooltip .name").html(d.name)
+        itemNumber = d.code
+        if d.bcodes.length > 0
+                bcodes = _.map(d.bcodes, ((x) -> x[0]))
+                console.log bcodes.length, bcodes[0], d.code, bcodes[0]==d.code
+                if (bcodes.length!=1) or (bcodes[0]!=d.code)
+                        itemNumber += " ("+(bcodes.join(","))+" ב-2012)"
+        d3.select("#tooltip .itemNumber").text(itemNumber)
+        d3.select("#tooltip .explanation").text(getExplanation(d.sid,2014))
+        if d.history
+                if d.history > 0
+                        d3.select("#tooltip .history").text("בארבע השנים האחרונות הביצוע היה גבוה ב-#{d.history}% מהתכנון")
+                else if d.history < 0
+                        d3.select("#tooltip .history").text("בארבע השנים האחרונות הביצוע היה נמוך ב-#{-d.history}% מהתכנון")
+        else
+                d3.select("#tooltip .history").text("")
+                                
+        d3.select("#tooltip .value").html(formatNumber(d.value*1000)+" \u20aa")
+        d3.selectAll("#tooltip .arrow").style("right",tail+"px")
+        if d?.changestr
+                pctchngout = d.changestr
+        else
+                pctchngout = if (d.change == "N.A.") then "N.A" else that.pctFormat(Math.abs(d.change))
+        pctchngout = pctchngout + (if d.change < 0 then "-" else "+")
+        d3.select("#tooltip .change").html( pctchngout)
+        globalTooltipShown = true
+        
+
 class BubbleChart extends Backbone.View
 
 
@@ -64,14 +133,14 @@ class BubbleChart extends Backbone.View
                 _fillColor = d3.scale.ordinal().domain([-4,-3,-2,-1,0,1,2,3,4]).range (["#9F7E01", "#dbae00", "#eac865","#f5dd9c","#AAA","#bfc3dc", "#9ea5c8", "#7b82c2", "#464FA1"])
                 _fillColor(changeCategory)
 
-        strokeColor: (name, changeCategory) ->
-                if name == globalSelectedItem then return "#FF0"
+        strokeColor: (code, changeCategory) ->
+                if code == globalSelectedItem then return "#FF0"
                 _strokeColor = d3.scale.ordinal().domain([-4,-3,-2,-1,0,1,2,3,4]).range(["#796001", "#c09100", "#e7bd53","#d9c292","#999","#a7aed3", "#7f8ab8", "#4f5fb0","#1A2055"])
                 _strokeColor(changeCategory);
 
         getFillColor: (d) -> @fillColor(d.changeCategory)
 
-        getStrokeColor: (d) -> @strokeColor(d.name, d.changeCategory)
+        getStrokeColor: (d) -> @strokeColor(d.sid, d.changeCategory)
 
         getProjFillColor: (d) -> @fillColor(d.projectedChangeCategory)
 
@@ -79,7 +148,7 @@ class BubbleChart extends Backbone.View
 
 
         strokeWidth: (d) ->
-                if d.name == globalSelectedItem then 5 else 1
+                if d.code == globalSelectedItem then 5 else 1
 
         # Formatting
         pctFormat: (p) ->
@@ -170,7 +239,7 @@ class BubbleChart extends Backbone.View
                                 code = n.id
                                 name = n.n
                                 if name and code
-                                        titles.push( id:name, text:prefix + name, code:code, state:_state )
+                                        titles.push( id:code, text:prefix + name, code:code, state:_state, fullpath:data.c+";"+code )
                                 @collectTitles( titles, n.d, prefix + name + ' | ', _state.concat([n.d]) )
         
         updateData: (data) ->
@@ -219,9 +288,12 @@ class BubbleChart extends Backbone.View
                         out.drilldown = n.d
                         out.history = n.pp
                         out.bcodes = n.bc
-                        out.projectedValue = out.value*(out.history+100)/100.0
-                        out.projectedRadius = radiusScale(out.projectedValue)
-                        out.projectedChangeCategory = @categorizeChange(((n.c+100)*(n.pp+100)-10000)/10000.0)
+                        console.log "#{out.sid}: #{out.history}"
+                        if out.history
+                                out.projectedValue = out.value*(out.history+100)/100.0
+                                out.projectedRadius = radiusScale(out.projectedValue)
+                                out.projectedChangeCategory = @categorizeChange(((n.c+100)*(n.pp+100)-10000)/10000.0)
+                                console.log "#{out.sid}: #{out.projectedChangeCategory}"
 
                         ###
                         #  if (n.positions.total) 
@@ -309,8 +381,8 @@ class BubbleChart extends Backbone.View
                                         )
                 @circle.attr("r", (d) -> d.radius )
 
-        selectItem: (item) ->
-                globalSelectedItem = item
+        selectItem: (d) ->
+                globalSelectedItem = d.code
                 @circle.style("stroke-width",@strokeWidth)
                 @circle.style("stroke", @getStrokeColor)
 
@@ -319,28 +391,73 @@ class BubbleChart extends Backbone.View
                 that = this
 
                 $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
-                sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/"+(@model.get 'field')+".html";
-                $("div[data-id='#{@id}'] .btnShare").click( () ->
-                        window.open(sharer, 'sharer', 'width=626,height=436')
-                        false
-                )
+                share_popover = $("div[data-id='#{@id}'] .btnShare")
+                share_popover.popover({
+                        html: true
+                        placement: "top"
+                        content: "<input type='text' class='fb-select'/>"
+                })
+                share_popover.on("show", ->
+                        field = that.model.get('field')
+                        titles = _.map(that.nodes,(d)->{id:d.sid,text:d.name,path:field+";"+d.sid})
+                        titles.unshift({id:field,text:"שיתוף התרשים כמות שהוא",path:field})
+                        console.log "CLICK!",titles
+                        await setTimeout((defer _),100) # allow DOM to settle
+                        fb_select = $(".fb-select:last")
+                        fb_select.select2(
+                                placeholder: "בחירת סעיף לשיתוף"
+                                allowClear: true
+                                data: titles
+                        ).on("change", (e) ->
+                                if e.added
+                                        path = e.added.path
+                                        console.log "got share btn!", path
+                                        fb_select.select2("close")
+                                        share_popover.popover("hide")
+                                        sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/#{path}.html";
+                                        window.open(sharer, 'sharer', 'width=626,height=436')
+                        )
+                ) 
                 @setBreadcrumbs = (dd = null) =>
-                        bc = @model.get 'breadcrumbs'
-                        if not dd
-                                linkCode = ""
-                                if @model.get 'code'
-                                        bc += " (#{@model.get 'code'})"
-                                        linkCode += @model.get 'code' 
-                        else
-                                bc += " / " + dd.name + " (#{dd.code})"
-                                linkCode = dd.sid
-                                
-                        $("div[data-id='#{@id}'] .breadcrumbsLink").remove()
-                        $("div[data-id='#{@id}'] .breadcrumbs").append('<span class="breadcrumbsLink">'+bc+'</span><a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+linkCode+
-                                ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">'+
-                                '<i class="icon-bar-chart icon"></i></a><!--i class="icon-book icon-flip-horizontal icon"></i-->')
-                        $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
+                        bc = $("div[data-id='#{@id}'] .breadcrumbs")
+                        bc.find(".breadpart").remove()
 
+                        depth = state.querys.length
+                        for query in state.querys
+                                depth -= 1
+                                title = budget_array_data[query].t
+                                if depth > 0
+                                        bc.append("<span class='breadpart breadcrumbsParent' data-up='#{depth}'>#{title}</span>")
+                                        bc.append("<span class='breadpart breadcrumbsSeparator'></span>")
+                                else
+                                        bc.append("<span class='breadpart breadcrumbsCurrent'>#{title}</span>")
+
+                        bc.find(".breadcrumbsParent").click( ->
+                                up_count = parseInt($(@).attr('data-up'))
+                                console.log "breadcrumbsParent click!",up_count
+                                removeState(up_count)
+                                false
+                                )
+
+                        mshLinkCode = null
+                        if not dd
+                                mshLinkCode = @model.get 'code' 
+                        else
+                                bc.append("<span class='breadpart breadcrumbsSeparator'></span>")
+                                bc.append("<span class='breadpart breadcrumbsChild'>#{dd.name}</span>")
+                                mshLinkCode = dd.sid
+
+                        if mshLinkCode
+                                bc.append('<span class="breadpart breadcrumbsMsh"><a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+mshLinkCode+
+                                ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">'+
+                                '<i class="icon-bar-chart icon"></i></a></span><!--i class="icon-book icon-flip-horizontal icon"></i-->')
+
+                        link = @model.get 'link'
+                        if link
+                                bc.append('<span class="breadpart breadcrumbsGov"><a class="breadcrumbsLink" target="_new" href="'+link+'" '+
+                                'class="active" target="top" data-toggle="tooltip" title="עיון בספר התקציב במשרד האוצר">'+
+                                '<i class="icon-book icon-flip-horizontal icon"></i></a></span>')
+                        $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
                 @setBreadcrumbs()
                 $("div[data-id='#{@id}'] .btnBack").tooltip()
                 $("div[data-id='#{@id}'] .btnDownload").tooltip()
@@ -388,19 +505,20 @@ class BubbleChart extends Backbone.View
                                 else
                                         that.selectItem(null)
                 )
-                        
-                tags = $("div[data-id='#{@id}'] .tag")
-                tagClicked = false
-                tags.mouseenter( () ->
-                                        that.selectItem( $(@).text() )
-                                        tagClicked = false
-                                )
-                        .mouseleave( () -> if not tagClicked then that.selectItem( null ) )
-                        .click     ( () ->
-                                        that.selectItem( $(@).text() )
-                                        tagClicked = true
-                                        false
-                                )
+
+                if false
+                        tags = $("div[data-id='#{@id}'] .tag")
+                        tagClicked = false
+                        tags.mouseenter( () ->
+                                                that.selectItem( $(@).text() )
+                                                tagClicked = false
+                                        )
+                                .mouseleave( () -> if not tagClicked then that.selectItem( null ) )
+                                .click     ( () ->
+                                                that.selectItem( $(@).text() )
+                                                tagClicked = true
+                                                false
+                                        )
                 container = $("div[data-id='#{@id}'] .overlayContainer")
                 overlay = $("div[data-id='#{@id}'] .overlay")
                 frame = $("div[data-id='#{@id}'] .frame")
@@ -446,14 +564,14 @@ class BubbleChart extends Backbone.View
                         .on("click", (d,i) ->
                                 if budget_array_data[d.drilldown]
                                         addState(d.drilldown)
-                                else
-                                        that.setBreadcrumbs(d)
+                                #else
+                                #        that.setBreadcrumbs(d)
                                 d3.event.stopPropagation()
                                 false
                                 )
                         .on("mouseover", (d,i) ->
                                 el = d3.select(@)
-                                if not d.newitem and not d.disappeared
+                                if false and not d.newitem and not d.disappeared 
                                         anim = that.svg.insert("svg:circle",":first-child")
                                                 .attr("cx",el.attr("cx"))
                                                 .attr("cy",el.attr("cy"))
@@ -467,61 +585,13 @@ class BubbleChart extends Backbone.View
                                                 .style("fill", that.getProjFillColor(d) )
                                         el.style("stroke-dasharray","5,5")
                                           .style("fill","rgba(255,255,255,0)")
-                                svgPos = $(that.el).find("svg").offset()
-                                xpos = Number(el.attr('cx'))+that.centerX
-                                tail = 100
-                                if xpos < 125
-                                        tail += 125 - xpos
-                                        xpos = 125
-                                if xpos > (that.width - 125)
-                                        tail -= xpos - (that.width - 125)
-                                        xpos = (that.width - 125)
-                                xpos += 4 # instead of left
-                                ypos = Number(el.attr('cy'))
-                                if ypos > 0
-                                        ypos = ypos - d.radius - 10 +svgPos.top+that.centerY
-                                        $("#tooltipContainer").css("bottom",0)
-                                        d3.select("#tooltip .arrow.top").style("display","none")
-                                        d3.select("#tooltip .arrow.bottom").style("display","block")
-                                else
-                                        ypos = ypos + d.radius + 10 +svgPos.top+that.centerY
-                                        $("#tooltipContainer").css("bottom","")
-                                        d3.select("#tooltip .arrow.top").style("display","block")
-                                        d3.select("#tooltip .arrow.bottom").style("display","none")
                                 if d.drilldown
-                                        el.style("stroke","#000").style("stroke-width",3)
-                                d3.select("#tooltip")
-                                        .style('top',ypos+"px")
-                                        .style('left',xpos+"px")
-                                        .style('display','block')
-                                        .classed('plus', (d.changeCategory > 0))
-                                        .classed('minus', (d.changeCategory < 0))
-                                        .classed('newitem', d.newitem)
-                                        .classed('disappeared', d.disappeared)
-                                d3.select("#tooltip .name").html(d.name)
-                                itemNumber = d.code
-                                if d.bcodes.length > 0
-                                        bcodes = _.map(d.bcodes, ((x) -> x[0]))
-                                        console.log bcodes.length, bcodes[0], d.code, bcodes[0]==d.code
-                                        if (bcodes.length!=1) or (bcodes[0]!=d.code)
-                                                itemNumber += " ("+(bcodes.join(","))+" ב-2012)"
-                                d3.select("#tooltip .itemNumber").text(itemNumber)
-                                d3.select("#tooltip .explanation").text(getExplanation(d.sid,2014))
-                                if d.history > 0
-                                        d3.select("#tooltip .history").text("בארבע השנים האחרונות הביצוע היה גבוה ב-#{d.history}% מהתכנון")
-                                else if d.history < 0
-                                        d3.select("#tooltip .history").text("בארבע השנים האחרונות הביצוע היה נמוך ב-#{-d.history}% מהתכנון")
-                                
-                                d3.select("#tooltip .value").html(formatNumber(d.value*1000)+" \u20aa")
-                                d3.selectAll("#tooltip .arrow").style("right",tail+"px")
-                                if d?.changestr
-                                        pctchngout = d.changestr
-                                else
-                                        pctchngout = if (d.change == "N.A.") then "N.A" else that.pctFormat(Math.abs(d.change))
-                                        pctchngout = pctchngout + (if d.change < 0 then "-" else "+")
-                                d3.select("#tooltip .change").html( pctchngout)
+                                        el.style("stroke","#000").style("stroke-width",3)                                      
+                                globalTooltipItem = d.sid
+                                showTooltip(d,Number(el.attr('cx')), Number(el.attr('cy')),that)
                                 )
                         .on("mouseout", (d,i) ->
+                                globalTooltipItem = null
                                 d3.selectAll("circle.tooltiphelper-"+d.sid).remove()
                                 d3.select(@)
                                         .attr("r", d.radius )
@@ -529,7 +599,7 @@ class BubbleChart extends Backbone.View
                                         .style("stroke", that.getStrokeColor(d) )
                                         .style("stroke-dasharray",null)
                                         .style("fill", that.getFillColor(d) )
-                                d3.select("#tooltip").style('display','none')
+                                showTooltip()
                                 )
                 if @transitiontime > 0
                         @circle.transition().duration(@transitiontime)
@@ -573,6 +643,10 @@ class BubbleChart extends Backbone.View
                                                 )
                                                 .attr("cx", (d) -> d.x - avgx )
                                                 .attr("cy", (d) -> d.y )
+                                                .each((d) ->
+                                                        if d.sid == globalTooltipItem
+                                                                showTooltip(d,d.x-avgx, d.y,that)
+                                                )
                                         )
                         .start()
                                 
@@ -588,9 +662,14 @@ addState = (toAdd) ->
         state.querys.push(toAdd)
         History.pushState(state,null,"?" + state.querys.join("/") )
 
-removeState = ->
-        if state.querys.length > 1
-                state.querys.pop()
+removeState = (amount = 1)->
+        console.log "removeState:",amount,state.querys
+        globalTooltipItem = null
+        showTooltip()
+        if state.querys.length > amount
+                for i in [0...amount]
+                        state.querys.pop()
+                console.log "removeState new querys:",state.querys
                 History.pushState(state,null,"?" + state.querys.join("/") )
 
 handleNewState = () ->
@@ -601,8 +680,8 @@ handleNewState = () ->
         if not state.querys or state.querys.length == 0
                 state.querys = ["00"]
         if not state.selectedStory
-                state.selectedStory = { 'title':"תקציב המדינה 2014 מול 2012",
-                'subtitle':'כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו'}
+                state.selectedStory = { 'title':"כך נראה תקציב המדינה בשנתיים הקרובות",
+                'subtitle':null}
         for i in [0...state.querys.length]
                 query = state.querys[i]
                 nextquery = state.querys[i+1]
@@ -611,8 +690,14 @@ handleNewState = () ->
                 if el.size() == 0
                         console.log "creating chart "+id
                         title = state.selectedStory?.title or "השווה את התקציב"
-                        subtitle = state.selectedStory?.subtitle or ""
-                        template = _.template( $("#chart-template").html(),{ id: id, title:title, subtitle:subtitle } )
+                        default_subtitle ='כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו'
+                        explanation = getExplanation(query)
+                        console.log "ADAM1", explanation
+                        if explanation != null
+                                default_subtitle = explanation
+                                console.log "ADAM2", default_subtitle, state.selectedStory.subtitle
+                        subtitle = state.selectedStory.subtitle or default_subtitle
+                        template = _.template( $("#chart-template").html(),{ id: id, title:title, subtitle:subtitle, code:query } )
                         $("#charts").append template
                         el =$("div[data-id='#{id}'] .chart")                       
                         console.log "creating BubbleChart "+id
@@ -645,9 +730,7 @@ handleNewState = () ->
                         charts[charts.length-1].overlayRemoved()
         first_time = false
         $(".btnBack:first").css("display","none")
-        #await setTimeout((defer _),50)
         window.ga('send', 'pageview', state.querys.join("/"))
-        #window.FB?.XFBML.parse()
         
 
 explanations = {}
@@ -661,7 +744,10 @@ getExplanation = (code,year) ->
                         explanation = years[Object.keys(years)[0]]
                 return explanation
         return null
-                
+
+gotStories = false
+gotExplanations = false
+
 window.handleExplanations = (data) ->
         row = 1
         code = null
@@ -686,7 +772,9 @@ window.handleExplanations = (data) ->
                                         console.log "EXP", code, year
                         code = explanation = null
         console.log explanations
-
+        gotExplanations = true
+        if gotStories and gotExplanations then init()
+        
 stories = {}
 window.handleStories = (data) ->
         row = 1
@@ -707,7 +795,10 @@ window.handleStories = (data) ->
                         stories[chartid] = { code:code, title:title, subtitle:subtitle }
                         code = title = subtitle = chartid = null
         console.log stories
+        gotStories = true
+        if gotStories and gotExplanations then init()
 
+init = () ->
         History.Adapter.bind window, 'statechange', handleNewState
         query = "00"
         ret_query = window.location.search.slice(1)
@@ -728,6 +819,11 @@ window.handleStories = (data) ->
                 console.log "Selected story ("+state.selectedStory.code+")! "+state.selectedStory.title+", "+state.selectedStory.subtitle
         else
                 state.selectedStory = null
+
+        parse = query.split(";")
+        if parse.length > 1
+                query = parse[0]
+                globalTooltipItem = globalSelectedItem = parse[1]
         state.querys = query.split("/")
         console.log "Q",state.querys
         if state.querys.length == 1
@@ -740,8 +836,7 @@ window.handleStories = (data) ->
         console.log "Q2",state.querys
         firstquery = state.querys[0]
         if !state.selectedStory
-                state.selectedStory = { 'title':"תקציב המדינה 2014 מול 2012",
-                'subtitle':'כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו'}
+                state.selectedStory = { 'title':"תקציב המדינה 2014 מול 2012", 'subtitle':null }
         
         _state = History.getState()
         console.log "getState: ",_state
@@ -759,15 +854,15 @@ window.handleStories = (data) ->
                 removeState()
                 false
         )
-
-        $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/2/public/basic?alt=json-in-script",
-                window.handleExplanations,
-                "jsonp")
      
 $( ->
-        $("body").iealert()
         if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
                 $.get("http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script",
                         window.handleStories,
                         "jsonp")
-                )
+                $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/2/public/basic?alt=json-in-script",
+                        window.handleExplanations,
+                        "jsonp")
+        )
+                                
+

@@ -55,6 +55,9 @@ a{
 		.grow20{color: @growColor; font-weight: bold}
 		.shrink20{color: @shrinkColor; font-weight: bold}
 	}
+	.description p {
+	    min-height: 69px;
+	}
 }
 
 #search{
@@ -131,13 +134,17 @@ a{
 		min-height: 40px;
 		border-bottom: 1px solid #D4D4D4;
 
+		.breadcrumbsSeparator:after {
+		    content:" / ";
+		}			
+
 		a{
 			color: #777;
 
 			&.btnBack{
 				left: 15px;
 				top: 15px;
-			    position: absolute;
+				position: absolute;
 				display: block;
 				color: lighten(@textColor,30%);
 				font-size: 1.2em;
@@ -159,9 +166,9 @@ a{
 					font-size: 1em;
 				}
 			}
-		}
-		&:hover a{
-			color: @linkColor;
+			&:hover{
+			    color: @linkColor;
+			}
 		}
 	}   
 }
@@ -170,9 +177,11 @@ a{
 	background: none;
 
 	a {
-	    position: absolute;
+	        position: absolute;
 		color: @textColor;
-		font-size: 1.5em;
+		i {
+		    font-size: 1.5em;
+		}
 		&:hover{
 			opacity: 0.5;
 			text-decoration: none;
@@ -183,11 +192,11 @@ a{
 		}
 		&.btnDownload{
 		    bottom: 40px;
-		    left: 50px;
+		    left: 25px;
 		}
 		&.btnShare {
-	    	bottom:40px;
-		    left: 15px;
+	    	    bottom:40px;
+		    left: 60px;
 		    color: #3B5998;
 		}		      
 	}
@@ -1182,15 +1191,17 @@ disabled look for disabled choices in the results dropdown
  * then replaced by a select2 input when javascript kicks in. This can be 
  * removed if javascript is not present 
  */
-select.select2 {
+#search select.select2 {
   height: 28px;
   visibility: hidden;
 }
 
 /* Local modifications */
-.select2-drop { 
-    direction: rtl; 
+#search .select2-drop, .select2-container { 
     background-color: rgba(255,255,255,0.5);
+}
+.select2-drop, .select2-container { 
+    direction: rtl; 
 }
 
 div.select2-search {

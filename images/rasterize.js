@@ -22,7 +22,7 @@ page.open(address, function (status) {
         window.setTimeout(function () {
             page.render(output);
             phantom.exit();
-        }, 2000);
+        }, 4000);
     }
 });
 

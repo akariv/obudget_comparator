@@ -351,9 +351,13 @@ def tree_from_items(items):
 
 def join_items(items,tojoin):
     for fromcode,tocode in tojoin.iteritems():
-        toitem = [ x for x in items if x['code'] == tocode][0]
-        fromitem_parent = [ x for x in items if x['code'] == fromcode[:-2]][0]
-        fromitem = fromitem_parent['children'][fromcode]
+        try:
+            toitem = [ x for x in items if x['code'] == tocode][0]
+            fromitem_parent = [ x for x in items if x['code'] == fromcode[:-2]][0]
+            fromitem = fromitem_parent['children'][fromcode]
+        except IndexError:
+            print "Failed to find join candidates for %s-->%s" % (fromcode, tocode)
+            continue
         del fromitem_parent['children'][fromcode]
         toitem.setdefault('joincode',toitem['code'])
         toitem['joincode'] += " + "+fromcode
@@ -387,6 +391,7 @@ def past_performance(items):
     if len(performance) > 0:
         return sum(performance) / len(performance)
     else:
+        print "past performance for %r is undefined" % items
         return None
 
 if __name__=="__main__":
@@ -398,10 +403,22 @@ if __name__=="__main__":
     tree2014 = tree_from_items(items2014)
     tree2012 = tree_from_items(items2012)
 
+    renames = { "0025" : u"הרשות לזכויות ניצולי השואה",
+                "00" : u"תקציב המדינה" }
+
     #                -->
     tojoin = { "0067" : "0024",
                "0060" : "0020",
-               "0079" : "0040" }
+               "0079" : "0040",
+               "0052" : "0007",
+               "0053" : "0008",
+               "0078" : "0037",
+               "0070" : "0029",
+               "0073" : "0041",
+               "0076" : "0036", 
+               "004053" : "007952",
+    }
+
     join_items(items2014,tojoin)
     join_items(items2012,tojoin)
 
@@ -423,6 +440,10 @@ if __name__=="__main__":
                 pass
     translations = dict(translations)
 
+    links = csv.reader(file('links.csv'))
+    links = [ ("%04d" % (int(x[0])), x[2]) for x in links ]
+    links = dict(links)
+
     ignoreitems = []
     for x in translations.values():
         ignoreitems.extend(x)
@@ -442,7 +463,7 @@ if __name__=="__main__":
             change = (100*item['net_allocated'])/prev_value - 100 if prev_value > 0 else 99999
             out_group.append( { 'id':item['code'],
                                 'jc':item.get('joincode',item['code']),
-                                'n':item['title'],
+                                'n':renames.get(item['code'],item['title']),
                                 'b1':item['net_allocated'],
                                 'b0':prev_value,
                                 'bc': [(x.get('joincode',x['code']),x['title']) for x in candidates],
@@ -450,8 +471,9 @@ if __name__=="__main__":
                                 'c':change, } )
             if 'children' in item:
                 out_group[-1]['d'] = out_group[-1]['id']
+            urls.append((c+';'+item['code'],t))
         if len(out_group)>0:
-            out_groups.append((c,{'c':c,'t':t,'d':out_group,'u':u,'b':bc}))
+            out_groups.append((c,{'c':c,'t':renames.get(c,t),'d':out_group,'u':u,'l':links.get(c[:4])}))#'b':bc}))
         else:
             print "WARN group %s is empty!" % c
         urls.append((c,t))
@@ -466,8 +488,8 @@ if __name__=="__main__":
     imagesScript.write("#!/bin/bash\n")
     commands = []
     for key, title in urls:
-        fn = "images/large/%(url)s.jpg" % { 'url' : key }
-        cmd = "phantomjs images/rasterize.js http://localhost:8000/vis.html?%(url)s l images/large/%(url)s.jpg" % { 'url' : key }
-        imagesScript.write("if [ ! -f %(fn)s ]; then sleep 3 ; for x in `pgrep phantomjs | sed '1,8d' | head -n1` ; do wait $x ; done ; %(cmd)s ; fi &\n" % {'cmd': cmd,'fn':fn} )
+        fn = 'images/large/%(url)s.jpg' % { 'url' : key }
+        cmd = "phantomjs images/rasterize.js 'http://localhost:8000/vis.html?%(url)s' l 'images/large/%(url)s.jpg'" % { 'url' : key }
+        imagesScript.write("sleep 4 ; %(cmd)s &\n" % {'cmd': cmd,'fn':fn} )
         writeProxyHtml( key, title ) 
 
