@@ -658,13 +658,6 @@
         window.open(sharer, 'sharer');
         return true;
       });
-      this.init_popovers($("div[data-id='" + this.id + "'] .btnLink"), function(path, popover) {
-        var sharer;
-        console.log("got link btn!", path);
-        sharer = "http://compare.open-budget.org.il/?" + path;
-        popover.find(".result").html("<pre>" + sharer + "</pre>");
-        return false;
-      });
       this.setBreadcrumbs = function(dd) {
         var actual_querys, bc, depth, link, mshLinkCode, query, title, _i, _j, _len, _len1, _ref2;
         if (dd == null) {

@@ -447,12 +447,12 @@ class BubbleChart extends Backbone.View
                                         window.open(sharer, 'sharer')
                                         true
                 )
-                @init_popovers($("div[data-id='#{@id}'] .btnLink"), (path,popover) ->
-                                        console.log "got link btn!", path
-                                        sharer = "http://compare.open-budget.org.il/?#{path}";
-                                        popover.find(".result").html("<pre>#{sharer}</pre>")
-                                        false
-                )
+                #@init_popovers($("div[data-id='#{@id}'] .btnLink"), (path,popover) ->
+                #                        console.log "got link btn!", path
+                #                        sharer = "http://compare.open-budget.org.il/?#{path}";
+                #                        popover.find(".result").html("<pre>#{sharer}</pre>")
+                #                        false
+                #)
                 @setBreadcrumbs = (dd = null) =>
                         bc = $("div[data-id='#{@id}'] .breadcrumbs")
                         bc.find(".breadpart").remove()
