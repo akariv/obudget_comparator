@@ -58,12 +58,7 @@
       </div>
     </div>
     
-    <div id="modalContainer" style="display:none;">
     <div class="modal-template hide fade">
-      <!--div class="modal-header">
-      	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-      	<h3>שתפו את התרשים</h3>
-      </div-->
 
       <div class="modal-body tabbable">
 
@@ -77,22 +72,31 @@
         <input class="item-select" type="text"/>
 
         <div class="tab-content">
-          <div class="tab-pane active" id="shareFacebookTab">
+          <div class="tab-pane active" data-id="shareFacebookTab">
             <img class="shareThumb" src="http://compare.open-budget.org.il/images/large/00.jpg" alt"name of the item">
             <div class="shareItemDetails">
               <h3>שם הסעיף</h3>
               <p>דברי הסבר</p>
             </div>
           </div>
-	</div>
+          <div class="tab-pane" data-id="shareLinkTab">
+            <label><i class="icon-link"></i>קישור ישיר לתרשים</label><span class="direct-link input-xlarge uneditable-input"></span>
+          </div>
+          <div class="tab-pane" data-id="shareEmbedTab">
+            <label><i class="icon-code"></i>קוד הטמעה</label><span class="embed-code input-xlarge uneditable-input"></span>
+          </div>
+          <div class="tab-pane" data-id="shareImgTab">
+            <a class="btn photo-download"><i class="icon-picture"></i>לחצו להורדת התרשים הנוכחי כקובץ תמונה</a>
+          </div>
+        </div>
       </div>
 
       <div class="modal-footer">
         <a href="#" class="btn btn-primary facebook-share"><i class="icon-thumbs-up-alt"></i> לחצו לשיתוף בפייסבוק</a>
-        <a href="#" class="btn">ביטול</a>
+        <a href="#" class="btn" data-dismiss="modal">ביטול</a>
       </div>
     </div>
-      
+
     <!-- Budget data -->
     <script src="budget.min.js" type="text/javascript"></script>
     
