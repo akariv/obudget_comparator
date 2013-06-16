@@ -392,27 +392,32 @@ class BubbleChart extends Backbone.View
                 popover = el.data("popover").tip()
                 item_select = null
                 el.on("show", ->
-                        field = that.model.get('field')
-                        titles = _.map(that.nodes,(d)->{id:d.sid,text:d.name,path:field+";"+d.sid})
-                        titles.unshift({id:field,text:"בחירת התרשים כמות שהוא",path:field})
-                        await setTimeout((defer _),100) # allow DOM to settle
-                        item_select = popover.find(".item-select")
-                        popover.find(".result").html("")
-                        item_select.select2(
-                                placeholder: "שיתוף סעיף בפייסבוק"
-                                allowClear: true
-                                data: titles
-                        ).on("change", (e) ->
-                                if e.added
-                                        path = e.added.path
-                                        item_select.select2("close")
-                                        if callback(path,popover)
-                                                el.popover("hide")
-                        )
-                        item_select.select2("open")
                 ).on("hide", ->
                         item_select.select2("close")
                 )
+
+        open_modal: ->
+                that = this
+                field = that.model.get('field')
+                titles = _.map(that.nodes,(d)->{id:d.sid,text:d.name,path:field+";"+d.sid})
+                titles.unshift({id:field,text:"בחירת התרשים כמות שהוא",path:field})
+                await setTimeout((defer _),100) # allow DOM to settle
+                item_select = popover.find(".item-select")
+                popover.find(".result").html("")
+                item_select.select2(
+                        placeholder: "שיתוף התרשים הנוכחי"
+                        allowClear: true
+                        data: titles
+                ).on("change", (e) ->
+                        if e.added
+                                path = e.added.path
+                                item_select.select2("close")
+                                $(".modal embed-code").value(path)
+                                $(".modal embed-code").value(path)
+                )
+               
+                $(".modal").modal("show")
+                item_select.select2("open")
 
         render: () ->
 
@@ -481,6 +486,10 @@ class BubbleChart extends Backbone.View
                 @setBreadcrumbs()
                 $("div[data-id='#{@id}'] .btnBack").tooltip()
                 $("div[data-id='#{@id}'] .share-button").tooltip()
+                $("div[data-id='#{@id}'] .share-button").click( ->
+                        that.open_modal()
+                )
+
                 $("div[data-id='#{@id}'] .color-index").tooltip()
                 search = $("div[data-id='#{@id}'] .mysearch")
                 $("div[data-id='#{@id}'] .mysearch-open").click( ->

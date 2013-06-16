@@ -571,59 +571,63 @@
       });
       popover = el.data("popover").tip();
       item_select = null;
-      return el.on("show", function() {
-        var field, titles, ___iced_passed_deferral, __iced_deferrals, __iced_k,
-          _this = this;
-        __iced_k = __iced_k_noop;
-        ___iced_passed_deferral = iced.findDeferral(arguments);
-        field = that.model.get('field');
-        titles = _.map(that.nodes, function(d) {
-          return {
-            id: d.sid,
-            text: d.name,
-            path: field + ";" + d.sid
-          };
-        });
-        titles.unshift({
-          id: field,
-          text: "בחירת התרשים כמות שהוא",
-          path: field
-        });
-        (function(__iced_k) {
-          __iced_deferrals = new iced.Deferrals(__iced_k, {
-            parent: ___iced_passed_deferral,
-            filename: "vis.coffee"
-          });
-          setTimeout((__iced_deferrals.defer({
-            assign_fn: (function() {
-              return function() {
-                return __iced_deferrals.ret = arguments[0];
-              };
-            })(),
-            lineno: 397
-          })), 100);
-          __iced_deferrals._fulfill();
-        })(function() {
-          item_select = popover.find(".item-select");
-          popover.find(".result").html("");
-          item_select.select2({
-            placeholder: "שיתוף סעיף בפייסבוק",
-            allowClear: true,
-            data: titles
-          }).on("change", function(e) {
-            var path;
-            if (e.added) {
-              path = e.added.path;
-              item_select.select2("close");
-              if (callback(path, popover)) {
-                return el.popover("hide");
-              }
-            }
-          });
-          return item_select.select2("open");
-        });
-      }).on("hide", function() {
+      return el.on("show", function() {}).on("hide", function() {
         return item_select.select2("close");
+      });
+    };
+
+    BubbleChart.prototype.open_modal = function() {
+      var field, item_select, that, titles, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+        _this = this;
+      __iced_k = __iced_k_noop;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
+      that = this;
+      field = that.model.get('field');
+      titles = _.map(that.nodes, function(d) {
+        return {
+          id: d.sid,
+          text: d.name,
+          path: field + ";" + d.sid
+        };
+      });
+      titles.unshift({
+        id: field,
+        text: "בחירת התרשים כמות שהוא",
+        path: field
+      });
+      (function(__iced_k) {
+        __iced_deferrals = new iced.Deferrals(__iced_k, {
+          parent: ___iced_passed_deferral,
+          filename: "vis.coffee",
+          funcname: "BubbleChart.open_modal"
+        });
+        setTimeout((__iced_deferrals.defer({
+          assign_fn: (function() {
+            return function() {
+              return __iced_deferrals.ret = arguments[0];
+            };
+          })(),
+          lineno: 403
+        })), 100);
+        __iced_deferrals._fulfill();
+      })(function() {
+        item_select = popover.find(".item-select");
+        popover.find(".result").html("");
+        item_select.select2({
+          placeholder: "שיתוף התרשים הנוכחי",
+          allowClear: true,
+          data: titles
+        }).on("change", function(e) {
+          var path;
+          if (e.added) {
+            path = e.added.path;
+            item_select.select2("close");
+            $(".modal embed-code").value(path);
+            return $(".modal embed-code").value(path);
+          }
+        });
+        $(".modal").modal("show");
+        return item_select.select2("open");
       });
     };
 
@@ -697,6 +701,9 @@
       this.setBreadcrumbs();
       $("div[data-id='" + this.id + "'] .btnBack").tooltip();
       $("div[data-id='" + this.id + "'] .share-button").tooltip();
+      $("div[data-id='" + this.id + "'] .share-button").click(function() {
+        return that.open_modal();
+      });
       $("div[data-id='" + this.id + "'] .color-index").tooltip();
       search = $("div[data-id='" + this.id + "'] .mysearch");
       $("div[data-id='" + this.id + "'] .mysearch-open").click(function() {
