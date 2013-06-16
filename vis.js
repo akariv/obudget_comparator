@@ -558,12 +558,19 @@
       return this.circle.style("stroke", this.getStrokeColor);
     };
 
-    BubbleChart.prototype.open_modal = function() {
+    BubbleChart.prototype.open_modal = function(select) {
       var field, first, item_select, set_path, that, titles, ___iced_passed_deferral, __iced_deferrals, __iced_k,
         _this = this;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
       that = this;
+      $(".modal").remove();
+      $(".modal-template").clone().appendTo('body');
+      $(".modal-template:last").toggleClass("modal-template", false).toggleClass("modal", true);
+      $(".modal li").toggleClass("active", false);
+      $(".modal a[href='" + select + "']").parent().toggleClass("active", true);
+      $(".modal .tab-pane").toggleClass("active", false);
+      $(".modal " + select).toggleClass("active", true);
       field = that.model.get('field');
       titles = _.map(that.nodes, function(d) {
         return {
@@ -591,7 +598,7 @@
               return __iced_deferrals.ret = arguments[0];
             };
           })(),
-          lineno: 386
+          lineno: 394
         })), 100);
         __iced_deferrals._fulfill();
       })(function() {
@@ -630,6 +637,7 @@
         });
         set_path(field);
         first = true;
+        $(".modal").modal();
         $(".modal").modal("show");
         return $(".modal").on("shown", function() {
           var ___iced_passed_deferral1, __iced_deferrals, __iced_k,
@@ -647,7 +655,7 @@
                   return __iced_deferrals.ret = arguments[0];
                 };
               })(),
-              lineno: 419
+              lineno: 428
             })), 100);
             __iced_deferrals._fulfill();
           })(function() {
@@ -709,11 +717,11 @@
           mshLinkCode = dd.sid;
         }
         if (mshLinkCode) {
-          bc.append('<span class="breadpart breadcrumbsMsh"><a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#' + mshLinkCode + ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" data-placement="bottom" title="מידע היסטורי אודות הסעיף הנוכחי">' + '<i class="icon-bar-chart icon"></i></a></span><!--i class="icon-book icon-flip-horizontal icon"></i-->');
+          bc.append('<span class="breadpart breadcrumbsMsh"><a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#' + mshLinkCode + ',2014,0,1,1,1,0,0,0,0,0,0" class="active" data-toggle="tooltip" data-placement="bottom" title="מידע היסטורי אודות הסעיף הנוכחי">' + '<i class="icon-bar-chart icon"></i></a></span><!--i class="icon-book icon-flip-horizontal icon"></i-->');
         }
         link = _this.model.get('link');
         if (link) {
-          bc.append('<span class="breadpart breadcrumbsGov"><a class="breadcrumbsLink" target="_new" href="' + link + '" ' + 'class="active" target="top" data-toggle="tooltip" data-placement="bottom" title="עיון בספר התקציב במשרד האוצר">' + '<i class="icon-book icon-flip-horizontal icon"></i></a></span>');
+          bc.append('<span class="breadpart breadcrumbsGov"><a class="breadcrumbsLink" target="_new" href="' + link + '" ' + 'class="active" data-toggle="tooltip" data-placement="bottom" title="עיון בספר התקציב במשרד האוצר">' + '<i class="icon-book icon-flip-horizontal icon"></i></a></span>');
         }
         return $("div[data-id='" + _this.id + "'] .breadcrumbsLink").tooltip();
       };
@@ -721,7 +729,7 @@
       $("div[data-id='" + this.id + "'] .btnBack").tooltip();
       $("div[data-id='" + this.id + "'] .share-button").tooltip();
       $("div[data-id='" + this.id + "'] .share-button").click(function() {
-        return that.open_modal();
+        return that.open_modal($(this).attr('data-tab-href'));
       });
       $("div[data-id='" + this.id + "'] .color-index").tooltip();
       search = $("div[data-id='" + this.id + "'] .mysearch");

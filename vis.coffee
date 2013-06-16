@@ -379,8 +379,16 @@ class BubbleChart extends Backbone.View
                 @circle.style("stroke-width",@strokeWidth)
                 @circle.style("stroke", @getStrokeColor)
 
-        open_modal: ->
+        open_modal: (select) ->
                 that = this
+                $(".modal").remove()
+                $(".modal-template").clone().appendTo('body')
+                $(".modal-template:last").toggleClass("modal-template",false).toggleClass("modal",true)
+                $(".modal li").toggleClass("active",false)
+                $(".modal a[href='#{select}']").parent().toggleClass("active",true)
+                $(".modal .tab-pane").toggleClass("active",false)
+                $(".modal #{select}").toggleClass("active",true)
+                
                 field = that.model.get('field')
                 titles = _.map(that.nodes,(d)->{id:d.sid,text:d.name,title:d.name,path:field+";"+d.sid})
                 titles.unshift({id:field,text:"בחירת התרשים כמות שהוא",title:that.model.get('title'),path:field})
@@ -415,6 +423,7 @@ class BubbleChart extends Backbone.View
                 )
                 set_path(field)
                 first = true
+                $(".modal").modal()
                 $(".modal").modal("show")
                 $(".modal").on("shown", ->
                         await setTimeout((defer _),100) # allow DOM to settle
@@ -464,20 +473,20 @@ class BubbleChart extends Backbone.View
 
                         if mshLinkCode
                                 bc.append('<span class="breadpart breadcrumbsMsh"><a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+mshLinkCode+
-                                ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" data-placement="bottom" title="מידע היסטורי אודות הסעיף הנוכחי">'+
+                                ',2014,0,1,1,1,0,0,0,0,0,0" class="active" data-toggle="tooltip" data-placement="bottom" title="מידע היסטורי אודות הסעיף הנוכחי">'+
                                 '<i class="icon-bar-chart icon"></i></a></span><!--i class="icon-book icon-flip-horizontal icon"></i-->')
 
                         link = @model.get 'link'
                         if link
                                 bc.append('<span class="breadpart breadcrumbsGov"><a class="breadcrumbsLink" target="_new" href="'+link+'" '+
-                                'class="active" target="top" data-toggle="tooltip" data-placement="bottom" title="עיון בספר התקציב במשרד האוצר">'+
+                                'class="active" data-toggle="tooltip" data-placement="bottom" title="עיון בספר התקציב במשרד האוצר">'+
                                 '<i class="icon-book icon-flip-horizontal icon"></i></a></span>')
                         $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
                 @setBreadcrumbs()
                 $("div[data-id='#{@id}'] .btnBack").tooltip()
                 $("div[data-id='#{@id}'] .share-button").tooltip()
                 $("div[data-id='#{@id}'] .share-button").click( ->
-                        that.open_modal()
+                        that.open_modal($(@).attr('data-tab-href'))
                 )
 
                 $("div[data-id='#{@id}'] .color-index").tooltip()
