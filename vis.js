@@ -618,8 +618,8 @@
       })(function() {
         item_select = $(".modal .item-select");
         set_path = function(path, title, code) {
-          $(".modal .embed-code").html("<pre>&lt;iframe src='http://compare.open-budget.org.il/?" + path + "' width='640' height='900'/&gt;</pre>");
-          $(".modal .direct-link").html("http://compare.open-budget.org.il/?" + path);
+          $(".modal .embed-code").val("<iframe src='http://compare.open-budget.org.il/?" + path + "' width='640' height='900'/>");
+          $(".modal .direct-link").val("http://compare.open-budget.org.il/?" + path);
           $(".modal .facebook-share").click(function() {
             var sharer;
             sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/" + path + ".html";
