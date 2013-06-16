@@ -109,12 +109,13 @@ showTooltip = (d,xpos,ypos,that) ->
         if d.history
                 if d.history > 0
                         d3.select("#tooltip .history")
-                                .text("בארבע השנים האחרונות הביצוע היה גבוה ב-#{d.history}% מהתכנון")
+                                .text("מ-2009 ההוצאות חורגות ב#{d.history}% בממוצע מהתכנון")
                                 .classed("plus",true)
                                 .classed("minus",false)
                                 .attr("data-categories","#{d.changeCategory}:#{d.projectedChangeCategory}")
                 else if d.history < 0
-                        d3.select("#tooltip .history").text("בארבע השנים האחרונות הביצוע היה נמוך ב-#{-d.history}% מהתכנון")
+                        d3.select("#tooltip .history")
+                                .text("מ-2009 רק #{100 + d.history}% מהתקציב מנוצל בממוצע")
                                 .classed("plus",false)
                                 .classed("minus",true)
                                 .attr("data-categories","#{d.changeCategory}:#{d.projectedChangeCategory}")
