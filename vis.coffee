@@ -71,7 +71,7 @@ showTooltip = (d,xpos,ypos,that) ->
                 tail -= xpos - (that.width - 125)
                 xpos = (that.width - 125)
         xpos += 4 # instead of left
-        if ypos > -@height/4
+        if ypos > -that.height/4
                 ypos = ypos - d.radius - 10 +svgPos.top+that.centerY
                 $("#tooltipContainer").css("bottom",0)
                 d3.select("#tooltip .arrow.top").style("display","none")
