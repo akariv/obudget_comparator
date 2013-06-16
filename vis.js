@@ -154,7 +154,7 @@
       xpos = that.width - 125;
     }
     xpos += 4;
-    if (ypos > this.height / 4) {
+    if (ypos > -this.height / 4) {
       ypos = ypos - d.radius - 10 + svgPos.top + that.centerY;
       $("#tooltipContainer").css("bottom", 0);
       d3.select("#tooltip .arrow.top").style("display", "none");
