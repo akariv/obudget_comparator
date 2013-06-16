@@ -153,6 +153,17 @@ a {
 }
 .chartContainer h2.breadcrumbs a:hover {
   color: #007395;
+  text-decoration: none;
+}
+.chartContainer .breadpart {
+  color: #007395;
+}
+.chartContainer .breadpart:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+.chartContainer .breadpart.breadcrumbsCurrent {
+  font-weight: bold;
 }
 .chartButtons {
   background: none;

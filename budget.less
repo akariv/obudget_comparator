@@ -172,9 +172,21 @@ a{
 			}
 			&:hover{
 			    color: @linkColor;
+			    text-decoration: none;
 			}
 		}
-	}   
+	}  
+
+	.breadpart{
+		color: @linkColor;
+		&:hover{
+			cursor: pointer;
+			text-decoration: underline;
+		}
+		&.breadcrumbsCurrent{
+			font-weight: bold;
+		}
+	}
 }
 
 .chartButtons {
