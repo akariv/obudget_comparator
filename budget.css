@@ -422,12 +422,17 @@ div.btnShareContainer fb:like {
 .modal ul.nav li {
   float: right;
 }
+.modal .item-select {
+  width: 100%;
+}
 .modal img {
   width: 260px;
   margin: 10px -10px 10px 0;
+  float: right;
 }
-.modal .item-select {
-  width: 100%;
+.modal .shareItemDetails {
+  margin-right: 20px;
+  float: right;
 }
 .modal .modal-footer a {
   float: left;
