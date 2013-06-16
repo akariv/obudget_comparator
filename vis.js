@@ -575,6 +575,14 @@
       $(".modal a[href='" + select + "']").parent().toggleClass("active", true);
       $(".modal .tab-pane").toggleClass("active", false);
       $(".modal " + select).toggleClass("active", true);
+      $('.modal .modal-footer .btn-primary').css("display", "none");
+      $('.modal .modal-footer [data-rel="' + select + '"]').css("display", "inherit");
+      $('.modal a[data-toggle="tab"]').on('shown', function(e) {
+        var _select;
+        _select = $(e.target).attr("href");
+        $('.modal .modal-footer .btn-primary').css("display", "none");
+        return $('.modal .modal-footer [data-rel="' + _select + '"]').css("display", "inherit");
+      });
       field = that.model.get('field');
       $(".modal .shareItemDetails h3").text(this.model.get('title'));
       $(".modal .shareItemDetails p").html(getExplanation(field));
@@ -604,7 +612,7 @@
               return __iced_deferrals.ret = arguments[0];
             };
           })(),
-          lineno: 402
+          lineno: 410
         })), 100);
         __iced_deferrals._fulfill();
       })(function() {
@@ -664,7 +672,7 @@
                   return __iced_deferrals.ret = arguments[0];
                 };
               })(),
-              lineno: 439
+              lineno: 447
             })), 100);
             __iced_deferrals._fulfill();
           })(function() {
