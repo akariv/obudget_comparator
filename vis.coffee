@@ -395,7 +395,11 @@ class BubbleChart extends Backbone.View
                         html: true
                         placement: "top"
                         content: "<input type='text' class='fb-select'/>"
-                })
+                        trigger: "manual"
+                }).click( ->
+                        share_popover.popover("toggle")
+                )
+                fb_select = null
                 share_popover.on("show", ->
                         field = that.model.get('field')
                         titles = _.map(that.nodes,(d)->{id:d.sid,text:d.name,path:field+";"+d.sid})
@@ -416,7 +420,10 @@ class BubbleChart extends Backbone.View
                                         sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/#{path}.html";
                                         window.open(sharer, 'sharer', 'width=626,height=436')
                         )
-                ) 
+                        fb_select.select2("open")
+                ).on("hide", ->
+                        fb_select.select2("close")
+                )
                 @setBreadcrumbs = (dd = null) =>
                         bc = $("div[data-id='#{@id}'] .breadcrumbs")
                         bc.find(".breadpart").remove()
@@ -497,7 +504,7 @@ class BubbleChart extends Backbone.View
                                 $("div[data-id='#{that.id}'] .breadcrumbs").css("visibility","visible")
                 ).on("select2-highlight",
                         (e) ->
-                                that.selectItem(e.choice.id)
+                                that.selectItem(code: e.choice.id)
                 ).on("change",
                         (e) ->
                                 console.log "changed:",e
@@ -651,9 +658,7 @@ class BubbleChart extends Backbone.View
                                                         if d.sid == globalTooltipItem
                                                                 showTooltip(d,d.x-avgx, d.y,that)
                                                 )
-                                        )
-                        .start()
-                                
+                                ).start()
 
 state = { querys: [], selectedStory: null }
 charts = []
@@ -757,24 +762,32 @@ window.handleExplanations = (data) ->
         code = null
         explanation = null
         years = null
+        row = null
+
+        handle_explanation = (code,explanation,years) ->
+                years = years.split(",")
+                for _year in years
+                        year = parseInt(_year)
+                        curCodeExpl = explanations[code]
+                        if not curCodeExpl
+                                explanations[code] = {}
+                                explanations[code][year] = explanation
+                                console.log "EXP", code, year
+        
         for entry in data.feed.entry
                 title = entry.title.$t
+                newrow = title.substring(1)
+                if newrow != row and code != null and explanation != null
+                        handle_explanation(code, explanation, years or "")
+                        code = explanation = years = null
                 if title.search( /B[0-9]+/ ) == 0
-                        code = "00"+entry.content.$t
+                        code = entry.content.$t
+                        code = if code.indexOf("00") == 0 then code else "00"+code
                 if title.search( /D[0-9]+/ ) == 0
                         explanation = entry.content.$t
                 if title.search( /F[0-9]+/ ) == 0
                         years = entry.content.$t
-                        years = years.split(",")
-                        if code != null and explanation != null
-                                for _year in years
-                                        year = parseInt(_year)
-                                        curCodeExpl = explanations[code]
-                                        if not curCodeExpl
-                                                explanations[code] = {}
-                                        explanations[code][year] = explanation
-                                        console.log "EXP", code, year
-                        code = explanation = null
+
         console.log explanations
         gotExplanations = true
         if gotStories and gotExplanations then init()
@@ -864,7 +877,7 @@ $( ->
                 $.get("http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script",
                         window.handleStories,
                         "jsonp")
-                $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/2/public/basic?alt=json-in-script",
+                $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/1/public/basic?alt=json-in-script",
                         window.handleExplanations,
                         "jsonp")
         )

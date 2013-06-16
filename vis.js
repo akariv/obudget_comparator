@@ -570,7 +570,7 @@
     };
 
     BubbleChart.prototype.render = function() {
-      var container, frame, overlay, resizeFrame, search, share_popover, tagClicked, tags, that,
+      var container, fb_select, frame, overlay, resizeFrame, search, share_popover, tagClicked, tags, that,
         _this = this;
       that = this;
       $("div[data-id='" + this.id + "'] .btnDownload").attr("href", "/images/large/" + (this.model.get('field')) + ".jpg");
@@ -578,10 +578,14 @@
       share_popover.popover({
         html: true,
         placement: "top",
-        content: "<input type='text' class='fb-select'/>"
+        content: "<input type='text' class='fb-select'/>",
+        trigger: "manual"
+      }).click(function() {
+        return share_popover.popover("toggle");
       });
+      fb_select = null;
       share_popover.on("show", function() {
-        var fb_select, field, titles, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+        var field, titles, ___iced_passed_deferral, __iced_deferrals, __iced_k,
           _this = this;
         __iced_k = __iced_k_noop;
         ___iced_passed_deferral = iced.findDeferral(arguments);
@@ -610,12 +614,12 @@
                 return __iced_deferrals.ret = arguments[0];
               };
             })(),
-            lineno: 403
+            lineno: 407
           })), 100);
           __iced_deferrals._fulfill();
         })(function() {
           fb_select = $(".fb-select:last");
-          return fb_select.select2({
+          fb_select.select2({
             placeholder: "בחירת סעיף לשיתוף",
             allowClear: true,
             data: titles
@@ -630,7 +634,10 @@
               return window.open(sharer, 'sharer', 'width=626,height=436');
             }
           });
+          return fb_select.select2("open");
         });
+      }).on("hide", function() {
+        return fb_select.select2("close");
       });
       this.setBreadcrumbs = function(dd) {
         var actual_querys, bc, depth, link, mshLinkCode, query, title, _i, _j, _len, _len1, _ref2;
@@ -704,7 +711,9 @@
       }).on("select2-close", function(e) {
         return $("div[data-id='" + that.id + "'] .breadcrumbs").css("visibility", "visible");
       }).on("select2-highlight", function(e) {
-        return that.selectItem(e.choice.id);
+        return that.selectItem({
+          code: e.choice.id
+        });
       }).on("change", function(e) {
         var x, _i, _len, _ref2;
         console.log("changed:", e);
@@ -992,37 +1001,48 @@
   gotExplanations = false;
 
   window.handleExplanations = function(data) {
-    var code, curCodeExpl, entry, explanation, row, title, year, years, _i, _j, _len, _len1, _ref2, _year;
+    var code, entry, explanation, handle_explanation, newrow, row, title, years, _i, _len, _ref2;
     row = 1;
     code = null;
     explanation = null;
     years = null;
+    row = null;
+    handle_explanation = function(code, explanation, years) {
+      var curCodeExpl, year, _i, _len, _results, _year;
+      years = years.split(",");
+      _results = [];
+      for (_i = 0, _len = years.length; _i < _len; _i++) {
+        _year = years[_i];
+        year = parseInt(_year);
+        curCodeExpl = explanations[code];
+        if (!curCodeExpl) {
+          explanations[code] = {};
+          explanations[code][year] = explanation;
+          _results.push(console.log("EXP", code, year));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
     _ref2 = data.feed.entry;
     for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
       entry = _ref2[_i];
       title = entry.title.$t;
+      newrow = title.substring(1);
+      if (newrow !== row && code !== null && explanation !== null) {
+        handle_explanation(code, explanation, years || "");
+        code = explanation = years = null;
+      }
       if (title.search(/B[0-9]+/) === 0) {
-        code = "00" + entry.content.$t;
+        code = entry.content.$t;
+        code = code.indexOf("00") === 0 ? code : "00" + code;
       }
       if (title.search(/D[0-9]+/) === 0) {
         explanation = entry.content.$t;
       }
       if (title.search(/F[0-9]+/) === 0) {
         years = entry.content.$t;
-        years = years.split(",");
-        if (code !== null && explanation !== null) {
-          for (_j = 0, _len1 = years.length; _j < _len1; _j++) {
-            _year = years[_j];
-            year = parseInt(_year);
-            curCodeExpl = explanations[code];
-            if (!curCodeExpl) {
-              explanations[code] = {};
-            }
-            explanations[code][year] = explanation;
-            console.log("EXP", code, year);
-          }
-        }
-        code = explanation = null;
       }
     }
     console.log(explanations);
@@ -1146,7 +1166,7 @@
   $(function() {
     if ((document.createElementNS != null) && (document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect != null)) {
       $.get("http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script", window.handleStories, "jsonp");
-      return $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/2/public/basic?alt=json-in-script", window.handleExplanations, "jsonp");
+      return $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/1/public/basic?alt=json-in-script", window.handleExplanations, "jsonp");
     }
   });
 
