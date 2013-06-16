@@ -379,66 +379,50 @@ class BubbleChart extends Backbone.View
                 @circle.style("stroke-width",@strokeWidth)
                 @circle.style("stroke", @getStrokeColor)
 
-        init_popovers: (el,callback) ->
-                that = this
-                el.popover({
-                        html: true
-                        placement: "top"
-                        content: "<input type='text' class='item-select'/><pre class='xxx-result'></pre>"
-                        trigger: "manual"
-                }).click( ->
-                        el.popover("toggle")
-                )
-                popover = el.data("popover").tip()
-                item_select = null
-                el.on("show", ->
-                ).on("hide", ->
-                        item_select.select2("close")
-                )
-
         open_modal: ->
                 that = this
                 field = that.model.get('field')
                 titles = _.map(that.nodes,(d)->{id:d.sid,text:d.name,path:field+";"+d.sid})
                 titles.unshift({id:field,text:"בחירת התרשים כמות שהוא",path:field})
                 await setTimeout((defer _),100) # allow DOM to settle
-                item_select = popover.find(".item-select")
-                popover.find(".result").html("")
+                item_select = $(".modal .item-select")
+                set_path = (path) ->
+                        $(".modal .embed-code").html("<pre>&lt;iframe src='http://compare.open-budget.org.il/?#{path}' width='640' height='900'/&gt;</pre>")
+                        $(".modal .direct-link").html("http://compare.open-budget.org.il/?#{path}")
+                        $(".modal .facebook-share").click( ->
+                                sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/#{path}.html";
+                                window.open(sharer, 'sharer', 'width=626,height=436')
+                                false
+                        )
+                        $(".modal .photo-download").click( ->
+                                sharer = "http://compare.open-budget.org.il/images/large/#{path}.jpg";
+                                window.open(sharer, 'sharer')
+                                false
+                        )
                 item_select.select2(
                         placeholder: "שיתוף התרשים הנוכחי"
-                        allowClear: true
+                        allowClear: false
                         data: titles
                 ).on("change", (e) ->
                         if e.added
                                 path = e.added.path
+                                console.log "AAA",path
                                 item_select.select2("close")
-                                $(".modal embed-code").value(path)
-                                $(".modal embed-code").value(path)
+                                set_path(path)
                 )
-               
+                set_path(field)
                 $(".modal").modal("show")
-                item_select.select2("open")
+                $(".modal").on("shown", ->
+                        await setTimeout((defer _),100) # allow DOM to settle
+                        item_select.select2("open")
+                ).on("hide", ->
+                        item_select.select2("close")
+                )
 
         render: () ->
 
                 that = this
 
-                #$("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
-                @init_popovers($("div[data-id='#{@id}'] .btnShare"), (path) ->
-                                        sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/#{path}.html";
-                                        window.open(sharer, 'sharer', 'width=626,height=436')
-                                        true
-                )
-                @init_popovers($("div[data-id='#{@id}'] .btnDownload"), (path) ->
-                                        sharer = "http://compare.open-budget.org.il/images/large/#{path}.jpg";
-                                        window.open(sharer, 'sharer')
-                                        true
-                )
-                #@init_popovers($("div[data-id='#{@id}'] .btnLink"), (path,popover) ->
-                #                        sharer = "http://compare.open-budget.org.il/?#{path}";
-                #                        popover.find(".result").html("<pre>#{sharer}</pre>")
-                #                        false
-                #)
                 @setBreadcrumbs = (dd = null) =>
                         bc = $("div[data-id='#{@id}'] .breadcrumbs")
                         bc.find(".breadpart").remove()
@@ -559,7 +543,8 @@ class BubbleChart extends Backbone.View
                         if not @overlayShown and @circle
                                 @circle.attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(0,0)scale(1)")
                         overlay.css("height",(chartContainer.height())+"px")
-                        overlay.css("top",(chartContainer.offset().top)+"px")
+                        if chartContainer.offset()
+                                overlay.css("top",(chartContainer.offset().top)+"px")
 
                 $(window).resize resizeFrame
                                 
@@ -865,7 +850,6 @@ init = () ->
                 removeState()
                 false
         )
-        $(".modal").modal("show")
      
 $( ->
         if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?

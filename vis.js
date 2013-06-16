@@ -558,26 +558,8 @@
       return this.circle.style("stroke", this.getStrokeColor);
     };
 
-    BubbleChart.prototype.init_popovers = function(el, callback) {
-      var item_select, popover, that;
-      that = this;
-      el.popover({
-        html: true,
-        placement: "top",
-        content: "<input type='text' class='item-select'/><pre class='xxx-result'></pre>",
-        trigger: "manual"
-      }).click(function() {
-        return el.popover("toggle");
-      });
-      popover = el.data("popover").tip();
-      item_select = null;
-      return el.on("show", function() {}).on("hide", function() {
-        return item_select.select2("close");
-      });
-    };
-
     BubbleChart.prototype.open_modal = function() {
-      var field, item_select, that, titles, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+      var field, item_select, set_path, that, titles, ___iced_passed_deferral, __iced_deferrals, __iced_k,
         _this = this;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
@@ -607,27 +589,67 @@
               return __iced_deferrals.ret = arguments[0];
             };
           })(),
-          lineno: 403
+          lineno: 386
         })), 100);
         __iced_deferrals._fulfill();
       })(function() {
-        item_select = popover.find(".item-select");
-        popover.find(".result").html("");
+        item_select = $(".modal .item-select");
+        set_path = function(path) {
+          $(".modal .embed-code").html("<pre>&lt;iframe src='http://compare.open-budget.org.il/?" + path + "' width='640' height='900'/&gt;</pre>");
+          $(".modal .direct-link").html("http://compare.open-budget.org.il/?" + path);
+          $(".modal .facebook-share").click(function() {
+            var sharer;
+            sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/" + path + ".html";
+            window.open(sharer, 'sharer', 'width=626,height=436');
+            return false;
+          });
+          return $(".modal .photo-download").click(function() {
+            var sharer;
+            sharer = "http://compare.open-budget.org.il/images/large/" + path + ".jpg";
+            window.open(sharer, 'sharer');
+            return false;
+          });
+        };
         item_select.select2({
           placeholder: "שיתוף התרשים הנוכחי",
-          allowClear: true,
+          allowClear: false,
           data: titles
         }).on("change", function(e) {
           var path;
           if (e.added) {
             path = e.added.path;
+            console.log("AAA", path);
             item_select.select2("close");
-            $(".modal embed-code").value(path);
-            return $(".modal embed-code").value(path);
+            return set_path(path);
           }
         });
+        set_path(field);
         $(".modal").modal("show");
-        return item_select.select2("open");
+        return $(".modal").on("shown", function() {
+          var ___iced_passed_deferral1, __iced_deferrals, __iced_k,
+            _this = this;
+          __iced_k = __iced_k_noop;
+          ___iced_passed_deferral1 = iced.findDeferral(arguments);
+          (function(__iced_k) {
+            __iced_deferrals = new iced.Deferrals(__iced_k, {
+              parent: ___iced_passed_deferral1,
+              filename: "vis.coffee"
+            });
+            setTimeout((__iced_deferrals.defer({
+              assign_fn: (function() {
+                return function() {
+                  return __iced_deferrals.ret = arguments[0];
+                };
+              })(),
+              lineno: 415
+            })), 100);
+            __iced_deferrals._fulfill();
+          })(function() {
+            return item_select.select2("open");
+          });
+        }).on("hide", function() {
+          return item_select.select2("close");
+        });
       });
     };
 
@@ -635,18 +657,6 @@
       var chartContainer, container, frame, overlay, resizeFrame, search, tagClicked, tags, that,
         _this = this;
       that = this;
-      this.init_popovers($("div[data-id='" + this.id + "'] .btnShare"), function(path) {
-        var sharer;
-        sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/" + path + ".html";
-        window.open(sharer, 'sharer', 'width=626,height=436');
-        return true;
-      });
-      this.init_popovers($("div[data-id='" + this.id + "'] .btnDownload"), function(path) {
-        var sharer;
-        sharer = "http://compare.open-budget.org.il/images/large/" + path + ".jpg";
-        window.open(sharer, 'sharer');
-        return true;
-      });
       this.setBreadcrumbs = function(dd) {
         var actual_querys, bc, depth, link, mshLinkCode, query, title, _i, _j, _len, _len1, _ref2;
         if (dd == null) {
@@ -771,7 +781,9 @@
           _this.circle.attr("transform", "translate(" + _this.centerX + "," + _this.centerY + ")rotate(0)translate(0,0)scale(1)");
         }
         overlay.css("height", (chartContainer.height()) + "px");
-        return overlay.css("top", (chartContainer.offset().top) + "px");
+        if (chartContainer.offset()) {
+          return overlay.css("top", (chartContainer.offset().top) + "px");
+        }
       };
       $(window).resize(resizeFrame);
       resizeFrame();
@@ -1149,11 +1161,10 @@
       }
       return false;
     });
-    $(".btnBack:last").live("click", function() {
+    return $(".btnBack:last").live("click", function() {
       removeState();
       return false;
     });
-    return $(".modal").modal("show");
   };
 
   $(function() {
