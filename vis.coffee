@@ -382,20 +382,22 @@ class BubbleChart extends Backbone.View
         open_modal: ->
                 that = this
                 field = that.model.get('field')
-                titles = _.map(that.nodes,(d)->{id:d.sid,text:d.name,path:field+";"+d.sid})
-                titles.unshift({id:field,text:"בחירת התרשים כמות שהוא",path:field})
+                titles = _.map(that.nodes,(d)->{id:d.sid,text:d.name,title:d.name,path:field+";"+d.sid})
+                titles.unshift({id:field,text:"בחירת התרשים כמות שהוא",title:that.model.get('title'),path:field})
                 await setTimeout((defer _),100) # allow DOM to settle
                 item_select = $(".modal .item-select")
-                set_path = (path) ->
+                set_path = (path,title) ->
                         $(".modal .embed-code").html("<pre>&lt;iframe src='http://compare.open-budget.org.il/?#{path}' width='640' height='900'/&gt;</pre>")
                         $(".modal .direct-link").html("http://compare.open-budget.org.il/?#{path}")
                         $(".modal .facebook-share").click( ->
-                                sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/#{path}.html";
+                                sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/#{path}.html"
                                 window.open(sharer, 'sharer', 'width=626,height=436')
                                 false
                         )
+                        $(".modal .shareThumb").attr("src","http://compare.open-budget.org.il/images/large/#{path}.jpg")
+                        $(".modal .shareThumb").attr("alt",title)
                         $(".modal .photo-download").click( ->
-                                sharer = "http://compare.open-budget.org.il/images/large/#{path}.jpg";
+                                sharer = "http://compare.open-budget.org.il/images/large/#{path}.jpg"
                                 window.open(sharer, 'sharer')
                                 false
                         )
@@ -406,15 +408,19 @@ class BubbleChart extends Backbone.View
                 ).on("change", (e) ->
                         if e.added
                                 path = e.added.path
+                                title = e.added.title
                                 console.log "AAA",path
                                 item_select.select2("close")
-                                set_path(path)
+                                set_path(path,title)
                 )
                 set_path(field)
+                first = true
                 $(".modal").modal("show")
                 $(".modal").on("shown", ->
                         await setTimeout((defer _),100) # allow DOM to settle
-                        item_select.select2("open")
+                        if first
+                                item_select.select2("open")
+                                first = false
                 ).on("hide", ->
                         item_select.select2("close")
                 )

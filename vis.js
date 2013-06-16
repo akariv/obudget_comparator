@@ -559,7 +559,7 @@
     };
 
     BubbleChart.prototype.open_modal = function() {
-      var field, item_select, set_path, that, titles, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+      var field, first, item_select, set_path, that, titles, ___iced_passed_deferral, __iced_deferrals, __iced_k,
         _this = this;
       __iced_k = __iced_k_noop;
       ___iced_passed_deferral = iced.findDeferral(arguments);
@@ -569,12 +569,14 @@
         return {
           id: d.sid,
           text: d.name,
+          title: d.name,
           path: field + ";" + d.sid
         };
       });
       titles.unshift({
         id: field,
         text: "בחירת התרשים כמות שהוא",
+        title: that.model.get('title'),
         path: field
       });
       (function(__iced_k) {
@@ -594,7 +596,7 @@
         __iced_deferrals._fulfill();
       })(function() {
         item_select = $(".modal .item-select");
-        set_path = function(path) {
+        set_path = function(path, title) {
           $(".modal .embed-code").html("<pre>&lt;iframe src='http://compare.open-budget.org.il/?" + path + "' width='640' height='900'/&gt;</pre>");
           $(".modal .direct-link").html("http://compare.open-budget.org.il/?" + path);
           $(".modal .facebook-share").click(function() {
@@ -603,6 +605,8 @@
             window.open(sharer, 'sharer', 'width=626,height=436');
             return false;
           });
+          $(".modal .shareThumb").attr("src", "http://compare.open-budget.org.il/images/large/" + path + ".jpg");
+          $(".modal .shareThumb").attr("alt", title);
           return $(".modal .photo-download").click(function() {
             var sharer;
             sharer = "http://compare.open-budget.org.il/images/large/" + path + ".jpg";
@@ -615,15 +619,17 @@
           allowClear: false,
           data: titles
         }).on("change", function(e) {
-          var path;
+          var path, title;
           if (e.added) {
             path = e.added.path;
+            title = e.added.title;
             console.log("AAA", path);
             item_select.select2("close");
-            return set_path(path);
+            return set_path(path, title);
           }
         });
         set_path(field);
+        first = true;
         $(".modal").modal("show");
         return $(".modal").on("shown", function() {
           var ___iced_passed_deferral1, __iced_deferrals, __iced_k,
@@ -641,11 +647,14 @@
                   return __iced_deferrals.ret = arguments[0];
                 };
               })(),
-              lineno: 415
+              lineno: 419
             })), 100);
             __iced_deferrals._fulfill();
           })(function() {
-            return item_select.select2("open");
+            if (first) {
+              item_select.select2("open");
+              return first = false;
+            }
           });
         }).on("hide", function() {
           return item_select.select2("close");
