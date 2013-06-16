@@ -385,44 +385,65 @@ class BubbleChart extends Backbone.View
                 @circle.style("stroke-width",@strokeWidth)
                 @circle.style("stroke", @getStrokeColor)
 
-        render: () ->
-
+        init_popovers: (el,callback) ->
                 that = this
-
-                $("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
-                share_popover = $("div[data-id='#{@id}'] .btnShare")
-                share_popover.popover({
+                el.popover({
                         html: true
                         placement: "top"
-                        content: "<input type='text' class='fb-select'/>"
+                        content: "<input type='text' class='item-select'/><pre class='xxx-result'></pre>"
                         trigger: "manual"
                 }).click( ->
-                        share_popover.popover("toggle")
+                        el.popover("toggle")
                 )
-                fb_select = null
-                share_popover.on("show", ->
+                popover = el.data("popover").tip()
+                console.log "PO", popover
+                item_select = null
+                el.on("show", ->
                         field = that.model.get('field')
                         titles = _.map(that.nodes,(d)->{id:d.sid,text:d.name,path:field+";"+d.sid})
-                        titles.unshift({id:field,text:"שיתוף התרשים כמות שהוא",path:field})
-                        console.log "CLICK!",titles
+                        titles.unshift({id:field,text:"בחירת התרשים כמות שהוא",path:field})
                         await setTimeout((defer _),100) # allow DOM to settle
-                        fb_select = $(".fb-select:last")
-                        fb_select.select2(
-                                placeholder: "בחירת סעיף לשיתוף"
+                        item_select = popover.find(".item-select")
+                        console.log "item-select",popover, el,item_select
+                        popover.find(".result").html("")
+                        item_select.select2(
+                                placeholder: "שיתוף סעיף בפייסבוק"
                                 allowClear: true
                                 data: titles
                         ).on("change", (e) ->
                                 if e.added
                                         path = e.added.path
-                                        console.log "got share btn!", path
-                                        fb_select.select2("close")
-                                        share_popover.popover("hide")
+                                        item_select.select2("close")
+                                        if callback(path,popover)
+                                                el.popover("hide")
+                        )
+                        item_select.select2("open")
+                ).on("hide", ->
+                        item_select.select2("close")
+                )
+
+        render: () ->
+
+                that = this
+
+                #$("div[data-id='#{@id}'] .btnDownload").attr("href","/images/large/#{@model.get 'field'}.jpg")
+                @init_popovers($("div[data-id='#{@id}'] .btnShare"), (path) ->
+                                        console.log "got facebook share btn!", path
                                         sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/#{path}.html";
                                         window.open(sharer, 'sharer', 'width=626,height=436')
-                        )
-                        fb_select.select2("open")
-                ).on("hide", ->
-                        fb_select.select2("close")
+                                        true
+                )
+                @init_popovers($("div[data-id='#{@id}'] .btnDownload"), (path) ->
+                                        console.log "got img btn!", path
+                                        sharer = "http://compare.open-budget.org.il/images/large/#{path}.jpg";
+                                        window.open(sharer, 'sharer')
+                                        true
+                )
+                @init_popovers($("div[data-id='#{@id}'] .btnLink"), (path,popover) ->
+                                        console.log "got link btn!", path
+                                        sharer = "http://compare.open-budget.org.il/?#{path}";
+                                        popover.find(".result").html("<pre>#{sharer}</pre>")
+                                        false
                 )
                 @setBreadcrumbs = (dd = null) =>
                         bc = $("div[data-id='#{@id}'] .breadcrumbs")
@@ -460,19 +481,21 @@ class BubbleChart extends Backbone.View
 
                         if mshLinkCode
                                 bc.append('<span class="breadpart breadcrumbsMsh"><a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+mshLinkCode+
-                                ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">'+
+                                ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" data-placement="bottom" title="מידע היסטורי אודות הסעיף הנוכחי">'+
                                 '<i class="icon-bar-chart icon"></i></a></span><!--i class="icon-book icon-flip-horizontal icon"></i-->')
 
                         link = @model.get 'link'
                         if link
                                 bc.append('<span class="breadpart breadcrumbsGov"><a class="breadcrumbsLink" target="_new" href="'+link+'" '+
-                                'class="active" target="top" data-toggle="tooltip" title="עיון בספר התקציב במשרד האוצר">'+
+                                'class="active" target="top" data-toggle="tooltip" data-placement="bottom" title="עיון בספר התקציב במשרד האוצר">'+
                                 '<i class="icon-book icon-flip-horizontal icon"></i></a></span>')
                         $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
                 @setBreadcrumbs()
                 $("div[data-id='#{@id}'] .btnBack").tooltip()
-                $("div[data-id='#{@id}'] .btnDownload").tooltip()
-                $("div[data-id='#{@id}'] .btnShare").tooltip()
+                #$("div[data-id='#{@id}'] .btnDownload").tooltip()
+                #$("div[data-id='#{@id}'] .btnEmbed").tooltip()
+                #$("div[data-id='#{@id}'] .btnLink").tooltip()
+                #$("div[data-id='#{@id}'] .btnShare").tooltip()
                 $("div[data-id='#{@id}'] .color-index").tooltip()
                         
                 search = $("div[data-id='#{@id}'] .mysearch")

@@ -14,7 +14,7 @@ a {
   background: none;
   border: 4px solid #3b3b3b;
   max-width: 900px;
-  min-width: 460px;
+  min-width: 400px;
   direction: rtl;
 }
 .frame h1 {
@@ -118,6 +118,9 @@ a {
 .chartContainer h2.breadcrumbs .breadcrumbsSeparator:after {
   content: " / ";
 }
+.chartContainer h2.breadcrumbs .breadcrumbsMsh {
+  margin-right: 10px;
+}
 .chartContainer h2.breadcrumbs a {
   color: #777;
 }
@@ -135,7 +138,7 @@ a {
 }
 .chartContainer h2.breadcrumbs a.active,
 .chartContainer h2.breadcrumbs a.breadcrumbsLink {
-  padding: 10px 10px 10px 40px;
+  padding: 10px 10px 10px 10px;
   display: inline-block;
 }
 @media all and (max-width: 500px) {
@@ -172,11 +175,19 @@ a {
 }
 .chartButtons a.btnDownload {
   bottom: 40px;
-  left: 25px;
+  left: 15px;
+}
+.chartButtons a.btnEmbed {
+  bottom: 40px;
+  left: 50px;
+}
+.chartButtons a.btnLink {
+  bottom: 40px;
+  left: 85px;
 }
 .chartButtons a.btnShare {
   bottom: 40px;
-  left: 60px;
+  left: 120px;
   color: #3B5998;
 }
 .chartButtons div.btnShareContainer {
@@ -369,6 +380,7 @@ div.btnShareContainer fb:like {
 #footer a.more {
   float: left;
   display: block;
+  margin-left: 5px;
 }
 @media all and (max-width: 570px) {
   #footer a.more span {
