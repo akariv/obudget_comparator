@@ -487,9 +487,11 @@ if __name__=="__main__":
     imagesScript = file('load_images.sh','w')
     imagesScript.write("#!/bin/bash\n")
     commands = []
-    for key, title in urls:
+    for i,x in enumerate(urls):
+        key = x[0]
+        title = x[1]
         fn = 'images/large/%(url)s.jpg' % { 'url' : key }
         cmd = "phantomjs images/rasterize.js 'http://localhost:8000/vis.html?%(url)s' l 'images/large/%(url)s.jpg'" % { 'url' : key }
-        imagesScript.write("if [ ! -f '%(fn)s.synced' ]; then sleep 4 ; %(cmd)s ; fi &\n" % {'cmd': cmd,'fn':fn} )
+        imagesScript.write("sleep 4 && ( if [ ! -f '%(fn)s.synced' ]; then %(cmd)s ; fi ) &\n" % {'cmd': cmd,'fn':fn, 'wait': 4*i} )
         writeProxyHtml( key, title ) 
 
