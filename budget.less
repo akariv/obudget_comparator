@@ -12,7 +12,7 @@
 @frame: 4px solid #3B3B3B;
 @max-width: 900px;
 @min-width: 400px;
-@height: 550px;
+@height: 500px;
 @growColor:		#3e48b5;
 @shrinkColor:	#c09100;
 @alef: Alef Hebrew, Arial, sans-serif;
@@ -160,10 +160,10 @@ a{
 
 			&.active,
 			&.breadcrumbsLink{
-				padding: 10px 10px 10px 10px;
+				padding: 10px;
 				display: inline-block;
 				@media all and (max-width: 500px){
-					padding: 0 0 0 40px;
+					padding: 0 0 0 10px;
 				}
 				//color: @linkColor;
 				icon{
@@ -357,8 +357,8 @@ div.btnShareContainer {
 		background: #ddd;
 		padding: 3px 0 6px;
 	}
-	&.minus .name{background: lighten(@shrinkColor,30%);} //should be set dynamic
-	&.plus .name{background: lighten(@growColor,30%);} //should be set dynamic
+	&.minus .name {background: lighten(@shrinkColor,30%);} //should be set dynamic
+	&.plus .name {background: lighten(@growColor,30%);} //should be set dynamic
 	.value {
 		text-align:center;
 		left:10px;
@@ -398,6 +398,14 @@ div.btnShareContainer {
 		text-align: center;
 		margin: 3px;
 		line-height: 1.3em;
+	}
+	.history{
+		margin: 0;
+		padding: 0 3px;
+		font-size: 12px;
+		font-weight: bold;
+		&.plus{color:@growColor}
+		&.minus{color:@shrinkColor}
 	}
 }
 
