@@ -453,18 +453,20 @@ class BubbleChart extends Backbone.View
 
                         if mshLinkCode
                                 bc.append('<span class="breadpart breadcrumbsMsh"><a class="breadcrumbsLink" target="_new" href="http://budget.msh.gov.il/#'+mshLinkCode+
-                                ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" title="מידע היסטורי אודות הסעיף הנוכחי">'+
+                                ',2014,0,1,1,1,0,0,0,0,0,0" class="active" target="top" data-toggle="tooltip" data-placement="bottom" title="מידע היסטורי אודות הסעיף הנוכחי">'+
                                 '<i class="icon-bar-chart icon"></i></a></span><!--i class="icon-book icon-flip-horizontal icon"></i-->')
 
                         link = @model.get 'link'
                         if link
                                 bc.append('<span class="breadpart breadcrumbsGov"><a class="breadcrumbsLink" target="_new" href="'+link+'" '+
-                                'class="active" target="top" data-toggle="tooltip" title="עיון בספר התקציב במשרד האוצר">'+
+                                'class="active" target="top" data-toggle="tooltip" data-placement="bottom" title="עיון בספר התקציב במשרד האוצר">'+
                                 '<i class="icon-book icon-flip-horizontal icon"></i></a></span>')
                         $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
                 @setBreadcrumbs()
                 $("div[data-id='#{@id}'] .btnBack").tooltip()
                 $("div[data-id='#{@id}'] .btnDownload").tooltip()
+                $("div[data-id='#{@id}'] .btnEmbed").tooltip()
+                $("div[data-id='#{@id}'] .btnLink").tooltip()
                 $("div[data-id='#{@id}'] .btnShare").tooltip()
                 $("div[data-id='#{@id}'] .color-index").tooltip()
                         

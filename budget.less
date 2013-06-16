@@ -11,7 +11,7 @@
 
 @frame: 4px solid #3B3B3B;
 @max-width: 900px;
-@min-width: 460px;
+@min-width: 400px;
 @height: 550px;
 @growColor:		#3e48b5;
 @shrinkColor:	#c09100;
@@ -138,6 +138,10 @@ a{
 		    content:" / ";
 		}			
 
+		.breadcrumbsMsh{
+			margin-right: 10px;
+		}
+
 		a{
 			color: #777;
 
@@ -156,7 +160,7 @@ a{
 
 			&.active,
 			&.breadcrumbsLink{
-				padding: 10px 10px 10px 40px;
+				padding: 10px 10px 10px 10px;
 				display: inline-block;
 				@media all and (max-width: 500px){
 					padding: 0 0 0 40px;
@@ -192,13 +196,21 @@ a{
 		}
 		&.btnDownload{
 		    bottom: 40px;
-		    left: 25px;
+		    left: 15px;
+		}
+		&.btnEmbed {
+	    	bottom:40px;
+		    left: 50px;
+		}
+		&.btnLink {
+	    	bottom:40px;
+		    left: 85px;
 		}
 		&.btnShare {
-	    	    bottom:40px;
-		    left: 60px;
+	    	bottom:40px;
+		    left: 120px;
 		    color: #3B5998;
-		}		      
+		}	      
 	}
 
 	div.btnShareContainer {
@@ -405,6 +417,7 @@ div.btnShareContainer {
 	a.more{
 		float: left;
 		display: block;
+		margin-left: 5px;
 		@media all and (max-width: 570px){
 			span{
 				display:none;
