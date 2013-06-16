@@ -424,10 +424,13 @@ div.btnShareContainer fb:like {
 }
 .modal img {
   width: 260px;
-  margin: 10px 0;
+  margin: 10px -10px 10px 0;
 }
 .modal .item-select {
   width: 100%;
+}
+.modal .modal-footer a {
+  float: left;
 }
 #select2-drop {
   float: right;

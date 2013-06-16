@@ -66,7 +66,7 @@
 
       <div class="modal-body tabbable">
 
-        <ul class="nav nav-tabs" id="myTab">
+        <ul class="nav nav-pills" id="myTab">
           <li class="active"><a href="#shareFacebookTab">שתפו בפייסבוק</a></li>
           <li><a href="#shareLinkTab">שתפו קישור</a></li>
           <li><a href="#shareEmbedTab">הטמיעו אצלכם באתר</a></li>
@@ -78,10 +78,13 @@
 
         <div class="tab-content">
         
-          <div class="tab-pane" id="shareFacebookTab">
-            <a class="btn facebook-share"><i class="icon-thumbs-up-alt"></i>לחצו לשיתוף בפייסבוק</a>
+          <div class="tab-pane active" id="shareFacebookTab">
+            <div class="modal-footer">
+              <a href="#" class="btn btn-primary facebook-share"><i class="icon-thumbs-up-alt"></i> לחצו לשיתוף בפייסבוק</a>
+              <a href="#" class="btn">ביטול</a>
+            </div>
           </div>
-          <div class="tab-pane active" id="shareLinkTab">
+          <div class="tab-pane" id="shareLinkTab">
             <label><i class="icon-link"></i>קישור ישיר לתרשים</label><span class="direct-link input-xlarge uneditable-input"></span>
           </div>
           <div class="tab-pane" id="shareEmbedTab">
@@ -91,11 +94,6 @@
             <a class="btn photo-download"><i class="icon-picture"></i>לחצו להורדת התרשים הנוכחי כקובץ תמונה</a>
           </div>
         </div>
-      </div>
-      
-      <div class="modal-footer">
-      	<a href="#" class="btn">Close</a>
-      	<a href="#" class="btn btn-primary">Share</a>
       </div>
     </div>
 
