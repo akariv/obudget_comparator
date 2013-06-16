@@ -501,7 +501,6 @@
       if (data.length > 0) {
         return this.render();
       } else {
-        this.setBreadcrumbs(null);
         container = $("div[data-id='" + this.id + "']");
         if (this.transitiontime > 0) {
           this.circle.transition().duration(this.transitiontime).attr("r", function(d) {
@@ -611,7 +610,7 @@
                 return __iced_deferrals.ret = arguments[0];
               };
             })(),
-            lineno: 404
+            lineno: 403
           })), 100);
           __iced_deferrals._fulfill();
         })(function() {
@@ -634,16 +633,24 @@
         });
       });
       this.setBreadcrumbs = function(dd) {
-        var bc, depth, link, mshLinkCode, query, title, _i, _len, _ref2;
+        var actual_querys, bc, depth, link, mshLinkCode, query, title, _i, _j, _len, _len1, _ref2;
         if (dd == null) {
           dd = null;
         }
         bc = $("div[data-id='" + _this.id + "'] .breadcrumbs");
         bc.find(".breadpart").remove();
-        depth = state.querys.length;
+        actual_querys = [];
         _ref2 = state.querys;
         for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
           query = _ref2[_i];
+          actual_querys.push(query);
+          if (query === _this.model.get('field')) {
+            break;
+          }
+        }
+        depth = actual_querys.length;
+        for (_j = 0, _len1 = actual_querys.length; _j < _len1; _j++) {
+          query = actual_querys[_j];
           depth -= 1;
           title = budget_array_data[query].t;
           if (depth > 0) {

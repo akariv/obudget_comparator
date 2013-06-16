@@ -327,7 +327,6 @@ class BubbleChart extends Backbone.View
                 if data.length > 0
                         @render()
                 else
-                        @setBreadcrumbs(null)
                         container = $("div[data-id='#{@id}']")
                         if @transitiontime > 0
                                 @circle.transition().duration(@transitiontime)
@@ -422,8 +421,13 @@ class BubbleChart extends Backbone.View
                         bc = $("div[data-id='#{@id}'] .breadcrumbs")
                         bc.find(".breadpart").remove()
 
-                        depth = state.querys.length
+                        actual_querys = []
                         for query in state.querys
+                                actual_querys.push query
+                                if query == @model.get 'field'
+                                        break
+                        depth = actual_querys.length
+                        for query in actual_querys
                                 depth -= 1
                                 title = budget_array_data[query].t
                                 if depth > 0
