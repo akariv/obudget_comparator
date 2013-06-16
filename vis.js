@@ -567,13 +567,17 @@
       $(".modal").remove();
       $(".modal-template").clone().appendTo('body');
       $(".modal-template:last").toggleClass("modal-template", false).toggleClass("modal", true);
-      console.log("EEE1", $(".modal .tab-pane"));
       $(".modal .tab-pane").each(function(e) {
-        console.log("EEE", this);
         return $(this).attr("id", $(this).attr("data-id"));
       });
-      $(".modal nav-tabs a").tab();
+      $(".modal nav-pills a").tab();
+      $(".modal li").toggleClass("active", false);
+      $(".modal a[href='" + select + "']").parent().toggleClass("active", true);
+      $(".modal .tab-pane").toggleClass("active", false);
+      $(".modal " + select).toggleClass("active", true);
       field = that.model.get('field');
+      $(".modal .shareItemDetails h3").text(this.model.get('title'));
+      $(".modal .shareItemDetails p").html(getExplanation(field));
       titles = _.map(that.nodes, function(d) {
         return {
           id: d.sid,
@@ -600,12 +604,12 @@
               return __iced_deferrals.ret = arguments[0];
             };
           })(),
-          lineno: 400
+          lineno: 402
         })), 100);
         __iced_deferrals._fulfill();
       })(function() {
         item_select = $(".modal .item-select");
-        set_path = function(path, title) {
+        set_path = function(path, title, code) {
           $(".modal .embed-code").html("<pre>&lt;iframe src='http://compare.open-budget.org.il/?" + path + "' width='640' height='900'/&gt;</pre>");
           $(".modal .direct-link").html("http://compare.open-budget.org.il/?" + path);
           $(".modal .facebook-share").click(function() {
@@ -614,6 +618,8 @@
             window.open(sharer, 'sharer', 'width=626,height=436');
             return false;
           });
+          $(".modal .shareItemDetails h3").text(title);
+          $(".modal .shareItemDetails p").html(getExplanation(code));
           $(".modal .shareThumb").attr("src", "http://compare.open-budget.org.il/images/large/" + path + ".jpg");
           $(".modal .shareThumb").attr("alt", title);
           return $(".modal .photo-download").click(function() {
@@ -628,13 +634,14 @@
           allowClear: false,
           data: titles
         }).on("change", function(e) {
-          var path, title;
+          var code, path, title;
           if (e.added) {
             path = e.added.path;
             title = e.added.title;
+            code = e.added.id;
             console.log("AAA", path);
             item_select.select2("close");
-            return set_path(path, title);
+            return set_path(path, title, code);
           }
         });
         set_path(field);
@@ -657,7 +664,7 @@
                   return __iced_deferrals.ret = arguments[0];
                 };
               })(),
-              lineno: 434
+              lineno: 439
             })), 100);
             __iced_deferrals._fulfill();
           })(function() {

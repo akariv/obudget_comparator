@@ -387,18 +387,22 @@ class BubbleChart extends Backbone.View
                 $(".modal .tab-pane").each( (e) ->
                         $(@).attr("id",$(@).attr("data-id"))
                 )
-                $(".modal nav-tabs a").tab()
+                $(".modal nav-pills a").tab()
                 $(".modal li").toggleClass("active",false)
                 $(".modal a[href='#{select}']").parent().toggleClass("active",true)
                 $(".modal .tab-pane").toggleClass("active",false)
                 $(".modal #{select}").toggleClass("active",true)
                 
                 field = that.model.get('field')
+
+                $(".modal .shareItemDetails h3").text(@model.get('title'))
+                $(".modal .shareItemDetails p").html(getExplanation(field))
+
                 titles = _.map(that.nodes,(d)->{id:d.sid,text:d.name,title:d.name,path:field+";"+d.sid})
                 titles.unshift({id:field,text:"בחירת התרשים כמות שהוא",title:that.model.get('title'),path:field})
                 await setTimeout((defer _),100) # allow DOM to settle
                 item_select = $(".modal .item-select")
-                set_path = (path,title) ->
+                set_path = (path,title,code) ->
                         $(".modal .embed-code").html("<pre>&lt;iframe src='http://compare.open-budget.org.il/?#{path}' width='640' height='900'/&gt;</pre>")
                         $(".modal .direct-link").html("http://compare.open-budget.org.il/?#{path}")
                         $(".modal .facebook-share").click( ->
@@ -406,6 +410,8 @@ class BubbleChart extends Backbone.View
                                 window.open(sharer, 'sharer', 'width=626,height=436')
                                 false
                         )
+                        $(".modal .shareItemDetails h3").text(title)
+                        $(".modal .shareItemDetails p").html(getExplanation(code))
                         $(".modal .shareThumb").attr("src","http://compare.open-budget.org.il/images/large/#{path}.jpg")
                         $(".modal .shareThumb").attr("alt",title)
                         $(".modal .photo-download").click( ->
@@ -421,9 +427,10 @@ class BubbleChart extends Backbone.View
                         if e.added
                                 path = e.added.path
                                 title = e.added.title
+                                code = e.added.id
                                 console.log "AAA",path
                                 item_select.select2("close")
-                                set_path(path,title)
+                                set_path(path,title,code)
                 )
                 set_path(field)
                 first = true
