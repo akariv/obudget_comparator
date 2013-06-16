@@ -185,7 +185,7 @@
       }
     }
     d3.select("#tooltip .itemNumber").text(itemNumber);
-    d3.select("#tooltip .explanation").text(getExplanation(d.sid, 2014));
+    d3.select("#tooltip .explanation").html(getExplanation(d.sid, 2014, d.name));
     if (d.history) {
       if (d.history > 0) {
         d3.select("#tooltip .history").text("מ-2009 ההוצאות חורגות ב" + d.history + "% בממוצע מהתכנון").classed("plus", true).classed("minus", false).attr("data-categories", "" + d.changeCategory + ":" + d.projectedChangeCategory);
@@ -223,6 +223,7 @@
 
     BubbleChart.prototype.strokeColor = function(code, changeCategory) {
       var _strokeColor;
+      console.log("CCC", code, globalSelectedItem);
       if (code === globalSelectedItem) {
         return "#FF0";
       }
@@ -612,7 +613,7 @@
                 return __iced_deferrals.ret = arguments[0];
               };
             })(),
-            lineno: 412
+            lineno: 413
           })), 100);
           __iced_deferrals._fulfill();
         })(function() {
@@ -641,7 +642,7 @@
     };
 
     BubbleChart.prototype.render = function() {
-      var container, frame, overlay, resizeFrame, search, tagClicked, tags, that,
+      var chartContainer, container, frame, overlay, resizeFrame, search, tagClicked, tags, that,
         _this = this;
       that = this;
       this.init_popovers($("div[data-id='" + this.id + "'] .btnShare"), function(path) {
@@ -735,7 +736,9 @@
         var x, _i, _len, _ref2;
         console.log("changed:", e);
         if (e.added) {
-          that.selectItem(e.added.id);
+          that.selectItem({
+            code: e.added.id
+          });
           _ref2 = e.added.state;
           for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
             x = _ref2[_i];
@@ -763,6 +766,7 @@
         }));
       }
       container = $("div[data-id='" + this.id + "'] .overlayContainer");
+      chartContainer = $("div[data-id='" + this.id + "'] .chartContainer");
       overlay = $("div[data-id='" + this.id + "'] .overlay");
       frame = $("div[data-id='" + this.id + "'] .frame");
       resizeFrame = function() {
@@ -777,7 +781,8 @@
         if (!_this.overlayShown && _this.circle) {
           _this.circle.attr("transform", "translate(" + _this.centerX + "," + _this.centerY + ")rotate(0)translate(0,0)scale(1)");
         }
-        return overlay.css("height", (frame.height() + 8) + "px");
+        overlay.css("height", (chartContainer.height()) + "px");
+        return overlay.css("top", (chartContainer.offset().top) + "px");
       };
       $(window).resize(resizeFrame);
       resizeFrame();
@@ -939,7 +944,7 @@
       el = $("div[data-id='" + id + "'] .chart");
       if (el.size() === 0) {
         console.log("creating chart " + id);
-        title = ((_ref3 = state.selectedStory) != null ? _ref3.title : void 0) || "השווה את התקציב";
+        title = ((_ref3 = state.selectedStory) != null ? _ref3.title : void 0) || "התקציב הדו שנתי 2013-2014 לעומת תקציב 2012";
         default_subtitle = 'כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו';
         explanation = getExplanation(query);
         console.log("ADAM1", explanation);
@@ -998,19 +1003,25 @@
 
   explanations = {};
 
-  getExplanation = function(code, year) {
+  getExplanation = function(code, year, title) {
     var explanation, years;
     years = explanations[code];
     console.log("got years ", years, "for", code);
+    explanation = null;
     if (years) {
       year = parseInt(year);
       explanation = years[year];
       if (!explanation) {
         explanation = years[Object.keys(years)[0]];
       }
-      return explanation;
     }
-    return null;
+    if (code !== "0047" && title && title.indexOf("רזרבה") >= 0) {
+      if (!explanation) {
+        explanation = "";
+      }
+      explanation += "<b>- תקציב זה מהווה רזרבה לפעילות המשרד/היחידה. אם בסוף השנה היקף הרזרבה יורד ב-100%, זה סימן שהמשרד/היחידה ניצלו את הרזרבה עד תום</b>";
+    }
+    return explanation;
   };
 
   gotStories = false;
@@ -1155,7 +1166,7 @@
     firstquery = state.querys[0];
     if (!state.selectedStory) {
       state.selectedStory = {
-        'title': "תקציב המדינה 2014 מול 2012",
+        'title': "התקציב הדו שנתי 2013-2014 לעומת תקציב 2012",
         'subtitle': null
       };
     }

@@ -105,7 +105,7 @@ showTooltip = (d,xpos,ypos,that) ->
                 if (bcodes.length!=1) or (bcodes[0]!=d.code)
                         itemNumber += " ("+(bcodes.join(","))+" ב-2012)"
         d3.select("#tooltip .itemNumber").text(itemNumber)
-        d3.select("#tooltip .explanation").text(getExplanation(d.sid,2014))
+        d3.select("#tooltip .explanation").html(getExplanation(d.sid,2014,d.name))
         if d.history
                 if d.history > 0
                         d3.select("#tooltip .history")
@@ -142,6 +142,7 @@ class BubbleChart extends Backbone.View
                 _fillColor(changeCategory)
 
         strokeColor: (code, changeCategory) ->
+                console.log "CCC",code,globalSelectedItem
                 if code == globalSelectedItem then return "#FF0"
                 _strokeColor = d3.scale.ordinal().domain([-4,-3,-2,-1,0,1,2,3,4]).range(["#796001", "#c09100", "#e7bd53","#d9c292","#999","#a7aed3", "#7f8ab8", "#4f5fb0","#1A2055"])
                 _strokeColor(changeCategory);
@@ -540,7 +541,7 @@ class BubbleChart extends Backbone.View
                         (e) ->
                                 console.log "changed:",e
                                 if e.added
-                                        that.selectItem(e.added.id)
+                                        that.selectItem(code: e.added.id)
                                         for x in e.added.state
                                                 addState(x)
                                         search.select2("val", "")
@@ -562,6 +563,7 @@ class BubbleChart extends Backbone.View
                                                 false
                                         )
                 container = $("div[data-id='#{@id}'] .overlayContainer")
+                chartContainer = $("div[data-id='#{@id}'] .chartContainer")
                 overlay = $("div[data-id='#{@id}'] .overlay")
                 frame = $("div[data-id='#{@id}'] .frame")
 
@@ -574,7 +576,8 @@ class BubbleChart extends Backbone.View
                         @svg.style "width", @width+"px"
                         if not @overlayShown and @circle
                                 @circle.attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(0,0)scale(1)")
-                        overlay.css("height",(frame.height()+8)+"px")
+                        overlay.css("height",(chartContainer.height())+"px")
+                        overlay.css("top",(chartContainer.offset().top)+"px")
 
                 $(window).resize resizeFrame
                                 
@@ -729,7 +732,7 @@ handleNewState = () ->
                 el = $("div[data-id='#{id}'] .chart")
                 if el.size() == 0
                         console.log "creating chart "+id
-                        title = state.selectedStory?.title or "השווה את התקציב"
+                        title = state.selectedStory?.title or "התקציב הדו שנתי 2013-2014 לעומת תקציב 2012"
                         default_subtitle ='כך הממשלה מתכוונת להוציא מעל 400 מיליארד שקלים. העבירו את העכבר מעל לעיגולים וגלו כמה כסף מקדישה הממשלה לכל מטרה. לחצו על עיגול בשביל לצלול לעומק התקציב ולחשוף את הפינות החבויות שלו'
                         explanation = getExplanation(query)
                         console.log "ADAM1", explanation
@@ -774,16 +777,20 @@ handleNewState = () ->
         
 
 explanations = {}
-getExplanation = (code,year) ->
+getExplanation = (code,year,title) ->
         years = explanations[code]
         console.log "got years ",years,"for",code
+        explanation = null
         if years
                 year = parseInt(year)
                 explanation = years[year]
                 if not explanation
                         explanation = years[Object.keys(years)[0]]
-                return explanation
-        return null
+        if code != "0047" and title and title.indexOf("רזרבה") >= 0
+                if not explanation
+                        explanation = ""
+                explanation += "<b>- תקציב זה מהווה רזרבה לפעילות המשרד/היחידה. אם בסוף השנה היקף הרזרבה יורד ב-100%, זה סימן שהמשרד/היחידה ניצלו את הרזרבה עד תום</b>"
+        return explanation
 
 gotStories = false
 gotExplanations = false
@@ -884,7 +891,7 @@ init = () ->
         console.log "Q2",state.querys
         firstquery = state.querys[0]
         if !state.selectedStory
-                state.selectedStory = { 'title':"תקציב המדינה 2014 מול 2012", 'subtitle':null }
+                state.selectedStory = { 'title':"התקציב הדו שנתי 2013-2014 לעומת תקציב 2012", 'subtitle':null }
         
         _state = History.getState()
         console.log "getState: ",_state

@@ -39,6 +39,9 @@ a {
   color: #c09100;
   font-weight: bold;
 }
+.frame .description {
+  background: #fff;
+}
 .frame .description p {
   min-height: 69px;
 }
