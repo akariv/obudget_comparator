@@ -71,7 +71,7 @@ showTooltip = (d,xpos,ypos,that) ->
                 tail -= xpos - (that.width - 125)
                 xpos = (that.width - 125)
         xpos += 4 # instead of left
-        if ypos > 0
+        if ypos > @height/4
                 ypos = ypos - d.radius - 10 +svgPos.top+that.centerY
                 $("#tooltipContainer").css("bottom",0)
                 d3.select("#tooltip .arrow.top").style("display","none")
@@ -384,6 +384,12 @@ class BubbleChart extends Backbone.View
                 $(".modal").remove()
                 $(".modal-template").clone().appendTo('body')
                 $(".modal-template:last").toggleClass("modal-template",false).toggleClass("modal",true)
+                console.log "EEE1", $(".modal .tab-pane")
+                $(".modal .tab-pane").each( (e) ->
+                        console.log "EEE", @
+                        $(@).attr("id",$(@).attr("data-id"))
+                )
+                $(".modal nav-tabs a").tab()
                 #$(".modal li").toggleClass("active",false)
                 #$(".modal a[href='#{select}']").parent().toggleClass("active",true)
                 #$(".modal .tab-pane").toggleClass("active",false)

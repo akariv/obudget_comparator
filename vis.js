@@ -154,7 +154,7 @@
       xpos = that.width - 125;
     }
     xpos += 4;
-    if (ypos > 0) {
+    if (ypos > this.height / 4) {
       ypos = ypos - d.radius - 10 + svgPos.top + that.centerY;
       $("#tooltipContainer").css("bottom", 0);
       d3.select("#tooltip .arrow.top").style("display", "none");
@@ -567,6 +567,12 @@
       $(".modal").remove();
       $(".modal-template").clone().appendTo('body');
       $(".modal-template:last").toggleClass("modal-template", false).toggleClass("modal", true);
+      console.log("EEE1", $(".modal .tab-pane"));
+      $(".modal .tab-pane").each(function(e) {
+        console.log("EEE", this);
+        return $(this).attr("id", $(this).attr("data-id"));
+      });
+      $(".modal nav-tabs a").tab();
       field = that.model.get('field');
       titles = _.map(that.nodes, function(d) {
         return {
@@ -594,7 +600,7 @@
               return __iced_deferrals.ret = arguments[0];
             };
           })(),
-          lineno: 394
+          lineno: 400
         })), 100);
         __iced_deferrals._fulfill();
       })(function() {
@@ -651,7 +657,7 @@
                   return __iced_deferrals.ret = arguments[0];
                 };
               })(),
-              lineno: 428
+              lineno: 434
             })), 100);
             __iced_deferrals._fulfill();
           })(function() {
