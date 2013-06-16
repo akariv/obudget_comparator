@@ -357,8 +357,8 @@ div.btnShareContainer {
 		background: #ddd;
 		padding: 3px 0 6px;
 	}
-	&.minus .name, &.minus .history {background: lighten(@shrinkColor,30%);} //should be set dynamic
-	&.plus .name, &.plus .history {background: lighten(@growColor,30%);} //should be set dynamic
+	&.minus .name {background: lighten(@shrinkColor,30%);} //should be set dynamic
+	&.plus .name {background: lighten(@growColor,30%);} //should be set dynamic
 	.value {
 		text-align:center;
 		left:10px;
@@ -400,7 +400,12 @@ div.btnShareContainer {
 		line-height: 1.3em;
 	}
 	.history{
-		background: 
+		margin: 0;
+		padding: 0 3px;
+		font-size: 12px;
+		font-weight: bold;
+		&.plus{color:@growColor}
+		&.minus{color:@shrinkColor}
 	}
 }
 

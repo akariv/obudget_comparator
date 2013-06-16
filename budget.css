@@ -364,6 +364,18 @@ div.btnShareContainer fb:like {
   margin: 3px;
   line-height: 1.3em;
 }
+#tooltip .history {
+  margin: 0;
+  padding: 0 3px;
+  font-size: 12px;
+  font-weight: bold;
+}
+#tooltip .history.plus {
+  color: #3e48b5;
+}
+#tooltip .history.minus {
+  color: #c09100;
+}
 #asterisk {
   padding: 10px 10px 10px 140px;
   color: #919191;
