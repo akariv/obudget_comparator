@@ -62,14 +62,14 @@ showTooltip = (d,xpos,ypos,that) ->
                 globalTooltipShown = false
                 return
         svgPos = $("div.chart:last").offset()
-        tail = 100
+        tail = 107.5
         xpos += that.centerX
-        if xpos < 125
-                tail += 125 - xpos
-                xpos = 125
-        if xpos > (that.width - 125)
-                tail -= xpos - (that.width - 125)
-                xpos = (that.width - 125)
+        if xpos < 135
+                tail += 135 - xpos
+                xpos = 135
+        if xpos > (that.width - 135)
+                tail -= xpos - (that.width - 135)
+                xpos = (that.width - 135)
         xpos += 4 # instead of left
         if ypos > -that.height/4
                 ypos = ypos - d.radius - 10 +svgPos.top+that.centerY
@@ -105,13 +105,13 @@ showTooltip = (d,xpos,ypos,that) ->
         if d.history
                 if d.history > 0
                         d3.select("#tooltip .history")
-                                .text("מ-2009 ההוצאות חורגות ב#{d.history}% בממוצע מהתכנון")
+                                .text("מ2009 ההוצאות חורגות ב#{d.history}%+ בממוצע מהתכנון")
                                 .classed("plus",true)
                                 .classed("minus",false)
                                 .attr("data-categories","#{d.changeCategory}:#{d.projectedChangeCategory}")
                 else if d.history < 0
                         d3.select("#tooltip .history")
-                                .text("מ-2009 רק #{100 + d.history}% מהתקציב מנוצל בממוצע")
+                                .text("מ-2009 בממוצע #{-d.history}% מהתקציב אינו מנוצל")
                                 .classed("plus",false)
                                 .classed("minus",true)
                                 .attr("data-categories","#{d.changeCategory}:#{d.projectedChangeCategory}")

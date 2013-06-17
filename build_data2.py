@@ -340,7 +340,11 @@ def tree_from_items(items):
         node = tree
         bc = []
         for i in range(4,len(code),2):
-            node = [ x for x in node['children'].values() if x['code'] == code[:i] ][0]
+            try:
+                node = [ x for x in node['children'].values() if x['code'] == code[:i] ][0]
+            except:
+                print "FAILED FOR",item
+                continue
             bc.append(node['title'])
         node.setdefault('children',{})[code] = item
         bc.append(item['title'])
@@ -399,9 +403,14 @@ if __name__=="__main__":
     toremove_prefixes = [ "0089", "0095", "0098", "0000", "0094" ]
     items2014 = [ x for x in budget_file() if x['year'] == 2014 and x['code'][:4] not in toremove_prefixes and len(x['code'])<=8 ]
     items2012 = [ x for x in budget_file() if x['year'] == 2012 and x['code'][:4] not in toremove_prefixes and len(x['code'])<=8 ]
+    inc_items2014 = [ x for x in budget_file() if x['year'] == 2014 and x['code'][:4] == "0000" and len(x['code'])<=10 ]
+    inc_items2012 = [ x for x in budget_file() if x['year'] == 2012 and x['code'][:4] == "0000" and len(x['code'])<=10 ]
+
+    items2012.extend(inc_items2012)
 
     tree2014 = tree_from_items(items2014)
     tree2012 = tree_from_items(items2012)
+    inc_tree2014 = tree_from_items(inc_items2014)
 
     renames = { "0025" : u"הרשות לזכויות ניצולי השואה",
                 "00" : u"תקציב המדינה" }
@@ -423,6 +432,7 @@ if __name__=="__main__":
     join_items(items2012,tojoin)
 
     groups = get_groups(items2014)
+    groups.extend( get_groups(inc_items2014) )
 
     trasnslations_source = [ ("translations.csv", 6, 10), ("translations2.csv", 5, 8) ]
     translations = []
