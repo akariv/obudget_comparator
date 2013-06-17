@@ -454,16 +454,26 @@ div.btnShareContainer {
 
 .modal{
 	text-align: right;
+	.modal-body{
+		min-height: 385px;
+	}
 	ul.nav li{
 		float: right;
 	}
 	.item-select{
 		width: 100%;
 	}
+	label{
+		margin-top: 20px;
+	}
 	img{
 		width: 260px;
 		margin: 10px -10px 10px 0;
 		float: right;
+		@media all and (max-width: 570px){
+			width: 140px;
+			margin: 10px -6px 10px 0;
+		}
 	}
 	.shareItemDetails{
 		margin-right: 20px;
@@ -474,7 +484,6 @@ div.btnShareContainer {
 		float: left;
 	}
 }
-
 #select2-drop{
 	float: right;
 }
