@@ -45,6 +45,16 @@ a {
 .frame .description p {
   min-height: 69px;
 }
+@media all and (max-width: 750px) {
+  .frame .description p {
+    min-height: 92px;
+  }
+}
+@media all and (max-width: 570px) {
+  .frame .description p {
+    min-height: 115px;
+  }
+}
 #search {
   margin-top: -10px;
   background: #F2F1EF;
@@ -138,6 +148,21 @@ a {
 .chartContainer h2.breadcrumbs a.btnBack:hover {
   text-decoration: none;
   color: #444444;
+}
+.chartContainer h2.breadcrumbs a.splitter {
+  left: 15px;
+  top: 15px;
+  position: absolute;
+  display: block;
+  color: #919191;
+  font-size: 1.2em;
+}
+.chartContainer h2.breadcrumbs a.splitter:hover {
+  text-decoration: none;
+  color: #444444;
+}
+.chartContainer h2.breadcrumbs a.splitter.on {
+  color: #007395;
 }
 .chartContainer h2.breadcrumbs a.active,
 .chartContainer h2.breadcrumbs a.breadcrumbsLink {

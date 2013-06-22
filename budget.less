@@ -59,6 +59,12 @@ a{
 	    background: #fff;
 	    p {	     
 		min-height: 69px;
+	      	@media all and (max-width: 750px){
+		    min-height: 92px;
+		}
+	      	@media all and (max-width: 570px){
+		    min-height: 115px;
+		}
 	    }
 	}
 }
@@ -159,6 +165,21 @@ a{
 					text-decoration: none;
 					color: @textColor;
 				}
+			}
+			&.splitter{
+				left: 15px;
+				top: 15px;
+				position: absolute;
+				display: block;
+				color: lighten(@textColor,30%);
+				font-size: 1.2em;
+				&:hover{
+					text-decoration: none;
+					color: @textColor;
+				}
+				&.on {
+					 color: @linkColor;				
+				}				
 			}
 
 			&.active,

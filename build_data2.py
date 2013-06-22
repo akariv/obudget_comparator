@@ -98,11 +98,9 @@ def merge_trees(root1, root2):
         group = child_nodes[1]['group']
         parent_value = child_nodes[1].get('parent_value')
         for i in range(2):
-            print "%s: got report%d for %s%s: %r" % (root1['code'], i, root1['code'],code,_report)
             report['only'][i].extend(_report['only'][i])
 
     for i in range(2):
-        print "%s: othercodes%d: children(%r) -> %r" % (root1['code'], i, roots[i]['children'].keys(), list(root1['code']+x for x in other_codes[i]))
         report['only'][i].extend(root1['code']+x for x in other_codes[i])
     
     if sum([len(x) for x in other_codes]) > 0:
@@ -309,7 +307,6 @@ if __name__=="__main__" and False:
     out = file('data.js','w')
     out.write('budget_array_data = %s;\n' % json.dumps(diffsDict))
     out.write('strings = %s;\n' % json.dumps(strings))
-    #print json.dumps(dict(diffs))
     urlsFile = file('all.html','w')
     urlsFile.write("<!DOCTYPE html><html><head><meta charset='utf-8'><title>כל ההשוואות</title></head><body><ul style='direction:rtl;'>")
     for x in urls: urlsFile.write(("<li><a href='vis.html?%s'>%s</a></li>" % x).encode('utf8'))
@@ -343,13 +340,12 @@ def tree_from_items(items):
             try:
                 node = [ x for x in node['children'].values() if x['code'] == code[:i] ][0]
             except:
-                print "FAILED FOR",item
+                print "ERROR: failed to dive in for item %s" % code
                 continue
             bc.append(node['title'])
         node.setdefault('children',{})[code] = item
         bc.append(item['title'])
         item['bc'] = bc
-        print item
         
     return tree
 
@@ -360,7 +356,7 @@ def join_items(items,tojoin):
             fromitem_parent = [ x for x in items if x['code'] == fromcode[:-2]][0]
             fromitem = fromitem_parent['children'][fromcode]
         except IndexError:
-            print "Failed to find join candidates for %s-->%s" % (fromcode, tocode)
+            print "FAIL: Failed to find join candidates for %s-->%s" % (fromcode, tocode)
             continue
         del fromitem_parent['children'][fromcode]
         toitem.setdefault('joincode',toitem['code'])
@@ -370,7 +366,7 @@ def join_items(items,tojoin):
         del fromitem['children']
 
 def get_groups(items):
-    return [ (x['code'],x['title'],x['code'][:-2]," / ".join(x['bc']),x['children'].values()) for x in items if 'children' in x ]
+    return [ (x['code'],x['title'],x['code'][:-2] if x['code'] != '0000' else None," / ".join(x['bc']),x['children'].values()) for x in items if 'children' in x ]
 
 performance_aid = dict([("%s/%s" % (x['year'],x['code']),x) for x in budget_file()])
 
@@ -395,8 +391,64 @@ def past_performance(items):
     if len(performance) > 0:
         return sum(performance) / len(performance)
     else:
-        print "past performance for %r is undefined" % items
+        print "WARN: past performance for %r is undefined" % [x['code'] for x in items]
         return None
+
+def get_translations():
+    trasnslations_source = [ ("translations.csv", 6, 10), ("translations2.csv", 5, 8) ]
+    translations = []
+    digitsre = re.compile("[0-9]+")
+    already_in = []
+    for src in trasnslations_source:
+        translations_csv = csv.reader(file(src[0]))
+        all_froms = set()
+        for row in translations_csv:
+            try:
+                fromcodes = [x.strip() for x in row[src[2]].replace('"','').split(',') if x.strip() != '' ]
+                fromcodes = [ x for x in fromcodes if digitsre.match(x) != None ]
+                for x in fromcodes:
+                    if x in all_froms:
+                        print "ERROR: %s already in translation" % x
+                        already_in.append(x)
+                    all_froms.add(x)
+                tocode = row[src[1]].replace('"','').strip()
+                if tocode != '' and len(fromcodes)>0:
+                    translations.append((tocode,fromcodes))
+            except:
+                pass
+    translations = dict(translations)
+    print "ERROR\n%s" % '\n'.join(already_in)
+    return translations
+
+translations = get_translations()
+
+def get_prev_candidates(code,items):
+    candidates = []
+    translation = translations.get(code,[code])
+    for code in translation:
+        candidates.extend([x for x in items if x['code'] == code])
+    return candidates
+
+def get_prefixes(codes):
+    to_remove = []
+    for code in codes:
+        to_remove.extend(x for x in codes if x!=code and x.startswith(code))
+    return codes - set(to_remove)
+
+def flattened_tree_for_code(code,items):
+    item = [ x for x in items if x['code'] == code ][0]
+    def _traverse(node):
+        yield node
+        if 'children' in node:
+            for x in node['children'].values():
+                for y in _traverse(x):
+                    yield y
+    for x in _traverse(item):
+        yield x
+
+def get_prev_value(code,candidates,field):
+    prev_value = sum([x[field] for x in candidates])
+    return prev_value
 
 if __name__=="__main__":
 
@@ -434,22 +486,6 @@ if __name__=="__main__":
     groups = get_groups(items2014)
     groups.extend( get_groups(inc_items2014) )
 
-    trasnslations_source = [ ("translations.csv", 6, 10), ("translations2.csv", 5, 8) ]
-    translations = []
-    digitsre = re.compile("[0-9]+")
-    for src in trasnslations_source:
-        translations_csv = csv.reader(file(src[0]))
-        for row in translations_csv:
-            try:
-                fromcodes = [x.strip() for x in row[src[2]].replace('"','').split(',') if x.strip() != '' ]
-                fromcodes = [ x for x in fromcodes if digitsre.match(x) != None ]
-                tocode = row[src[1]].replace('"','').strip()
-                if tocode != '' and len(fromcodes)>0:
-                    translations.append((tocode,fromcodes))
-            except:
-                pass
-    translations = dict(translations)
-
     links = csv.reader(file('links.csv'))
     links = [ ("%04d" % (int(x[0])), x[2]) for x in links ]
     links = dict(links)
@@ -461,13 +497,11 @@ if __name__=="__main__":
     urls=[]
     out_groups = []
     for c,t,u,bc,group in groups:
+        field2012 = "net_allocated" if not c.startswith("0000") else "net_used"
         out_group = []
         for item in group:
-            translation = translations.get(item['code'],[item['code']])
-            candidates = []
-            for code in translation:
-                candidates.extend([x for x in items2012 if x['code'] == code])
-            prev_value = sum([x['net_allocated'] for x in candidates])
+            candidates = get_prev_candidates(item['code'],items2012)
+            prev_value = get_prev_value(item['code'],candidates,field2012)
             if prev_value <= 0 and item['net_allocated'] <= 0: continue
             if item['code'] in ignoreitems and item['net_allocated'] <= 0: continue
             change = (100*item['net_allocated'])/prev_value - 100 if prev_value > 0 else 99999
@@ -485,8 +519,56 @@ if __name__=="__main__":
         if len(out_group)>0:
             out_groups.append((c,{'c':c,'t':renames.get(c,t),'d':out_group,'u':u,'l':links.get(c[:4])}))#'b':bc}))
         else:
-            print "WARN group %s is empty!" % c
+            print "WARN: group %s is empty!" % c
         urls.append((c,t))
+
+    actual_fields = {}
+    expected_fields = {}
+    all_candidates = {}
+    sumerr = file("sumerr.csv","w")
+    sumerr = csv.writer(sumerr)
+    for c,t,u,bc,group in groups:
+        field2012 = "net_allocated" if not c.startswith("0000") else "net_used"
+        all_candidates[c] = [x['code'] for x in get_prev_candidates(c,items2012) if x[field2012] > 0]
+        actual_fields[c] = []
+        expected_fields[c] = []
+        for x in all_candidates[c]:
+            descendants = [ i['code'] for i in flattened_tree_for_code(x,items2012) if i[field2012] > 0 ]
+            expected_fields[c].extend(descendants)
+        for item in group:
+            candidates = [ x['code'] for x in get_prev_candidates(item['code'],items2012) if x[field2012] > 0 ]
+            print ">>> %s > %s => %r" % (c,item['code'], candidates)
+            for x in candidates:
+                descendants = [ i['code'] for i in flattened_tree_for_code(x,items2012) if i[field2012] > 0 ]
+                print "\t\t %s => %r" % (x,descendants)
+                actual_fields[c].extend(descendants)
+    for c,t,u,bc,group in groups:
+        extra = set(actual_fields[c]) - set(expected_fields[c])
+        extra = get_prefixes(extra)
+        missing = set(expected_fields[c]) - set(actual_fields[c]) - set(all_candidates[c])
+        missing = get_prefixes(missing)
+        if len(extra) > 0 or len(missing) > 0:
+            row = ['"%s"' % c,'"%s"' % ",".join(missing), '"%s"' % ",".join(extra)]
+            sumerr.writerow(row)
+            print "CODE: %s" % c
+            print "actual: %r, expected: %r, candidates: %r" % (actual_fields[c],expected_fields[c], all_candidates[c])
+            if len(missing) > 0:
+                print "\tMISSING: %r" % missing
+            if len(extra) > 0:
+                print "\tEXTRA: %r" % extra
+
+        # field2012 = "net_allocated" if not c.startswith("0000") else "net_used"
+        # for item in group:
+        #     if 'children' in item:
+        #         candidates = get_prev_candidates(item['code'],items2012)
+        #         if group_sums[item['code']] != get_prev_value(item['code'],candidates,field2012):
+        #             print "ERROR: subitems for %s don't sum up (%d != %d)" % (item['code'], item['net_allocated'], group_sums[item['code']])
+        #             to_write = ['"%s"' % item['code'],
+        #                              item['title'].encode('utf8'),
+        #                              ",".join([x['code'] for x in candidates]), 
+        #                              get_prev_value(item['code'],candidates,field2012), 
+        #                              group_sums[item['code']]]
+        #             sumerr.writerow(to_write)
 
     diffs = dict(out_groups)
 
@@ -501,7 +583,7 @@ if __name__=="__main__":
         key = x[0]
         title = x[1]
         fn = 'images/large/%(url)s.jpg' % { 'url' : key }
-        cmd = "phantomjs images/rasterize.js 'http://localhost:8000/vis.html?%(url)s' l 'images/large/%(url)s.jpg'" % { 'url' : key }
-        imagesScript.write("sleep 4 && ( if [ ! -f '%(fn)s.synced' ]; then %(cmd)s ; fi ) &\n" % {'cmd': cmd,'fn':fn, 'wait': 4*i} )
+        cmd = "phantomjs images/rasterize.js 'http://localhost:8000/vis.html?%(url)s' m 'images/large/%(url)s.jpg'" % { 'url' : key }
+        imagesScript.write("if [ ! -f '%(fn)s.synced' ]; then %(cmd)s ; fi \n" % {'cmd': cmd,'fn':fn, 'wait': 4*i} )
         writeProxyHtml( key, title ) 
 

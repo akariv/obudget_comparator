@@ -271,9 +271,22 @@
     BubbleChart.prototype.totalSort = function(alpha) {
       var _this = this;
       return function(d) {
-        var targetX, targetY;
-        targetY = 0;
-        targetX = 0;
+        var bump, cat, radiusx, radiusy, targetX, targetY;
+        cat = _this.budget_categories[d.sid];
+        targetX = targetY = 0;
+        bump = 0.02;
+        radiusx = 10;
+        radiusy = 0;
+        if (_this.showSplit) {
+          radiusx = _this.width * 0.2;
+          radiusy = _this.height * 0.15;
+          bump = 0.04;
+        }
+        if (cat && cat !== 7) {
+          cat = cat * Math.PI * 0.333;
+          targetY = radiusy * Math.sin(cat);
+          targetX = radiusx * Math.cos(cat);
+        }
         if (d.isNegative) {
           if (d.changeCategory > 0) {
             d.x = -200;
@@ -281,8 +294,8 @@
             d.x = 1100;
           }
         }
-        d.y = d.y + (targetY - d.y) * (_this.defaultGravity + 0.02) * alpha;
-        return d.x = d.x + (targetX - d.x) * (_this.defaultGravity + 0.02) * alpha;
+        d.y = d.y + (targetY - d.y) * (_this.defaultGravity + bump) * alpha;
+        return d.x = d.x + (targetX - d.x) * (_this.defaultGravity + bump) * alpha;
       };
     };
 
@@ -343,6 +356,7 @@
       this.height = 550;
       this.id = this.options.id;
       this.overlayShown = false;
+      this.showSplit = false;
       this.defaultGravity = 0.1;
       this.force = this.svg = this.circle = null;
       this.centerX = this.width / 2;
@@ -352,10 +366,71 @@
       });
       d3.select(this.el).html("");
       this.svg = d3.select(this.el).append("svg:svg");
-      return this.svg.on("click", function() {
+      this.svg.on("click", function() {
         removeState();
         return false;
       });
+      return this.budget_categories = {
+        "0001": 2,
+        "0002": 2,
+        "0003": 2,
+        "0004": 2,
+        "0005": 2,
+        "0006": 2,
+        "0007": 1,
+        "0008": 2,
+        "0009": 2,
+        "0010": 1,
+        "0011": 2,
+        "0012": 6,
+        "0013": 2,
+        "0014": 2,
+        "0015": 1,
+        "0016": 1,
+        "0017": 1,
+        "0018": 2,
+        "0019": 4,
+        "0020": 3,
+        "0021": 3,
+        "0023": 3,
+        "0024": 3,
+        "0025": 3,
+        "0026": 4,
+        "0027": 3,
+        "0029": 5,
+        "0030": 3,
+        "0032": 4,
+        "0033": 4,
+        "0034": 5,
+        "0035": 4,
+        "0036": 4,
+        "0037": 4,
+        "0038": 4,
+        "0039": 4,
+        "0040": 5,
+        "0041": 5,
+        "0042": 5,
+        "0043": 5,
+        "0045": 6,
+        "0046": 1,
+        "0051": 3,
+        "0052": 1,
+        "0053": 2,
+        "0054": 4,
+        "0056": 3,
+        "0060": 3,
+        "0067": 3,
+        "0068": 2,
+        "0070": 5,
+        "0073": 5,
+        "0076": 4,
+        "0078": 4,
+        "0079": 5,
+        "0083": 5,
+        "0084": 6,
+        "0055": 1,
+        "0047": 7
+      };
     };
 
     BubbleChart.prototype.collectTitles = function(titles, field, prefix, _state) {
@@ -529,9 +604,9 @@
       origin = "translate(" + this.centerX + "," + this.centerY + ")rotate(0)translate(1,1)scale(1)";
       target = "translate(" + this.centerX + "," + this.centerY + ")rotate(120)translate(" + (-node.x * scale) + "," + (-node.y * scale) + ")scale(" + scale + ")";
       if (this.transitiontime === 0) {
-        this.svg.selectAll("circle").attr("transform", target);
+        this.svg.selectAll("circle,text").attr("transform", target);
       } else {
-        this.svg.selectAll("circle").transition().duration(this.transitiontime).attrTween("transform", function() {
+        this.svg.selectAll("circle,text").transition().duration(this.transitiontime).attrTween("transform", function() {
           return d3.interpolateString(origin, target);
         });
       }
@@ -544,7 +619,7 @@
       this.overlayShown = false;
       origin = this.svg.select("circle").attr("transform");
       target = "translate(" + this.centerX + "," + this.centerY + ")rotate(0)translate(1,1)scale(1)";
-      this.svg.selectAll("circle").transition().duration(this.transitiontime).attrTween("transform", function() {
+      this.svg.selectAll("circle,text").transition().duration(this.transitiontime).attrTween("transform", function() {
         return d3.interpolateString(origin, target);
       });
       return this.circle.attr("r", function(d) {
@@ -612,7 +687,7 @@
               return __iced_deferrals.ret = arguments[0];
             };
           })(),
-          lineno: 410
+          lineno: 426
         })), 100);
         __iced_deferrals._fulfill();
       })(function() {
@@ -624,6 +699,7 @@
             var sharer;
             sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/" + path + ".html";
             window.open(sharer, 'sharer', 'width=626,height=436');
+            window.ga('send', 'event', 'share', 'facebook');
             return false;
           });
           $(".modal .shareItemDetails h3").text(title);
@@ -634,6 +710,7 @@
             var sharer;
             sharer = "http://compare.open-budget.org.il/images/large/" + path + ".jpg";
             window.open(sharer, 'sharer');
+            window.ga('send', 'event', 'share', 'photo');
             return false;
           });
         };
@@ -672,7 +749,7 @@
                   return __iced_deferrals.ret = arguments[0];
                 };
               })(),
-              lineno: 447
+              lineno: 465
             })), 100);
             __iced_deferrals._fulfill();
           })(function() {
@@ -688,9 +765,23 @@
     };
 
     BubbleChart.prototype.render = function() {
-      var chartContainer, container, frame, overlay, resizeFrame, search, tagClicked, tags, that,
+      var categories, chartContainer, container, frame, overlay, resizeFrame, search, tagClicked, tags, that,
         _this = this;
       that = this;
+      if ((this.model.get('field')) === "00") {
+        $("div[data-id='" + this.id + "'] .splitter").css("display", "inherit");
+        $("div[data-id='" + this.id + "'] .splitter").click(function() {
+          _this.showSplit = !_this.showSplit;
+          _this.svg.selectAll("g.splitter circle").transition().duration(500).style("opacity", _this.showSplit ? 1 : 0);
+          _this.svg.selectAll("g.splitter text").transition().duration(500).style("opacity", _this.showSplit ? 1 : 0);
+          $("div[data-id='" + _this.id + "'] .splitter").toggleClass("on", _this.showSplit);
+          _this.force.start();
+          console.log("LL", _this.showSplit);
+          return false;
+        });
+      } else {
+        console.log("LLL", this.model.get('field'));
+      }
       this.setBreadcrumbs = function(dd) {
         var actual_querys, bc, depth, link, mshLinkCode, query, title, _i, _j, _len, _len1, _ref2;
         if (dd == null) {
@@ -740,9 +831,14 @@
         if (link) {
           bc.append('<span class="breadpart breadcrumbsGov"><a class="breadcrumbsLink" target="_new" href="' + link + '" ' + 'class="active" data-toggle="tooltip" data-placement="bottom" title="עיון בספר התקציב במשרד האוצר">' + '<i class="icon-book icon-flip-horizontal icon"></i></a></span>');
         }
+        $("div[data-id='" + _this.id + "'] .breadcrumbsLink").click(function() {
+          window.ga('send', 'event', 'learn', $(this).attr("href"));
+          return true;
+        });
         return $("div[data-id='" + _this.id + "'] .breadcrumbsLink").tooltip();
       };
       this.setBreadcrumbs();
+      $("div[data-id='" + this.id + "'] .splitter").tooltip();
       $("div[data-id='" + this.id + "'] .btnBack").tooltip();
       $("div[data-id='" + this.id + "'] .share-button").tooltip();
       $("div[data-id='" + this.id + "'] .share-button").click(function() {
@@ -812,7 +908,7 @@
         _this.svg.attr("width", _this.width);
         _this.svg.style("width", _this.width + "px");
         if (!_this.overlayShown && _this.circle) {
-          _this.circle.attr("transform", "translate(" + _this.centerX + "," + _this.centerY + ")rotate(0)translate(0,0)scale(1)");
+          _this.svg.selectAll("circle").attr("transform", "translate(" + _this.centerX + "," + _this.centerY + ")rotate(0)translate(0,0)scale(1)");
         }
         overlay.css("height", (chartContainer.height()) + "px");
         if (chartContainer.offset()) {
@@ -893,29 +989,72 @@
       if (this.force !== null) {
         this.force.stop();
       }
-      return this.force = d3.layout.force().nodes(this.nodes).size([this.width, this.height]).gravity(-0.01).charge(this.defaultCharge).friction(0.9).on("tick", function(e) {
-        var avgx, maxx, minx, num;
-        maxx = 0;
-        minx = 0;
+      this.force = d3.layout.force().nodes(this.nodes).size([this.width, this.height]).gravity(-0.01).charge(this.defaultCharge).friction(0.9).on("tick", function(e) {
+        var avgx, avgy, i, maxcatx, maxcaty, maxx, maxy, mincatx, mincaty, minx, miny, num, _i, _j, _results;
+        maxx = -1000;
+        minx = 1000;
+        maxy = -1000;
+        miny = 1000;
         avgx = 0;
+        avgy = 0;
+        maxcatx = {};
+        mincatx = {};
+        maxcaty = {};
+        mincaty = {};
+        for (i = _i = 1; _i <= 7; i = ++_i) {
+          maxcatx[i] = maxcaty[i] = -1000;
+          mincatx[i] = mincaty[i] = 1000;
+        }
         num = _this.nodes.length;
-        return _this.circle.each(_this.totalSort(e.alpha)).each(_this.buoyancy(e.alpha)).each(function(d) {
-          var max, min;
-          max = d.x + d.radius;
-          maxx = max > maxx ? max : maxx;
-          min = d.x - d.radius;
-          minx = min < minx ? min : minx;
-          return avgx = (maxx + minx) / 2;
+        _this.circle.each(_this.totalSort(e.alpha)).each(_this.buoyancy(e.alpha)).each(function(d) {
+          var cat, _maxx, _maxy, _minx, _miny;
+          _maxx = d.x + d.radius;
+          _minx = d.x - d.radius;
+          _maxy = d.y + d.radius;
+          _miny = d.y - d.radius;
+          maxx = _maxx > maxx ? _maxx : maxx;
+          minx = _minx < minx ? _minx : minx;
+          maxy = _maxy > maxy ? _maxy : maxy;
+          miny = _miny < miny ? _miny : miny;
+          avgx = (maxx + minx) / 2.0;
+          avgy = (maxy + miny) / 2.0;
+          cat = that.budget_categories[d.sid];
+          if (that.showSplit && cat) {
+            maxcatx[cat] = _maxx > maxcatx[cat] ? _maxx : maxcatx[cat];
+            mincatx[cat] = _minx < mincatx[cat] ? _minx : mincatx[cat];
+            maxcaty[cat] = _maxy > maxcaty[cat] ? _maxy : maxcaty[cat];
+            mincaty[cat] = _miny < mincaty[cat] ? _miny : mincaty[cat];
+          }
+          return console.log(avgx, avgy);
         }).attr("cx", function(d) {
           return d.x - avgx;
         }).attr("cy", function(d) {
-          return d.y;
+          return d.y - avgy;
         }).each(function(d) {
           if (d.sid === globalTooltipItem) {
             return showTooltip(d, d.x - avgx, d.y, that);
           }
         });
+        if (that.showSplit) {
+          _results = [];
+          for (i = _j = 1; _j <= 7; i = ++_j) {
+            _this.svg.select("circle[data-category='" + i + "']").attr("cx", (maxcatx[i] + mincatx[i]) / 2 - avgx).attr("cy", (maxcaty[i] + mincaty[i]) / 2 - avgy).attr("r", ((maxcaty[i] - mincaty[i]) > (maxcatx[i] - mincatx[i]) ? maxcaty[i] - mincaty[i] : maxcatx[i] - mincatx[i]) / 2 + 5);
+            _results.push(_this.svg.select("text[data-category='" + i + "']").attr("x", (maxcatx[i] + mincatx[i]) / 2 - avgx).attr("y", (maxcaty[i] + mincaty[i]) / 2 - avgy).attr("dy", ((maxcaty[i] - mincaty[i]) > (maxcatx[i] - mincatx[i]) ? maxcaty[i] - mincaty[i] : maxcatx[i] - mincatx[i]) / 2 + 5));
+          }
+          return _results;
+        }
       }).start();
+      categories = [[1, 'הביטחון והסדר הציבורי'], [2, 'המשרדים המנהליים'], [3, 'השירותים החברתיים'], [4, 'ענפי המשק'], [5, 'תשתיות ובינוי'], [6, 'הוצאות מרכזיות אחרות'], [7, 'רזרבות']];
+      this.split_cats = this.svg.append("svg:g");
+      this.split_groups = this.split_cats.selectAll("g").data(categories).enter().append("svg:g").classed("splitter", true);
+      this.split_groups.append("circle").attr("transform", "translate(" + this.centerX + "," + this.centerY + ")rotate(0)translate(0,0)scale(1)").attr("r", 1).attr("cx", 0).attr("cy", 0).style("fill", "none").style("stroke", "#999").style("stroke-width", 1).style("stroke-dasharray", "5,5").style("opacity", 0).attr("data-category", function(d) {
+        return d[0];
+      });
+      return this.split_groups.append("text").attr("transform", "translate(" + this.centerX + "," + this.centerY + ")rotate(0)translate(0,0)scale(1)").text(function(d) {
+        return d[1];
+      }).attr("dy", 1).attr("width", "100px").attr("height", "20px").style("font-size", "1.2em").style("stroke", "#000").attr("y", 0).attr("x", 0).style("opacity", 0).attr("text-anchor", "middle").attr("data-category", function(d) {
+        return d[0];
+      });
     };
 
     return BubbleChart;
@@ -1086,6 +1225,7 @@
       if (title.search(/B[0-9]+/) === 0) {
         code = entry.content.$t;
         code = code.indexOf("00") === 0 ? code : "00" + code;
+        code = code.indexOf("00X") === 0 || code.indexOf("00x") === 0 ? "00" + code.substring(3) : code;
       }
       if (title.search(/D[0-9]+/) === 0) {
         explanation = entry.content.$t;
@@ -1203,8 +1343,8 @@
 
   $(function() {
     if ((document.createElementNS != null) && (document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect != null)) {
-      $.get("http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script", window.handleStories, "jsonp");
-      return $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/1/public/basic?alt=json-in-script", window.handleExplanations, "jsonp");
+      handleStories(stories_raw);
+      return handleExplanations(explanations_raw);
     }
   });
 

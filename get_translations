@@ -1,3 +1,5 @@
 curl "https://docs.google.com/spreadsheet/pub?key=0AurnydTPSIgUdGpxd3JiLTFReWY4ZjlVSlBBNlcxTHc&single=true&gid=0&output=csv" -o translations.csv
 curl "https://docs.google.com/spreadsheet/pub?key=0AurnydTPSIgUdDhsZXRrckM5c1ByMnVlZmprVFhKZ0E&single=true&gid=0&output=csv" -o translations2.csv
 curl "https://docs.google.com/spreadsheet/pub?key=0Ahv_cBzJeixMdGhkc1ZkUzVKZFJyN0d2RXZoUm1ZZlE&single=true&gid=0&output=csv" -o links.csv
+curl "http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json" -o _stories.json
+curl "http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/1/public/basic?alt=json" -o _explanations.json

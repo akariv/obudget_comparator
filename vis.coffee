@@ -163,17 +163,29 @@ class BubbleChart extends Backbone.View
         defaultCharge:
                 (d) -> if (d.value < 0) then 0 else -Math.pow(d.radius,2.0)/8  
 
+
         totalSort: (alpha) ->
                 return (d) =>
-                        targetY = 0
-                        targetX = 0
+                        cat = @budget_categories[d.sid] 
+                        targetX = targetY = 0
+                        bump = 0.02
+                        radiusx = 10
+                        radiusy = 0
+                        if @showSplit
+                                radiusx = @width*0.2
+                                radiusy = @height*0.15
+                                bump = 0.04
+                        if cat and cat != 7
+                                cat = cat * Math.PI * 0.333
+                                targetY = radiusy * Math.sin(cat)
+                                targetX = radiusx * Math.cos(cat)
                         if d.isNegative
                                 if d.changeCategory > 0
                                         d.x = -200
                                 else 
                                         d.x = 1100
-                        d.y = d.y + (targetY - d.y) * (@defaultGravity + 0.02) * alpha
-                        d.x = d.x + (targetX - d.x) * (@defaultGravity + 0.02) * alpha
+                        d.y = d.y + (targetY - d.y) * (@defaultGravity + bump) * alpha
+                        d.x = d.x + (targetX - d.x) * (@defaultGravity + bump) * alpha
                         
         buoyancy: (alpha) ->
                 return (d) =>
@@ -209,6 +221,7 @@ class BubbleChart extends Backbone.View
                 @height = 550
                 @id = @options.id
                 @overlayShown = false
+                @showSplit = false
 
         	# d3 settings
                 @defaultGravity = 0.1
@@ -230,6 +243,9 @@ class BubbleChart extends Backbone.View
                         removeState()
                         false
                 )
+
+                @budget_categories = {"0001": 2, "0002": 2, "0003": 2, "0004": 2, "0005": 2, "0006": 2, "0007": 1, "0008": 2, "0009": 2, "0010": 1, "0011": 2, "0012": 6, "0013": 2, "0014": 2, "0015": 1, "0016": 1, "0017": 1, "0018": 2, "0019": 4, "0020": 3, "0021": 3, "0023": 3, "0024": 3, "0025": 3, "0026": 4, "0027": 3, "0029": 5, "0030": 3, "0032": 4, "0033": 4, "0034": 5, "0035": 4, "0036": 4, "0037": 4, "0038": 4, "0039": 4, "0040": 5, "0041": 5, "0042": 5, "0043": 5, "0045": 6, "0046": 1, "0051": 3, "0052": 1, "0053": 2, "0054": 4, "0056": 3, "0060": 3, "0067": 3, "0068": 2, "0070": 5, "0073": 5, "0076": 4, "0078": 4, "0079": 5, "0083": 5, "0084": 6, "0055": 1 , "0047": 7}
+
 
         collectTitles: (titles, field, prefix = '', _state = []) ->
                 if not field then return
@@ -349,9 +365,9 @@ class BubbleChart extends Backbone.View
                 target = "translate(#{@centerX},#{@centerY})rotate(120)translate(#{-node.x*scale},#{-node.y*scale})scale(#{scale})"
 
                 if @transitiontime == 0
-                        @svg.selectAll("circle").attr("transform",target)
+                        @svg.selectAll("circle,text").attr("transform",target)
                 else
-                        @svg.selectAll("circle")
+                        @svg.selectAll("circle,text")
                                 .transition()
                                         .duration(@transitiontime)
                                         .attrTween("transform",
@@ -366,7 +382,7 @@ class BubbleChart extends Backbone.View
                 origin = @svg.select("circle").attr("transform")
                 target = "translate(#{@centerX},#{@centerY})rotate(0)translate(1,1)scale(1)"
 
-                @svg.selectAll("circle")
+                @svg.selectAll("circle,text")
                         .transition()
                                 .duration(@transitiontime)
                                 .attrTween("transform",
@@ -416,6 +432,7 @@ class BubbleChart extends Backbone.View
                         $(".modal .facebook-share").click( ->
                                 sharer = "https://www.facebook.com/sharer/sharer.php?u=http://compare.open-budget.org.il/of/#{path}.html"
                                 window.open(sharer, 'sharer', 'width=626,height=436')
+                                window.ga('send', 'event', 'share', 'facebook')
                                 false
                         )
                         $(".modal .shareItemDetails h3").text(title)
@@ -425,6 +442,7 @@ class BubbleChart extends Backbone.View
                         $(".modal .photo-download").click( ->
                                 sharer = "http://compare.open-budget.org.il/images/large/#{path}.jpg"
                                 window.open(sharer, 'sharer')
+                                window.ga('send', 'event', 'share', 'photo')
                                 false
                         )
                 item_select.select2(
@@ -457,6 +475,23 @@ class BubbleChart extends Backbone.View
 
                 that = this
 
+                if (@model.get 'field') == "00"
+                        $("div[data-id='#{@id}'] .splitter").css("display", "inherit")
+                        $("div[data-id='#{@id}'] .splitter").click =>
+                                @showSplit = not @showSplit
+                                @svg.selectAll("g.splitter circle").transition()
+                                        .duration(500)
+                                        .style("opacity",if @showSplit then 1 else 0)
+                                @svg.selectAll("g.splitter text").transition()
+                                        .duration(500)
+                                        .style("opacity",if @showSplit then 1 else 0)
+                                $("div[data-id='#{@id}'] .splitter").toggleClass("on", @showSplit)
+                                @force.start()
+                                console.log "LL", @showSplit
+                                false
+                else
+                        console.log "LLL", @model.get 'field'
+        
                 @setBreadcrumbs = (dd = null) =>
                         bc = $("div[data-id='#{@id}'] .breadcrumbs")
                         bc.find(".breadpart").remove()
@@ -500,8 +535,13 @@ class BubbleChart extends Backbone.View
                                 bc.append('<span class="breadpart breadcrumbsGov"><a class="breadcrumbsLink" target="_new" href="'+link+'" '+
                                 'class="active" data-toggle="tooltip" data-placement="bottom" title="עיון בספר התקציב במשרד האוצר">'+
                                 '<i class="icon-book icon-flip-horizontal icon"></i></a></span>')
+                        $("div[data-id='#{@id}'] .breadcrumbsLink").click( ->
+                                window.ga('send', 'event', 'learn', $(@).attr("href"))
+                                true
+                        )
                         $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
                 @setBreadcrumbs()
+                $("div[data-id='#{@id}'] .splitter").tooltip()
                 $("div[data-id='#{@id}'] .btnBack").tooltip()
                 $("div[data-id='#{@id}'] .share-button").tooltip()
                 $("div[data-id='#{@id}'] .share-button").click( ->
@@ -575,7 +615,7 @@ class BubbleChart extends Backbone.View
                         @svg.attr "width", @width
                         @svg.style "width", @width+"px"
                         if not @overlayShown and @circle
-                                @circle.attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(0,0)scale(1)")
+                                @svg.selectAll("circle").attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(0,0)scale(1)")
                         overlay.css("height",(chartContainer.height())+"px")
                         if chartContainer.offset()
                                 overlay.css("top",(chartContainer.offset().top)+"px")
@@ -583,7 +623,7 @@ class BubbleChart extends Backbone.View
                 $(window).resize resizeFrame
                                 
                 resizeFrame()
-                
+                                                
                 if @transitiontime > 0
                         overlay
                                 .css("opacity",0)
@@ -674,26 +714,95 @@ class BubbleChart extends Backbone.View
                 		.charge(@defaultCharge)
                 		.friction(0.9)
                                 .on("tick", (e) =>
-                                        maxx = 0
-                                        minx = 0
+                                        maxx = -1000
+                                        minx = 1000
+                                        maxy = -1000
+                                        miny = 1000 
                                         avgx = 0
+                                        avgy = 0
+                                        maxcatx = {}
+                                        mincatx = {}
+                                        maxcaty = {}
+                                        mincaty = {}
+                                        for i in [1..7]
+                                                maxcatx[i] = maxcaty[i] = -1000
+                                                mincatx[i] = mincaty[i] = 1000
                                         num = @nodes.length
                                         @circle .each(@totalSort(e.alpha))
                                                 .each(@buoyancy(e.alpha))
                                                 .each((d) ->
-                                                        max = d.x + d.radius
-                                                        maxx = if max > maxx then max else maxx
-                                                        min = d.x - d.radius
-                                                        minx = if min < minx then min else minx
-                                                        avgx = (maxx + minx)/2
+                                                        _maxx = d.x + d.radius
+                                                        _minx = d.x - d.radius
+                                                        _maxy = d.y + d.radius
+                                                        _miny = d.y - d.radius
+                                                        maxx = if _maxx > maxx then _maxx else maxx
+                                                        minx = if _minx < minx then _minx else minx
+                                                        maxy = if _maxy > maxy then _maxy else maxy
+                                                        miny = if _miny < miny then _miny else miny
+                                                        avgx = (maxx + minx) / 2.0
+                                                        avgy = (maxy + miny) / 2.0
+                                                        cat = that.budget_categories[d.sid]
+                                                        if that.showSplit and cat
+                                                                maxcatx[cat] = if _maxx > maxcatx[cat] then _maxx else maxcatx[cat]
+                                                                mincatx[cat] = if _minx < mincatx[cat] then _minx else mincatx[cat]
+                                                                maxcaty[cat] = if _maxy > maxcaty[cat] then _maxy else maxcaty[cat]
+                                                                mincaty[cat] = if _miny < mincaty[cat] then _miny else mincaty[cat]
+                                                        console.log avgx, avgy
                                                 )
                                                 .attr("cx", (d) -> d.x - avgx )
-                                                .attr("cy", (d) -> d.y )
+                                                .attr("cy", (d) -> d.y - avgy )
                                                 .each((d) ->
                                                         if d.sid == globalTooltipItem
                                                                 showTooltip(d,d.x-avgx, d.y,that)
-                                                )
+                                        )
+                                        if that.showSplit
+                                                for i in [1..7]
+                                                        @svg.select("circle[data-category='#{i}']")
+                                                            .attr("cx", (maxcatx[i] + mincatx[i])/2-avgx)
+                                                            .attr("cy", (maxcaty[i] + mincaty[i])/2-avgy)
+                                                            .attr("r", (if (maxcaty[i]  - mincaty[i]) > (maxcatx[i] - mincatx[i]) then (maxcaty[i]  - mincaty[i]) else (maxcatx[i] - mincatx[i])) / 2 + 5 )
+                                                        @svg.select("text[data-category='#{i}']")
+                                                            .attr("x", (maxcatx[i] + mincatx[i])/2-avgx)
+                                                            .attr("y", (maxcaty[i] + mincaty[i])/2-avgy)
+                                                            .attr("dy", (if (maxcaty[i]  - mincaty[i]) > (maxcatx[i] - mincatx[i]) then (maxcaty[i]  - mincaty[i]) else (maxcatx[i] - mincatx[i])) / 2 + 5 )
                                 ).start()
+                categories = [ [ 1, 'הביטחון והסדר הציבורי' ],
+                               [ 2, 'המשרדים המנהליים' ],
+                               [ 3, 'השירותים החברתיים' ],
+                               [ 4, 'ענפי המשק' ],
+                               [ 5, 'תשתיות ובינוי' ],
+                               [ 6, 'הוצאות מרכזיות אחרות' ],
+                               [ 7, 'רזרבות' ] ]
+                @split_cats = @svg.append("svg:g")
+                @split_groups = @split_cats.selectAll("g").data(categories)
+                        .enter()
+                        .append("svg:g")
+                        .classed("splitter",true)
+                @split_groups.append("circle")
+                                .attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(0,0)scale(1)")
+                                .attr("r",1)
+                                .attr("cx", 0)
+                                .attr("cy", 0)
+                                .style("fill","none")
+                                .style("stroke","#999")
+                                .style("stroke-width",1)
+                                .style("stroke-dasharray","5,5")
+                                .style("opacity",0)
+                                .attr("data-category", (d) -> d[0])
+                @split_groups.append("text")
+                                .attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(0,0)scale(1)")
+                                .text((d) -> d[1])
+                                .attr("dy",1)
+                                .attr("width","100px")
+                                .attr("height","20px")
+                                .style("font-size", "1.2em")
+                                .style("stroke","#000")
+                                .attr("y",0)
+                                .attr("x",0)
+                                .style("opacity",0)
+                                .attr("text-anchor","middle")
+                                .attr("data-category", (d) -> d[0])
+
 
 state = { querys: [], selectedStory: null }
 charts = []
@@ -808,6 +917,7 @@ window.handleExplanations = (data) ->
                 if title.search( /B[0-9]+/ ) == 0
                         code = entry.content.$t
                         code = if code.indexOf("00") == 0 then code else "00"+code
+                        code = if code.indexOf("00X") == 0 or code.indexOf("00x") == 0 then "00"+code.substring(3) else code
                 if title.search( /D[0-9]+/ ) == 0
                         explanation = entry.content.$t
                 if title.search( /F[0-9]+/ ) == 0
@@ -887,12 +997,8 @@ init = () ->
      
 $( ->
         if document.createElementNS? and document.createElementNS('http://www.w3.org/2000/svg', "svg").createSVGRect?
-                $.get("http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json-in-script",
-                        window.handleStories,
-                        "jsonp")
-                $.get("http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/1/public/basic?alt=json-in-script",
-                        window.handleExplanations,
-                        "jsonp")
+                handleStories(stories_raw)
+                handleExplanations(explanations_raw)
         )
                                 
 
