@@ -349,7 +349,10 @@
     };
 
     BubbleChart.prototype.initialize = function(options) {
-      var _this = this;
+      var search, that, ___iced_passed_deferral, __iced_deferrals, __iced_k,
+        _this = this;
+      __iced_k = __iced_k_noop;
+      ___iced_passed_deferral = iced.findDeferral(arguments);
       this.options = options;
       _.bindAll(this);
       this.width = 970;
@@ -357,6 +360,7 @@
       this.id = this.options.id;
       this.overlayShown = false;
       this.showSplit = false;
+      this.categories = null;
       this.defaultGravity = 0.1;
       this.force = this.svg = this.circle = null;
       this.centerX = this.width / 2;
@@ -370,7 +374,26 @@
         removeState();
         return false;
       });
-      return this.budget_categories = {
+      $("div[data-id='" + this.id + "'] .btnSpend").click(function() {
+        state.querys = ["00"];
+        History.pushState(state, null, "?" + state.querys.join("/"));
+        return false;
+      });
+      $("div[data-id='" + this.id + "'] .btnIncome").click(function() {
+        state.querys = ["0000"];
+        History.pushState(state, null, "?" + state.querys.join("/"));
+        return false;
+      });
+      $("div[data-id='" + this.id + "'] .splitter").click(function() {
+        _this.showSplit = !_this.showSplit;
+        _this.svg.selectAll("g.splitter circle").transition().duration(500).style("opacity", _this.showSplit ? 1 : 0);
+        _this.svg.selectAll("g.splitter text").transition().duration(500).style("opacity", _this.showSplit ? 1 : 0);
+        $("div[data-id='" + _this.id + "'] .splitter").toggleClass("on", _this.showSplit);
+        _this.force.start();
+        console.log("LL", _this.showSplit);
+        return false;
+      });
+      this.budget_categories = {
         "0001": 2,
         "0002": 2,
         "0003": 2,
@@ -431,6 +454,63 @@
         "0055": 1,
         "0047": 7
       };
+      (function(__iced_k) {
+        __iced_deferrals = new iced.Deferrals(__iced_k, {
+          parent: ___iced_passed_deferral,
+          filename: "vis.coffee",
+          funcname: "BubbleChart.initialize"
+        });
+        setTimeout((__iced_deferrals.defer({
+          assign_fn: (function() {
+            return function() {
+              return __iced_deferrals.ret = arguments[0];
+            };
+          })(),
+          lineno: 267
+        })), 100);
+        __iced_deferrals._fulfill();
+      })(function() {
+        that = _this;
+        search = $("div[data-id='" + _this.id + "'] .mysearch");
+        $("div[data-id='" + _this.id + "'] .mysearch-open").click(function() {
+          search.select2("open");
+          return false;
+        });
+        search.select2({
+          placeholder: "חפשו סעיף ספציפי",
+          allowClear: true,
+          data: function() {
+            console.log("Titles: ", _this.titles);
+            return {
+              'results': _this.titles
+            };
+          }
+        });
+        return search.on("select2-open", function(e) {
+          return $("div[data-id='" + that.id + "'] .breadcrumbs").css("visibility", "hidden");
+        }).on("select2-close", function(e) {
+          return $("div[data-id='" + that.id + "'] .breadcrumbs").css("visibility", "visible");
+        }).on("select2-highlight", function(e) {
+          return that.selectItem({
+            code: e.choice.id
+          });
+        }).on("change", function(e) {
+          var x, _i, _len, _ref2;
+          if (e.added) {
+            that.selectItem({
+              code: e.added.id
+            });
+            _ref2 = e.added.state;
+            for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+              x = _ref2[_i];
+              addState(x);
+            }
+            return search.select2("val", "");
+          } else {
+            return that.selectItem(null);
+          }
+        });
+      });
     };
 
     BubbleChart.prototype.collectTitles = function(titles, field, prefix, _state) {
@@ -687,7 +767,7 @@
               return __iced_deferrals.ret = arguments[0];
             };
           })(),
-          lineno: 426
+          lineno: 478
         })), 100);
         __iced_deferrals._fulfill();
       })(function() {
@@ -749,7 +829,7 @@
                   return __iced_deferrals.ret = arguments[0];
                 };
               })(),
-              lineno: 465
+              lineno: 517
             })), 100);
             __iced_deferrals._fulfill();
           })(function() {
@@ -765,22 +845,27 @@
     };
 
     BubbleChart.prototype.render = function() {
-      var categories, chartContainer, container, frame, overlay, resizeFrame, search, tagClicked, tags, that,
+      var chartContainer, container, field, frame, moreinfo, overlay, resizeFrame, tagClicked, tags, that,
         _this = this;
       that = this;
-      if ((this.model.get('field')) === "00") {
-        $("div[data-id='" + this.id + "'] .splitter").css("display", "inherit");
-        $("div[data-id='" + this.id + "'] .splitter").click(function() {
-          _this.showSplit = !_this.showSplit;
-          _this.svg.selectAll("g.splitter circle").transition().duration(500).style("opacity", _this.showSplit ? 1 : 0);
-          _this.svg.selectAll("g.splitter text").transition().duration(500).style("opacity", _this.showSplit ? 1 : 0);
-          $("div[data-id='" + _this.id + "'] .splitter").toggleClass("on", _this.showSplit);
-          _this.force.start();
-          console.log("LL", _this.showSplit);
-          return false;
-        });
+      field = this.model.get('field');
+      $("div[data-id='" + this.id + "'] .btnSpend").css("display", "none");
+      $("div[data-id='" + this.id + "'] .btnIncome").css("display", "none");
+      $("div[data-id='" + this.id + "'] .splitter").css("display", "none");
+      if (field.indexOf("0000") === 0) {
+        moreinfo = "הכנסות בפועל 2012 לעומת תחזית הכנסות 2014, שיעור השינוי הוא ריאלי";
       } else {
-        console.log("LLL", this.model.get('field'));
+        moreinfo = "תקציב מקורי 2012 לעומת תקציב מקורי 2014, שיעור השינוי הוא ריאלי";
+      }
+      $("div[data-id='" + this.id + "'] .moreinfo").text(moreinfo);
+      if (field === "0000") {
+        $("div[data-id='" + this.id + "'] .btnSpend").css("display", "inherit");
+      }
+      if (field === "00") {
+        $("div[data-id='" + this.id + "'] .btnIncome").css("display", "inherit");
+        $("div[data-id='" + this.id + "'] .splitter").css("display", "inherit");
+      } else {
+        console.log("LLL", field);
       }
       this.setBreadcrumbs = function(dd) {
         var actual_querys, bc, depth, link, mshLinkCode, query, title, _i, _j, _len, _len1, _ref2;
@@ -839,46 +924,14 @@
       };
       this.setBreadcrumbs();
       $("div[data-id='" + this.id + "'] .splitter").tooltip();
+      $("div[data-id='" + this.id + "'] .btnIncome").tooltip();
+      $("div[data-id='" + this.id + "'] .btnSpend").tooltip();
       $("div[data-id='" + this.id + "'] .btnBack").tooltip();
       $("div[data-id='" + this.id + "'] .share-button").tooltip();
       $("div[data-id='" + this.id + "'] .share-button").click(function() {
         return that.open_modal($(this).attr('data-tab-href'));
       });
       $("div[data-id='" + this.id + "'] .color-index").tooltip();
-      search = $("div[data-id='" + this.id + "'] .mysearch");
-      $("div[data-id='" + this.id + "'] .mysearch-open").click(function() {
-        search.select2("open");
-        return false;
-      });
-      search.select2({
-        placeholder: "חפשו סעיף ספציפי",
-        allowClear: true,
-        data: this.titles
-      });
-      search.on("select2-open", function(e) {
-        return $("div[data-id='" + that.id + "'] .breadcrumbs").css("visibility", "hidden");
-      }).on("select2-close", function(e) {
-        return $("div[data-id='" + that.id + "'] .breadcrumbs").css("visibility", "visible");
-      }).on("select2-highlight", function(e) {
-        return that.selectItem({
-          code: e.choice.id
-        });
-      }).on("change", function(e) {
-        var x, _i, _len, _ref2;
-        if (e.added) {
-          that.selectItem({
-            code: e.added.id
-          });
-          _ref2 = e.added.state;
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            x = _ref2[_i];
-            addState(x);
-          }
-          return search.select2("val", "");
-        } else {
-          return that.selectItem(null);
-        }
-      });
       if (false) {
         tags = $("div[data-id='" + this.id + "'] .tag");
         tagClicked = false;
@@ -990,7 +1043,7 @@
         this.force.stop();
       }
       this.force = d3.layout.force().nodes(this.nodes).size([this.width, this.height]).gravity(-0.01).charge(this.defaultCharge).friction(0.9).on("tick", function(e) {
-        var avgx, avgy, i, maxcatx, maxcaty, maxx, maxy, mincatx, mincaty, minx, miny, num, _i, _j, _results;
+        var avgx, avgy, i, maxcatx, maxcaty, maxx, maxy, mincatx, mincaty, minx, miny, num, radius, _i, _j, _results;
         maxx = -1000;
         minx = 1000;
         maxy = -1000;
@@ -1017,15 +1070,14 @@
           maxy = _maxy > maxy ? _maxy : maxy;
           miny = _miny < miny ? _miny : miny;
           avgx = (maxx + minx) / 2.0;
-          avgy = (maxy + miny) / 2.0;
+          avgy = that.centerY + miny - 10;
           cat = that.budget_categories[d.sid];
           if (that.showSplit && cat) {
             maxcatx[cat] = _maxx > maxcatx[cat] ? _maxx : maxcatx[cat];
             mincatx[cat] = _minx < mincatx[cat] ? _minx : mincatx[cat];
             maxcaty[cat] = _maxy > maxcaty[cat] ? _maxy : maxcaty[cat];
-            mincaty[cat] = _miny < mincaty[cat] ? _miny : mincaty[cat];
+            return mincaty[cat] = _miny < mincaty[cat] ? _miny : mincaty[cat];
           }
-          return console.log(avgx, avgy);
         }).attr("cx", function(d) {
           return d.x - avgx;
         }).attr("cy", function(d) {
@@ -1038,23 +1090,37 @@
         if (that.showSplit) {
           _results = [];
           for (i = _j = 1; _j <= 7; i = ++_j) {
-            _this.svg.select("circle[data-category='" + i + "']").attr("cx", (maxcatx[i] + mincatx[i]) / 2 - avgx).attr("cy", (maxcaty[i] + mincaty[i]) / 2 - avgy).attr("r", ((maxcaty[i] - mincaty[i]) > (maxcatx[i] - mincatx[i]) ? maxcaty[i] - mincaty[i] : maxcatx[i] - mincatx[i]) / 2 + 5);
-            _results.push(_this.svg.select("text[data-category='" + i + "']").attr("x", (maxcatx[i] + mincatx[i]) / 2 - avgx).attr("y", (maxcaty[i] + mincaty[i]) / 2 - avgy).attr("dy", ((maxcaty[i] - mincaty[i]) > (maxcatx[i] - mincatx[i]) ? maxcaty[i] - mincaty[i] : maxcatx[i] - mincatx[i]) / 2 + 5));
+            radius = (maxcaty[i] - mincaty[i]) > (maxcatx[i] - mincatx[i]) ? maxcaty[i] - mincaty[i] : maxcatx[i] - mincatx[i];
+            radius = radius / 2 + 5;
+            _this.svg.select("circle[data-category='" + i + "']").attr("cx", (maxcatx[i] + mincatx[i]) / 2 - avgx).attr("cy", (maxcaty[i] + mincaty[i]) / 2 - avgy).attr("r", radius);
+            _results.push(_this.svg.selectAll("text[data-category='" + i + "']").attr("x", (maxcatx[i] + mincatx[i]) / 2 - avgx).attr("y", (maxcaty[i] + mincaty[i]) / 2 - avgy + radius));
           }
           return _results;
         }
       }).start();
-      categories = [[1, 'הביטחון והסדר הציבורי'], [2, 'המשרדים המנהליים'], [3, 'השירותים החברתיים'], [4, 'ענפי המשק'], [5, 'תשתיות ובינוי'], [6, 'הוצאות מרכזיות אחרות'], [7, 'רזרבות']];
+      return this.initCategories();
+    };
+
+    BubbleChart.prototype.initCategories = function() {
+      var i, _i, _results;
+      if (this.categories != null) {
+        return;
+      }
+      this.categories = [[1, ['הביטחון', 'והסדר הציבורי']], [2, ['המשרדים', 'המנהליים']], [3, ['השירותים', 'החברתיים']], [4, ['ענפי המשק']], [5, ['תשתיות', 'ובינוי']], [6, ['הוצאות', 'מרכזיות', 'אחרות']], [7, ['רזרבות']]];
       this.split_cats = this.svg.append("svg:g");
-      this.split_groups = this.split_cats.selectAll("g").data(categories).enter().append("svg:g").classed("splitter", true);
+      this.split_groups = this.split_cats.selectAll("g").data(this.categories).enter().append("svg:g").classed("splitter", true);
       this.split_groups.append("circle").attr("transform", "translate(" + this.centerX + "," + this.centerY + ")rotate(0)translate(0,0)scale(1)").attr("r", 1).attr("cx", 0).attr("cy", 0).style("fill", "none").style("stroke", "#999").style("stroke-width", 1).style("stroke-dasharray", "5,5").style("opacity", 0).attr("data-category", function(d) {
         return d[0];
       });
-      return this.split_groups.append("text").attr("transform", "translate(" + this.centerX + "," + this.centerY + ")rotate(0)translate(0,0)scale(1)").text(function(d) {
-        return d[1];
-      }).attr("dy", 1).attr("width", "100px").attr("height", "20px").style("font-size", "1.2em").style("stroke", "#000").attr("y", 0).attr("x", 0).style("opacity", 0).attr("text-anchor", "middle").attr("data-category", function(d) {
-        return d[0];
-      });
+      _results = [];
+      for (i = _i = 0; _i <= 2; i = ++_i) {
+        _results.push(this.split_groups.append("text").attr("transform", "translate(" + this.centerX + "," + this.centerY + ")rotate(0)translate(0,0)scale(1)").text(function(d) {
+          return d[1][i];
+        }).attr("dy", (1.0 * (i + 1)) + "em").attr("width", "100px").attr("height", "20px").style("font-size", "1.2em").style("stroke", "#000").attr("y", 0).attr("x", 0).style("opacity", 0).attr("text-anchor", "middle").attr("data-category", function(d) {
+          return d[0];
+        }));
+      }
+      return _results;
     };
 
     return BubbleChart;
@@ -1101,6 +1167,7 @@
     if (!state.querys || state.querys.length === 0) {
       state.querys = ["00"];
     }
+    console.log("New state: ", state.querys);
     if (!state.selectedStory) {
       state.selectedStory = {
         'title': "כך נראה תקציב המדינה בשנתיים הקרובות",

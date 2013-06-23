@@ -149,7 +149,9 @@ a {
   text-decoration: none;
   color: #444444;
 }
-.chartContainer h2.breadcrumbs a.splitter {
+.chartContainer h2.breadcrumbs a.splitter,
+.chartContainer h2.breadcrumbs a.btnSpend,
+.chartContainer h2.breadcrumbs a.btnIncome {
   left: 15px;
   top: 15px;
   position: absolute;
@@ -157,12 +159,22 @@ a {
   color: #919191;
   font-size: 1.2em;
 }
-.chartContainer h2.breadcrumbs a.splitter:hover {
+.chartContainer h2.breadcrumbs a.splitter:hover,
+.chartContainer h2.breadcrumbs a.btnSpend:hover,
+.chartContainer h2.breadcrumbs a.btnIncome:hover {
   text-decoration: none;
   color: #444444;
 }
-.chartContainer h2.breadcrumbs a.splitter.on {
+.chartContainer h2.breadcrumbs a.splitter.on,
+.chartContainer h2.breadcrumbs a.btnSpend.on,
+.chartContainer h2.breadcrumbs a.btnIncome.on {
   color: #007395;
+}
+.chartContainer h2.breadcrumbs a.btnSpend {
+  top: 14px;
+}
+.chartContainer h2.breadcrumbs a.splitter {
+  left: 45px;
 }
 .chartContainer h2.breadcrumbs a.active,
 .chartContainer h2.breadcrumbs a.breadcrumbsLink {

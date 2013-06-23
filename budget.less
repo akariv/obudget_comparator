@@ -166,7 +166,7 @@ a{
 					color: @textColor;
 				}
 			}
-			&.splitter{
+			&.splitter, &.btnSpend, &.btnIncome {
 				left: 15px;
 				top: 15px;
 				position: absolute;
@@ -180,6 +180,12 @@ a{
 				&.on {
 					 color: @linkColor;				
 				}				
+			}
+			&.btnSpend {
+			    top: 14px;
+			}
+			&.splitter {
+			    left: 45px;
 			}
 
 			&.active,

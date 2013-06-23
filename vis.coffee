@@ -222,6 +222,7 @@ class BubbleChart extends Backbone.View
                 @id = @options.id
                 @overlayShown = false
                 @showSplit = false
+                @categories = null
 
         	# d3 settings
                 @defaultGravity = 0.1
@@ -243,9 +244,60 @@ class BubbleChart extends Backbone.View
                         removeState()
                         false
                 )
-
+                $("div[data-id='#{@id}'] .btnSpend").click =>
+                        state.querys = [ "00" ] 
+                        History.pushState(state,null,"?" + state.querys.join("/") )
+                        false
+                $("div[data-id='#{@id}'] .btnIncome").click =>
+                        state.querys = [ "0000" ] 
+                        History.pushState(state,null,"?" + state.querys.join("/") )
+                        false
+                $("div[data-id='#{@id}'] .splitter").click =>
+                        @showSplit = not @showSplit
+                        @svg.selectAll("g.splitter circle").transition()
+                                .duration(500)
+                                .style("opacity",if @showSplit then 1 else 0)
+                        @svg.selectAll("g.splitter text").transition()
+                                .duration(500)
+                                .style("opacity",if @showSplit then 1 else 0)
+                        $("div[data-id='#{@id}'] .splitter").toggleClass("on", @showSplit)
+                        @force.start()
+                        console.log "LL", @showSplit
+                        false
                 @budget_categories = {"0001": 2, "0002": 2, "0003": 2, "0004": 2, "0005": 2, "0006": 2, "0007": 1, "0008": 2, "0009": 2, "0010": 1, "0011": 2, "0012": 6, "0013": 2, "0014": 2, "0015": 1, "0016": 1, "0017": 1, "0018": 2, "0019": 4, "0020": 3, "0021": 3, "0023": 3, "0024": 3, "0025": 3, "0026": 4, "0027": 3, "0029": 5, "0030": 3, "0032": 4, "0033": 4, "0034": 5, "0035": 4, "0036": 4, "0037": 4, "0038": 4, "0039": 4, "0040": 5, "0041": 5, "0042": 5, "0043": 5, "0045": 6, "0046": 1, "0051": 3, "0052": 1, "0053": 2, "0054": 4, "0056": 3, "0060": 3, "0067": 3, "0068": 2, "0070": 5, "0073": 5, "0076": 4, "0078": 4, "0079": 5, "0083": 5, "0084": 6, "0055": 1 , "0047": 7}
-
+                await setTimeout((defer _),100) # allow DOM to settle
+                that = this
+                search = $("div[data-id='#{@id}'] .mysearch")
+                $("div[data-id='#{@id}'] .mysearch-open").click( ->
+                        search.select2("open")
+                        false
+                )
+                search.select2(
+                        placeholder: "חפשו סעיף ספציפי"
+                        allowClear: true
+                        data: () =>
+                                console.log "Titles: ",@titles
+                                { 'results': @titles }
+                )
+                search.on("select2-open",
+                        (e) ->
+                                $("div[data-id='#{that.id}'] .breadcrumbs").css("visibility","hidden")
+                ).on("select2-close",
+                        (e) ->
+                                $("div[data-id='#{that.id}'] .breadcrumbs").css("visibility","visible")
+                ).on("select2-highlight",
+                        (e) ->
+                                that.selectItem(code: e.choice.id)
+                ).on("change",
+                        (e) ->
+                                if e.added
+                                        that.selectItem(code: e.added.id)
+                                        for x in e.added.state
+                                                addState(x)
+                                        search.select2("val", "")
+                                else
+                                        that.selectItem(null)
+                )
 
         collectTitles: (titles, field, prefix = '', _state = []) ->
                 if not field then return
@@ -475,22 +527,26 @@ class BubbleChart extends Backbone.View
 
                 that = this
 
-                if (@model.get 'field') == "00"
-                        $("div[data-id='#{@id}'] .splitter").css("display", "inherit")
-                        $("div[data-id='#{@id}'] .splitter").click =>
-                                @showSplit = not @showSplit
-                                @svg.selectAll("g.splitter circle").transition()
-                                        .duration(500)
-                                        .style("opacity",if @showSplit then 1 else 0)
-                                @svg.selectAll("g.splitter text").transition()
-                                        .duration(500)
-                                        .style("opacity",if @showSplit then 1 else 0)
-                                $("div[data-id='#{@id}'] .splitter").toggleClass("on", @showSplit)
-                                @force.start()
-                                console.log "LL", @showSplit
-                                false
+                field = @model.get 'field'
+        
+                $("div[data-id='#{@id}'] .btnSpend").css("display", "none")
+                $("div[data-id='#{@id}'] .btnIncome").css("display", "none")
+                $("div[data-id='#{@id}'] .splitter").css("display", "none")
+
+                if field.indexOf("0000") == 0
+                        moreinfo = "הכנסות בפועל 2012 לעומת תחזית הכנסות 2014, שיעור השינוי הוא ריאלי"
                 else
-                        console.log "LLL", @model.get 'field'
+                        moreinfo = "תקציב מקורי 2012 לעומת תקציב מקורי 2014, שיעור השינוי הוא ריאלי"
+                $("div[data-id='#{@id}'] .moreinfo").text(moreinfo)
+                
+                if field == "0000"
+                        $("div[data-id='#{@id}'] .btnSpend").css("display", "inherit")
+                                
+                if field == "00"
+                        $("div[data-id='#{@id}'] .btnIncome").css("display", "inherit")
+                        $("div[data-id='#{@id}'] .splitter").css("display", "inherit")
+                else
+                        console.log "LLL", field
         
                 @setBreadcrumbs = (dd = null) =>
                         bc = $("div[data-id='#{@id}'] .breadcrumbs")
@@ -542,6 +598,8 @@ class BubbleChart extends Backbone.View
                         $("div[data-id='#{@id}'] .breadcrumbsLink").tooltip()
                 @setBreadcrumbs()
                 $("div[data-id='#{@id}'] .splitter").tooltip()
+                $("div[data-id='#{@id}'] .btnIncome").tooltip()
+                $("div[data-id='#{@id}'] .btnSpend").tooltip()
                 $("div[data-id='#{@id}'] .btnBack").tooltip()
                 $("div[data-id='#{@id}'] .share-button").tooltip()
                 $("div[data-id='#{@id}'] .share-button").click( ->
@@ -549,46 +607,6 @@ class BubbleChart extends Backbone.View
                 )
 
                 $("div[data-id='#{@id}'] .color-index").tooltip()
-                search = $("div[data-id='#{@id}'] .mysearch")
-                $("div[data-id='#{@id}'] .mysearch-open").click( ->
-                        search.select2("open")
-                        false
-                )
-                #search.typeahead(
-                #        source: =>
-                #                @selectItem(null)
-                #                globalSelectedItem = null
-                #                @circle.style("stroke-width",@strokeWidth)
-                #                @circle.style("stroke", @getStrokeColor)
-                #                @titles
-                #        updater: (item) =>
-                #                @selectItem(item)
-                #                return item
-                #)
-                search.select2(
-                        placeholder: "חפשו סעיף ספציפי"
-                        allowClear: true
-                        data: @titles
-                )
-                search.on("select2-open",
-                        (e) ->
-                                $("div[data-id='#{that.id}'] .breadcrumbs").css("visibility","hidden")
-                ).on("select2-close",
-                        (e) ->
-                                $("div[data-id='#{that.id}'] .breadcrumbs").css("visibility","visible")
-                ).on("select2-highlight",
-                        (e) ->
-                                that.selectItem(code: e.choice.id)
-                ).on("change",
-                        (e) ->
-                                if e.added
-                                        that.selectItem(code: e.added.id)
-                                        for x in e.added.state
-                                                addState(x)
-                                        search.select2("val", "")
-                                else
-                                        that.selectItem(null)
-                )
                 
                 if false
                         tags = $("div[data-id='#{@id}'] .tag")
@@ -740,14 +758,13 @@ class BubbleChart extends Backbone.View
                                                         maxy = if _maxy > maxy then _maxy else maxy
                                                         miny = if _miny < miny then _miny else miny
                                                         avgx = (maxx + minx) / 2.0
-                                                        avgy = (maxy + miny) / 2.0
+                                                        avgy = that.centerY + miny - 10
                                                         cat = that.budget_categories[d.sid]
                                                         if that.showSplit and cat
                                                                 maxcatx[cat] = if _maxx > maxcatx[cat] then _maxx else maxcatx[cat]
                                                                 mincatx[cat] = if _minx < mincatx[cat] then _minx else mincatx[cat]
                                                                 maxcaty[cat] = if _maxy > maxcaty[cat] then _maxy else maxcaty[cat]
                                                                 mincaty[cat] = if _miny < mincaty[cat] then _miny else mincaty[cat]
-                                                        console.log avgx, avgy
                                                 )
                                                 .attr("cx", (d) -> d.x - avgx )
                                                 .attr("cy", (d) -> d.y - avgy )
@@ -757,24 +774,31 @@ class BubbleChart extends Backbone.View
                                         )
                                         if that.showSplit
                                                 for i in [1..7]
+                                                        radius = if (maxcaty[i]  - mincaty[i]) > (maxcatx[i] - mincatx[i]) then (maxcaty[i]  - mincaty[i]) else (maxcatx[i] - mincatx[i])
+                                                        radius = radius / 2 + 5
                                                         @svg.select("circle[data-category='#{i}']")
                                                             .attr("cx", (maxcatx[i] + mincatx[i])/2-avgx)
                                                             .attr("cy", (maxcaty[i] + mincaty[i])/2-avgy)
-                                                            .attr("r", (if (maxcaty[i]  - mincaty[i]) > (maxcatx[i] - mincatx[i]) then (maxcaty[i]  - mincaty[i]) else (maxcatx[i] - mincatx[i])) / 2 + 5 )
-                                                        @svg.select("text[data-category='#{i}']")
+                                                            .attr("r",  radius)
+                                                        @svg.selectAll("text[data-category='#{i}']")
                                                             .attr("x", (maxcatx[i] + mincatx[i])/2-avgx)
-                                                            .attr("y", (maxcaty[i] + mincaty[i])/2-avgy)
-                                                            .attr("dy", (if (maxcaty[i]  - mincaty[i]) > (maxcatx[i] - mincatx[i]) then (maxcaty[i]  - mincaty[i]) else (maxcatx[i] - mincatx[i])) / 2 + 5 )
+                                                            .attr("y", (maxcaty[i] + mincaty[i])/2-avgy + radius)
+
                                 ).start()
-                categories = [ [ 1, 'הביטחון והסדר הציבורי' ],
-                               [ 2, 'המשרדים המנהליים' ],
-                               [ 3, 'השירותים החברתיים' ],
-                               [ 4, 'ענפי המשק' ],
-                               [ 5, 'תשתיות ובינוי' ],
-                               [ 6, 'הוצאות מרכזיות אחרות' ],
-                               [ 7, 'רזרבות' ] ]
+                @initCategories()
+
+        initCategories: () ->
+                if @categories?
+                        return
+                @categories = [ [ 1, ['הביטחון','והסדר הציבורי' ]],
+                               [ 2, ['המשרדים','המנהליים' ]],
+                               [ 3, ['השירותים','החברתיים' ]],
+                               [ 4, [ 'ענפי המשק' ]],
+                               [ 5, [ 'תשתיות','ובינוי' ]],
+                               [ 6, [ 'הוצאות','מרכזיות','אחרות' ]],
+                               [ 7, [ 'רזרבות' ]] ]
                 @split_cats = @svg.append("svg:g")
-                @split_groups = @split_cats.selectAll("g").data(categories)
+                @split_groups = @split_cats.selectAll("g").data(@categories)
                         .enter()
                         .append("svg:g")
                         .classed("splitter",true)
@@ -789,19 +813,20 @@ class BubbleChart extends Backbone.View
                                 .style("stroke-dasharray","5,5")
                                 .style("opacity",0)
                                 .attr("data-category", (d) -> d[0])
-                @split_groups.append("text")
-                                .attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(0,0)scale(1)")
-                                .text((d) -> d[1])
-                                .attr("dy",1)
-                                .attr("width","100px")
-                                .attr("height","20px")
-                                .style("font-size", "1.2em")
-                                .style("stroke","#000")
-                                .attr("y",0)
-                                .attr("x",0)
-                                .style("opacity",0)
-                                .attr("text-anchor","middle")
-                                .attr("data-category", (d) -> d[0])
+                for i in [0..2]
+                        @split_groups.append("text")
+                                        .attr("transform","translate(#{@centerX},#{@centerY})rotate(0)translate(0,0)scale(1)")
+                                        .text((d) -> d[1][i])
+                                        .attr("dy",(1.0*(i+1))+"em")
+                                        .attr("width","100px")
+                                        .attr("height","20px")
+                                        .style("font-size", "1.2em")
+                                        .style("stroke","#000")
+                                        .attr("y",0)
+                                        .attr("x",0)
+                                        .style("opacity",0)
+                                        .attr("text-anchor","middle")
+                                        .attr("data-category", (d) -> d[0])
 
 
 state = { querys: [], selectedStory: null }
@@ -828,6 +853,7 @@ handleNewState = () ->
         query = "00"
         if not state.querys or state.querys.length == 0
                 state.querys = ["00"]
+        console.log "New state: ",state.querys
         if not state.selectedStory
                 state.selectedStory = { 'title':"כך נראה תקציב המדינה בשנתיים הקרובות",
                 'subtitle':null}
