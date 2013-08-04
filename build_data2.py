@@ -551,7 +551,7 @@ if __name__=="__main__":
             row = ['"%s"' % c,'"%s"' % ",".join(missing), '"%s"' % ",".join(extra)]
             sumerr.writerow(row)
             print "CODE: %s" % c
-            print "actual: %r, expected: %r, candidates: %r" % (actual_fields[c],expected_fields[c], all_candidates[c])
+            #print "actual: %r, expected: %r, candidates: %r" % (actual_fields[c],expected_fields[c], all_candidates[c])
             if len(missing) > 0:
                 print "\tMISSING: %r" % missing
             if len(extra) > 0:
