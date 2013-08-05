@@ -103,17 +103,22 @@ showTooltip = (d,xpos,ypos,that) ->
         d3.select("#tooltip .itemNumber").text(itemNumber)
         d3.select("#tooltip .explanation").html(getExplanation(d.sid,2014,d.name))
         if d.history
+                history_text = "XXX"
                 if d.history > 0
-                        d3.select("#tooltip .history")
-                                .text("מ2009 ההוצאות חורגות ב#{d.history}%+ בממוצע מהתכנון")
-                                .classed("plus",true)
-                                .classed("minus",false)
-                                .attr("data-categories","#{d.changeCategory}:#{d.projectedChangeCategory}")
+                        if that.income
+                                history_text = "מ2009 ההכנסות עברו ב#{d.history}%+ בממוצע את התחזית"
+                        else
+                                history_text = "מ2009 ההוצאות חורגות ב#{d.history}%+ בממוצע מהתכנון"
                 else if d.history < 0
+                        if that.income                                
+                                history_text = "מ-2009 בממוצע ההכנסות פספסו ב #{-d.history}% את התחזית"
+                        else
+                                history_text = "מ-2009 בממוצע #{-d.history}% מהתקציב אינו מנוצל"
+                if d.history != 0
                         d3.select("#tooltip .history")
-                                .text("מ-2009 בממוצע #{-d.history}% מהתקציב אינו מנוצל")
-                                .classed("plus",false)
-                                .classed("minus",true)
+                                .text(history_text)
+                                .classed("plus",d.history > 0)
+                                .classed("minus",d.history < 0)
                                 .attr("data-categories","#{d.changeCategory}:#{d.projectedChangeCategory}")
         else
                 d3.select("#tooltip .history").text("")
@@ -527,26 +532,26 @@ class BubbleChart extends Backbone.View
 
                 that = this
 
-                field = @model.get 'field'
+                @field = @model.get 'field'
+                @income = @field.indexOf("0000") == 0
+                @root = @field == "00" or @field == "0000"
         
                 $("div[data-id='#{@id}'] .btnSpend").css("display", "none")
                 $("div[data-id='#{@id}'] .btnIncome").css("display", "none")
                 $("div[data-id='#{@id}'] .splitter").css("display", "none")
 
-                if field.indexOf("0000") == 0
+                if @income
                         moreinfo = "הכנסות בפועל 2012 לעומת תחזית הכנסות 2014, שיעור השינוי הוא ריאלי"
                 else
                         moreinfo = "תקציב מקורי 2012 לעומת תקציב מקורי 2014, שיעור השינוי הוא ריאלי"
                 $("div[data-id='#{@id}'] .moreinfo").text(moreinfo)
                 
-                if field == "0000"
+                if @income and @root
                         $("div[data-id='#{@id}'] .btnSpend").css("display", "inherit")
                                 
-                if field == "00"
+                if (not @income) and @root
                         $("div[data-id='#{@id}'] .btnIncome").css("display", "inherit")
                         $("div[data-id='#{@id}'] .splitter").css("display", "inherit")
-                else
-                        console.log "LLL", field
         
                 @setBreadcrumbs = (dd = null) =>
                         bc = $("div[data-id='#{@id}'] .breadcrumbs")

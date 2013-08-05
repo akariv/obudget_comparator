@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <body>
 </body>
 </html>""" % { 'key': key, 'title' : title, 'description': description }
-    file("of/%s.html" % key,"w").write(html.encode('utf8'))
+    file("out/of/%s.html" % key,"w").write(html.encode('utf8'))
 
 if __name__=="__main__" and False:
     generated_diffs = [ #(2011, "net_allocated", 2011, "net_used", False),
@@ -572,7 +572,7 @@ if __name__=="__main__":
 
     diffs = dict(out_groups)
 
-    out = file('data.js','w')
+    out = file('out/data.js','w')
     out.write('budget_array_data = %s;\n' % json.dumps(diffs))
    
 
@@ -583,7 +583,7 @@ if __name__=="__main__":
         key = x[0]
         title = x[1]
         fn = 'images/large/%(url)s.jpg' % { 'url' : key }
-        cmd = "phantomjs images/rasterize.js 'http://localhost:8000/vis.html?%(url)s' m 'images/large/%(url)s.jpg'" % { 'url' : key }
-        imagesScript.write("if [ ! -f '%(fn)s.synced' ]; then %(cmd)s ; fi \n" % {'cmd': cmd,'fn':fn, 'wait': 4*i} )
+        cmd = "phantomjs images/rasterize.js 'http://localhost:8000/vis.html?%(url)s' m 'out/images/large/%(url)s.jpg'" % { 'url' : key }
+        imagesScript.write("if [ ! -f 'out/%(fn)s.synced' ]; then %(cmd)s ; fi \n" % {'cmd': cmd,'fn':fn, 'wait': 4*i} )
         writeProxyHtml( key, title ) 
 

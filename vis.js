@@ -136,7 +136,7 @@
   globalTooltipShown = false;
 
   showTooltip = function(d, xpos, ypos, that) {
-    var bcodes, itemNumber, pctchngout, svgPos, tail;
+    var bcodes, history_text, itemNumber, pctchngout, svgPos, tail;
     if (!globalTooltipItem) {
       d3.select("#tooltip").style('display', 'none');
       globalTooltipShown = false;
@@ -183,10 +183,22 @@
     d3.select("#tooltip .itemNumber").text(itemNumber);
     d3.select("#tooltip .explanation").html(getExplanation(d.sid, 2014, d.name));
     if (d.history) {
+      history_text = "XXX";
       if (d.history > 0) {
-        d3.select("#tooltip .history").text("מ2009 ההוצאות חורגות ב" + d.history + "%+ בממוצע מהתכנון").classed("plus", true).classed("minus", false).attr("data-categories", "" + d.changeCategory + ":" + d.projectedChangeCategory);
+        if (that.income) {
+          history_text = "מ2009 ההכנסות עברו ב" + d.history + "%+ בממוצע את התחזית";
+        } else {
+          history_text = "מ2009 ההוצאות חורגות ב" + d.history + "%+ בממוצע מהתכנון";
+        }
       } else if (d.history < 0) {
-        d3.select("#tooltip .history").text("מ-2009 בממוצע " + (-d.history) + "% מהתקציב אינו מנוצל").classed("plus", false).classed("minus", true).attr("data-categories", "" + d.changeCategory + ":" + d.projectedChangeCategory);
+        if (that.income) {
+          history_text = "מ-2009 בממוצע ההכנסות פספסו ב " + (-d.history) + "% את התחזית";
+        } else {
+          history_text = "מ-2009 בממוצע " + (-d.history) + "% מהתקציב אינו מנוצל";
+        }
+      }
+      if (d.history !== 0) {
+        d3.select("#tooltip .history").text(history_text).classed("plus", d.history > 0).classed("minus", d.history < 0).attr("data-categories", "" + d.changeCategory + ":" + d.projectedChangeCategory);
       }
     } else {
       d3.select("#tooltip .history").text("");
@@ -466,7 +478,7 @@
               return __iced_deferrals.ret = arguments[0];
             };
           })(),
-          lineno: 267
+          lineno: 272
         })), 100);
         __iced_deferrals._fulfill();
       })(function() {
@@ -767,7 +779,7 @@
               return __iced_deferrals.ret = arguments[0];
             };
           })(),
-          lineno: 478
+          lineno: 483
         })), 100);
         __iced_deferrals._fulfill();
       })(function() {
@@ -829,7 +841,7 @@
                   return __iced_deferrals.ret = arguments[0];
                 };
               })(),
-              lineno: 517
+              lineno: 522
             })), 100);
             __iced_deferrals._fulfill();
           })(function() {
@@ -845,27 +857,27 @@
     };
 
     BubbleChart.prototype.render = function() {
-      var chartContainer, container, field, frame, moreinfo, overlay, resizeFrame, tagClicked, tags, that,
+      var chartContainer, container, frame, moreinfo, overlay, resizeFrame, tagClicked, tags, that,
         _this = this;
       that = this;
-      field = this.model.get('field');
+      this.field = this.model.get('field');
+      this.income = this.field.indexOf("0000") === 0;
+      this.root = this.field === "00" || this.field === "0000";
       $("div[data-id='" + this.id + "'] .btnSpend").css("display", "none");
       $("div[data-id='" + this.id + "'] .btnIncome").css("display", "none");
       $("div[data-id='" + this.id + "'] .splitter").css("display", "none");
-      if (field.indexOf("0000") === 0) {
+      if (this.income) {
         moreinfo = "הכנסות בפועל 2012 לעומת תחזית הכנסות 2014, שיעור השינוי הוא ריאלי";
       } else {
         moreinfo = "תקציב מקורי 2012 לעומת תקציב מקורי 2014, שיעור השינוי הוא ריאלי";
       }
       $("div[data-id='" + this.id + "'] .moreinfo").text(moreinfo);
-      if (field === "0000") {
+      if (this.income && this.root) {
         $("div[data-id='" + this.id + "'] .btnSpend").css("display", "inherit");
       }
-      if (field === "00") {
+      if ((!this.income) && this.root) {
         $("div[data-id='" + this.id + "'] .btnIncome").css("display", "inherit");
         $("div[data-id='" + this.id + "'] .splitter").css("display", "inherit");
-      } else {
-        console.log("LLL", field);
       }
       this.setBreadcrumbs = function(dd) {
         var actual_querys, bc, depth, link, mshLinkCode, query, title, _i, _j, _len, _len1, _ref2;
