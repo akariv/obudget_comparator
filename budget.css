@@ -747,7 +747,7 @@ Version: @@ver@@ Timestamp: @@timestamp@@
   background: url('images/icon_income.png') no-repeat;
   display: block !important;
   height: 17px;
-  width: 20px;
+  width: 21px;
 }
 .icon-expense {
   background: url('images/icon_expense.png') no-repeat;
@@ -1103,6 +1103,17 @@ disabled look for disabled choices in the results dropdown
   }
   .select2-search input {
     background-position: 100% -21px !important;
+  }
+  .icon-income {
+    background-image: url('images/icon_income@2x.png') !important;
+  }
+  .icon-expense {
+    background-image: url('images/icon_expense@2x.png') !important;
+  }
+  .icon-income,
+  .icon-expense {
+    background-repeat: no-repeat !important;
+    background-size: 100% 100% !important;
   }
 }
 /**

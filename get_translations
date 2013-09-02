@@ -3,3 +3,4 @@ curl "https://docs.google.com/spreadsheet/pub?key=0AurnydTPSIgUdDhsZXRrckM5c1ByM
 curl "https://docs.google.com/spreadsheet/pub?key=0Ahv_cBzJeixMdGhkc1ZkUzVKZFJyN0d2RXZoUm1ZZlE&single=true&gid=0&output=csv" -o links.csv
 curl "http://spreadsheets.google.com/feeds/cells/0AurnydTPSIgUdEd1V0tINEVIRHQ3dGNSeUpfaHY3Q3c/od6/public/basic?alt=json" -o out/_stories.json
 curl "http://spreadsheets.google.com/feeds/cells/0AqR1sqwm6uPwdDJ3MGlfU0tDYzR5a1h0MXBObWhmdnc/1/public/basic?alt=json" -o out/_explanations.json
+curl "https://www.google.com/fusiontables/exporttable?query=select+*+from+1wjjD9Asv7n-n7b-fzmknihNctjgVmtB_ltsNLPs" -o languages.csv

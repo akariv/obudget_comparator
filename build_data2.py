@@ -450,6 +450,15 @@ def get_prev_value(code,candidates,field):
     prev_value = sum([x[field] for x in candidates])
     return prev_value
 
+def get_languages():
+    _languages = csv.DictReader(file("languages.csv"))
+    for x in _languages:
+        del x['code']
+    languages = ((x['title-he'],x) for i,x in _languages)
+    languages = dict(languages)
+    return languages
+    
+
 if __name__=="__main__":
 
     toremove_prefixes = [ "0089", "0095", "0098", "0000", "0094" ]
